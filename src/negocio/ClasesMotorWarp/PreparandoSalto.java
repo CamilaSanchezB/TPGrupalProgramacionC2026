@@ -1,4 +1,4 @@
-package ar.edu.unmdp.startrek.negocio.clasesMotorWarp;
+package negocio;
 
 public class PreparandoSalto implements  EstadoMotor {
     @Override
