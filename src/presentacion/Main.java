@@ -1,4 +1,4 @@
-package ar.edu.unmdp.startrek.presentacion;
+package presentacion;
 
 import ar.edu.unmdp.startrek.negocio.Bitacora;
 import ar.edu.unmdp.startrek.negocio.clasesMotorWarp.EstadoMotor;
