@@ -1,4 +1,4 @@
-package ar.edu.unmdp.startrek.negocio;
+package ar.edu.unmdp.startrek.negocio.clasesMotorWarp;
 
 public class EnWarp implements  EstadoMotor{
     @Override

@@ -1,8 +1,8 @@
 package ar.edu.unmdp.startrek.presentacion;
 
 import ar.edu.unmdp.startrek.negocio.Bitacora;
-import ar.edu.unmdp.startrek.negocio.EstadoMotor;
-import ar.edu.unmdp.startrek.negocio.MotorWarp;
+import ar.edu.unmdp.startrek.negocio.clasesMotorWarp.EstadoMotor;
+import ar.edu.unmdp.startrek.negocio.clasesMotorWarp.MotorWarp;
 
 public class Main {
     public static void main( String[] args){

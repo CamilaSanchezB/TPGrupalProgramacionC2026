@@ -1,4 +1,7 @@
-package ar.edu.unmdp.startrek.negocio;
+package ar.edu.unmdp.startrek.negocio.clasesMotorWarp;
+
+import ar.edu.unmdp.startrek.negocio.Bitacora;
+//import ar.edu.unmdp.startrek.negocio.clasesMotorWarp.Disponible;
 
 public class MotorWarp {
     private EstadoMotor estadoActual;

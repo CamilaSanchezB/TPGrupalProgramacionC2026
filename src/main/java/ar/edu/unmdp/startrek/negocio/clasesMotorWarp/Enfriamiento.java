@@ -1,4 +1,6 @@
-package ar.edu.unmdp.startrek.negocio;
+package ar.edu.unmdp.startrek.negocio.clasesMotorWarp;
+
+//import ar.edu.unmdp.startrek.negocio.clasesMotorWarp.MotorWarp.Disponible;
 
 public class Enfriamiento implements  EstadoMotor{
     @Override
