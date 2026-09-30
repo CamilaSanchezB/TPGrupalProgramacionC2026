@@ -1,6 +1,9 @@
 package negocio.nave;
+import java.util.ArrayList;
+import datos.tripulantes.Tripulante;
 
 public abstract class Nave {
+    private ArrayList<Tripulante> tripulantes;
     protected int combustible;
     protected int energia;
 
