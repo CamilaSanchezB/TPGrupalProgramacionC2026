@@ -1,4 +1,4 @@
-package ar.edu.unmdp.startrek.presentacion;
+package presentacion;
 
 public class Main {
     public void main(){
