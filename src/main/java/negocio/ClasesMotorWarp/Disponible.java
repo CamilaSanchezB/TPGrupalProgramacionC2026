@@ -1,4 +1,4 @@
-package ar.edu.unmdp.startrek.negocio.clasesMotorWarp;
+package negocio.ClasesMotorWarp;
 
 public class Disponible implements EstadoMotor{
     @Override

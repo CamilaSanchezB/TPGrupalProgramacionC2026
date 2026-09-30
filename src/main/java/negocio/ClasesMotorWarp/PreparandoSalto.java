@@ -1,4 +1,4 @@
-package negocio;
+package negocio.ClasesMotorWarp;
 
 public class PreparandoSalto implements  EstadoMotor {
     @Override
