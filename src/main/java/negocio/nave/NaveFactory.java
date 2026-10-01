@@ -1,4 +1,4 @@
-package negocio.nave;
+package main.java.negocio.nave;
 
 public class NaveFactory {
     public Nave crearNave(String tipo) {

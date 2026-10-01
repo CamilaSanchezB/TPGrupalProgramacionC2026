@@ -1,8 +1,8 @@
-package negocio.nave;
+package main.java.negocio.nave;
 
 public class NaveCarguero extends Nave{
-	public NaveCarguero(int combustibleMax, int energiaMax, int desgaste) {
-		super(combustibleMax, energiaMax, desgaste);
+	protected NaveCarguero(int combustibleIni, int energiaIni, int desgaste) {
+		super(combustibleIni, energiaIni, desgaste);
 	}
 
 	@Override
