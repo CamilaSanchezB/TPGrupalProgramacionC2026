@@ -12,13 +12,21 @@ classDiagram
         -desgaste: int
         +asignarTripulante(t: Tripulante): void
         +cargarCombustible(cant: int): void
+        +consumirCombustible(cant: int): void
         +cargarEnergia(cant: int): void
+        +consumirEnergia(cant: int): void
         +realizarMantenimiento(): void
     }
 
     class MotorWarp {
-        -estadoActual: EstadoWarp
-        +cambiarEstado(nuevoEstado: EstadoWarp): void
+        -estadoActual: EstadoMotor
+        -bitacora: Bitacora
+        -getEstadoActual: EstadoMotor
+        +setEstado(nuevoEstado: EstadoMotor): void
+        +prepararSalto(nuevoEstado: EstadoMotor): void
+        +entrarEnWarp(nuevoEstado: EstadoMotor): void
+        +iniciarEnfriamiento(nuevoEstado: EstadoMotor): void
+        +estarDisponible(nuevoEstado: EstadoMotor): void
     }
 
     class Tripulante {
@@ -26,8 +34,9 @@ classDiagram
         -nombre: String
         -cargo: String
         -origen: String
+        #remuneracion: double
+        #porcentajeAntiguedad: double
         -antiguedad: int
-        -habilidad: int
         +asignarNave(n: Nave): void
         +calcularHaberes(): double
     }
@@ -38,9 +47,9 @@ classDiagram
     }
 
     class Bitacora {
-        -eventos: List~Evento~
-        +registrarEvento(descripcion: String): void
-        +consultarEventos(): List~Evento~
+        -bitacora: List~Evento~
+        +agregarEvento(evento: String): void
+        +mostrarBitacora(): List~Evento~
     }
 
     class Mision {
