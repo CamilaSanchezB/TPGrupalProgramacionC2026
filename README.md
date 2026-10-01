@@ -1,3 +1,5 @@
+#Diagrama de clases UML:
+
 ```mermaid
 classDiagram
     class Nave {
@@ -12,16 +14,6 @@ classDiagram
         +cargarCombustible(cant: int): void
         +cargarEnergia(cant: int): void
         +realizarMantenimiento(): void
-    }
-
-    class NaveExploradora {
-        %% Atributos o métodos específicos si los hay
-    }
-    class NaveCarguero {
-        %% Atributos o métodos específicos si los hay
-    }
-    class NaveCombate {
-        %% Atributos o métodos específicos si los hay
     }
 
     class MotorWarp {
@@ -63,11 +55,6 @@ classDiagram
         +cerrar(): void
         +generarInforme(): InformeMision
     }
-
-    %% Relación de Herencia: Las subclases heredan de Nave
-    Nave <|-- NaveExploradora
-    Nave <|-- NaveCarguero
-    Nave <|-- NaveCombate
 
     Nave *-- MotorWarp : contiene
     Nave *-- AsistenteComando : contiene
