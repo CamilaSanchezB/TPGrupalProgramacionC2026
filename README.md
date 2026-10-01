@@ -66,7 +66,6 @@ classDiagram
     }
 
     Nave *-- MotorWarp : contiene
-    Nave *-- AsistenteComando : contiene
     Nave *-- Bitacora : contiene
     Nave o-- Tripulante : tripulada por
     AsistenteComando ..> Mision : coordina
