@@ -1,6 +1,7 @@
-package main.java.negocio.nave;
+package negocio.nave;
 import java.util.ArrayList;
 import datos.tripulantes.Tripulante;
+import negocio.Bitacora;
 import negocio.ClasesMotorWarp.MotorWarp;
 
 public abstract class Nave {
@@ -8,6 +9,7 @@ public abstract class Nave {
     public static final int maxEnergia = 100;
     private ArrayList<Tripulante> tripulantes;
     private MotorWarp motorWarp;
+    private Bitacora bitacora;
     protected int combustible;
     protected int energia;
     protected int desgaste;
@@ -16,6 +18,8 @@ public abstract class Nave {
         this.combustible = combustibleIni;
         this.energia = energiaIni;
         this.desgaste = desgaste;
+        this.bitacora = new Bitacora();
+        this.motorWarp = new MotorWarp(bitacora);
     }
 
     public void cargarCombustible(int cantidad){
@@ -52,5 +56,18 @@ public abstract class Nave {
     }
     public  void realizarMantenimiento(){
         this.desgaste = 0;
+    }
+
+    public void prepararSalto() {
+        motorWarp.prepararSalto();
+    }
+    public void entrarEnWarp() {
+        motorWarp.entrarEnWarp();
+    }
+    public void iniciarEnfriamiento() {
+        motorWarp.iniciarEnfriamiento();
+    }
+    public void estarDisponible() {
+        motorWarp.estarDisponible();
     }
 }

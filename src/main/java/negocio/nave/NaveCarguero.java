@@ -1,12 +1,28 @@
-package main.java.negocio.nave;
+package negocio.nave;
+import datos.tripulantes.Tripulante;
 
 public class NaveCarguero extends Nave{
 	protected NaveCarguero(int combustibleIni, int energiaIni, int desgaste) {
 		super(combustibleIni, energiaIni, desgaste);
 	}
 
-	@Override
-	public void ejecutarMision() {
-		System.out.println("Transportando carga.");
+	public void cargarCombustible(int cantidad){
+		super.cargarCombustible(cantidad);
+	}
+	public void consumirCombustible(int cantidad){
+		super.consumirCombustible(cantidad);
+	}
+
+	public void cargarEnergia(int cantidad){
+		super.cargarEnergia(cantidad);
+	}
+	public void consumirEnergia(int cantidad){
+		super.consumirEnergia(cantidad);
+	}
+	public void asignarTripulante(Tripulante t){
+		super.asignarTripulante(t);
+	}
+	public  void realizarMantenimiento(){
+		super.realizarMantenimiento();
 	}
 }

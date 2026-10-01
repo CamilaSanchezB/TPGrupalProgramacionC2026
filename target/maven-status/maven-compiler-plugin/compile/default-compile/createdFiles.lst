@@ -1,4 +1,5 @@
 datos\tripulantes\Prueba.class
+negocio\ClasesMotorWarp\PreparandoSalto.class
 negocio\Bitacora.class
 datos\tripulantes\ConceptoHaber.class
 datos\tripulantes\Marciano.class
@@ -17,9 +18,14 @@ negocio\InformeMision.class
 presentacion\Main.class
 negocio\nave\NaveFactory.class
 datos\tripulantes\Teniente.class
+negocio\ClasesMotorWarp\Disponible.class
 datos\tripulantes\Tripulante.class
 datos\tripulantes\Vulcano.class
+negocio\ClasesMotorWarp\EstadoMotor.class
 datos\package-info.class
 datos\tripulantes\Decorator.class
 datos\tripulantes\Capitan.class
+negocio\ClasesMotorWarp\EnWarp.class
+negocio\ClasesMotorWarp\MotorWarp.class
 presentacion\package-info.class
+negocio\ClasesMotorWarp\Enfriamiento.class
