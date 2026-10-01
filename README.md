@@ -14,17 +14,6 @@ classDiagram
         +realizarMantenimiento(): void
     }
 
-classDiagram
-    class Nave {
-        -id: int
-        -nombre: String
-        -masa: double
-        -combustible: int
-        -energia: int
-        -desgaste: int
-        +asignarTripulante(t: Tripulante): void
-    }
-
     class NaveExploradora {
         %% Atributos o métodos específicos si los hay
     }
