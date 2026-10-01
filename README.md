@@ -61,4 +61,6 @@ classDiagram
     Nave *-- Bitacora : contiene
     Nave o-- Tripulante : tripulada por
     AsistenteComando ..> Mision : coordina
+    AsistenteComando ..> Bitacora : edita
+    AsistenteComando --> Nave : coordina
 ```
