@@ -14,6 +14,27 @@ classDiagram
         +realizarMantenimiento(): void
     }
 
+classDiagram
+    class Nave {
+        -id: int
+        -nombre: String
+        -masa: double
+        -combustible: int
+        -energia: int
+        -desgaste: int
+        +asignarTripulante(t: Tripulante): void
+    }
+
+    class NaveExploradora {
+        %% Atributos o métodos específicos si los hay
+    }
+    class NaveCarguero {
+        %% Atributos o métodos específicos si los hay
+    }
+    class NaveCombate {
+        %% Atributos o métodos específicos si los hay
+    }
+
     class MotorWarp {
         -estadoActual: EstadoWarp
         +cambiarEstado(nuevoEstado: EstadoWarp): void
@@ -53,6 +74,11 @@ classDiagram
         +cerrar(): void
         +generarInforme(): InformeMision
     }
+
+    %% Relación de Herencia: Las subclases heredan de Nave
+    Nave <|-- NaveExploradora
+    Nave <|-- NaveCarguero
+    Nave <|-- NaveCombate
 
     Nave *-- MotorWarp : contiene
     Nave *-- AsistenteComando : contiene
