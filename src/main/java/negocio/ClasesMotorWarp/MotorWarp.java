@@ -17,7 +17,7 @@ public class MotorWarp {
      * Solo lo invocan los estados
      * PRE: nuevoEstado != null
      */
-    void setEstado(EstadoMotorBase nuevoEstado) {
+    public void setEstado(EstadoMotorBase nuevoEstado) {
         if (nuevoEstado == null)
             throw new IllegalArgumentException("El estado no puede ser nulo");
         this.estadoActual = nuevoEstado;
