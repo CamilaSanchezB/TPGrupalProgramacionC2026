@@ -1,7 +1,7 @@
 package negocio.ClasesMotorWarp;
 // La implementacion de esta clase es para que no haya un metodo de rechazo general en todos los estados
 
-public abstract class EstadoMotorBase implements EstadoMotor {
+public abstract class EstadoMotorBase{
 
     /**
      * @param accion Accion del motor que fallo
@@ -12,28 +12,29 @@ public abstract class EstadoMotorBase implements EstadoMotor {
         throw new IllegalStateException(
                 "Transicion invalida: no se puede " + accion + " en estado " + getNombreEstado());
     }
-    @Override public void prepararSalto(MotorWarp motor) {
+    public void prepararSalto(MotorWarp motor) {
         rechazar("preparar salto");
     }
 
-    @Override public void entrarEnWarp(MotorWarp motor) {
+    public void entrarEnWarp(MotorWarp motor) {
         rechazar("entrar en warp");
     }
 
-    @Override public void terminarSalto(MotorWarp motor) {
+    public void terminarSalto(MotorWarp motor) {
         rechazar("terminar salto");
     }
 
-    @Override public void iniciarEnfriamiento(MotorWarp motor) {
+    public void iniciarEnfriamiento(MotorWarp motor) {
         rechazar("iniciar enfriamiento");
     }
 
-    @Override public void estarDisponible(MotorWarp motor) {
+    public void estarDisponible(MotorWarp motor) {
         rechazar("volver a disponible");
     }
 
-    @Override public boolean permitirOperar() {
+    public boolean permitirOperar() {
         return false;
     }
 
+    public abstract String getNombreEstado();
 }

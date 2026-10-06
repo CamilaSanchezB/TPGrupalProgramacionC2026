@@ -4,7 +4,7 @@ package negocio.ClasesMotorWarp;
  * INV: estadoActual!= null
  */
 public class MotorWarp {
-    private EstadoMotor estadoActual;
+    private EstadoMotorBase estadoActual;
 
     /**
      * POST: el motor queda en estado Disponible
@@ -17,13 +17,13 @@ public class MotorWarp {
      * Solo lo invocan los estados
      * PRE: nuevoEstado != null
      */
-    void setEstado(EstadoMotor nuevoEstado) {
+    void setEstado(EstadoMotorBase nuevoEstado) {
         if (nuevoEstado == null)
             throw new IllegalArgumentException("El estado no puede ser nulo");
         this.estadoActual = nuevoEstado;
     }
 
-    public EstadoMotor getEstadoActual() {
+    public EstadoMotorBase getEstadoActual() {
         return estadoActual;
     }
 
