@@ -1,7 +1,7 @@
 package negocio.nave;
 import java.util.ArrayList;
 import datos.tripulantes.Tripulante;
-import negocio.Bitacora;
+import datos.Bitacora;
 import negocio.ClasesMotorWarp.MotorWarp;
 
 public abstract class Nave {

@@ -1,6 +1,6 @@
 package negocio.ClasesMotorWarp;
 
-import negocio.Bitacora;
+import datos.Bitacora;
 //import ar.edu.unmdp.startrek.negocio.clasesMotorWarp.Disponible;
 
 public class MotorWarp {

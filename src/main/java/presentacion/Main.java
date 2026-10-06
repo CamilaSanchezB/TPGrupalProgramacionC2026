@@ -1,6 +1,6 @@
 package presentacion;
 
-import negocio.Bitacora;
+import datos.Bitacora;
 import negocio.ClasesMotorWarp.EstadoMotor;
 import negocio.ClasesMotorWarp.MotorWarp;
 
