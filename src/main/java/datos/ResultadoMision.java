@@ -1,4 +1,4 @@
-package negocio;
+package datos;
 /**
  * Resultado final de una misión:
  * EXITOSA (cumplió su objetivo y la nave saltó), RECHAZADA (no se pudo preparar,

@@ -1,4 +1,4 @@
-package negocio.ClasesMotorWarp;
+package datos.ClasesMotorWarp;
 
 public class PreparandoSalto extends EstadoMotorBase {
     @Override

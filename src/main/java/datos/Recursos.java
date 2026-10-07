@@ -1,4 +1,4 @@
-package negocio;
+package datos;
 
 /**
  * INV: 0 <= combustible <= 100, 0 <= energia <= 100, 0 <= desgaste <= 100

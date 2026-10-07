@@ -1,7 +1,8 @@
 package negocio;
 
 import datos.Bitacora;
-import negocio.nave.Nave;
+import datos.OperacionRechazadaException;
+import datos.nave.Nave;
 
 /**
  * Único canal de acceso a la nave. Un asistente, una nave.

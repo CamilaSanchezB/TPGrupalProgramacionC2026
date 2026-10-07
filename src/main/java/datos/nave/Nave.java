@@ -1,12 +1,12 @@
-package negocio.nave;
+package datos.nave;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import datos.tripulantes.Tripulante;
-import negocio.Recursos;
-import negocio.ClasesMotorWarp.MotorWarp;
+import datos.Recursos;
+import datos.ClasesMotorWarp.MotorWarp;
 
 /**
  * INV: motorWarp, recursos y tripulantes nunca son null (se asignan una sola vez, en el constructor)

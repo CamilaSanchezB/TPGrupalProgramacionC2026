@@ -1,4 +1,7 @@
-package negocio;
+package datos;
+
+import negocio.AsistenteDeComando;
+
 /**
  * M-03 Retorno seguro.
  *

@@ -1,4 +1,4 @@
-package negocio;
+package datos;
 //Lo que la mision necesita y consume
 /**
  * INV: combustible >= 0, energia >= 0 y desgaste >= 0
