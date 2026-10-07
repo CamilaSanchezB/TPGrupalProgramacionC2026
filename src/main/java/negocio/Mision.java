@@ -6,7 +6,6 @@ import java.util.ArrayList;
  * Misión genérica de la nave. Aplica Template Method: realizar() fija el orden
  * preparar -> ejecutarAccion -> evaluar -> cerrar y las subclases solo completan los
  * pasos propios (cumplirObjetivo y cumplioObjetivo).
- *
  * INV: nombre, asistenteDeComando, requisitos, acciones y observaciones nunca son null
  * INV: etapa nunca es null y avanza solo en el orden
  *      CREADA -> PREPARADA -> EJECUTADA -> EVALUADA -> CERRADA
@@ -186,7 +185,7 @@ public abstract class Mision{
      */
     private void cerrar(){
         //PRE: el resultado ya tiene que estar decidido
-        assert resultado != null : "No se puede cerrar una mision sin resultado"
+        assert resultado != null : "No se puede cerrar una mision sin resultado";
 
         if (resultado == ResultadoMision.EXITOSA) {
             boolean salto = asistenteDeComando.prepararSalto() && asistenteDeComando.saltar();
