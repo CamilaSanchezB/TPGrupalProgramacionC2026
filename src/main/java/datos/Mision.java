@@ -25,7 +25,7 @@ public abstract class Mision{
     private final Requisitos requisitos;
     private EtapaMision etapa;
     private ResultadoMision resultado;
-    private RecursosIniciales recursosIniciales;
+    private Recursos recursosIniciales;
     private final List<String> acciones;
     private String observaciones;
     private InformeMision informe;
@@ -105,7 +105,7 @@ public abstract class Mision{
         }
 
         //Guardamos los recursos iniciales, nos servira para obtener el informe final.
-        recursosIniciales= new RecursosIniciales(
+        recursosIniciales= new Recursos(
                 asistenteDeComando.getCombustible(),
                 asistenteDeComando.getEnergia(),
                 asistenteDeComando.getDesgaste()
