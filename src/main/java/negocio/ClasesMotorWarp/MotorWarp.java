@@ -53,5 +53,12 @@ public class MotorWarp {
     public void terminarSalto() {
         estadoActual.terminarSalto(this);
     }
+
+    /**
+    * @return true si el estado actual es Disponible
+    */
+    public boolean estaDisponible() {
+        return estadoActual.estaDisponible();
+    }
 }
 

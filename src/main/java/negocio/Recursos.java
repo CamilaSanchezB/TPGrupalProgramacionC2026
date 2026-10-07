@@ -99,4 +99,18 @@ public class Recursos {
     public boolean puedeConsumir(int combustible, int energia, int desgaste) {
         return puedeConsumirCombustible(combustible) && puedeConsumirEnergia(energia) && puedeDesgastar(desgaste);
     }
+    /**
+    * @return true si cantidad > 0 y la carga no supera CAPACIDAD_MAXIMA. No modifica nada.
+    */
+    public boolean puedeCargarCombustible(int cantidad) {
+        return cantidad > 0 && combustible <= CAPACIDAD_MAXIMA - cantidad;
+    }
+
+    /**
+     * @return true si cantidad > 0 y la carga no supera CAPACIDAD_MAXIMA. No modifica nada.
+     */
+    public boolean puedeCargarEnergia(int cantidad) {
+        return cantidad > 0 && energia <= CAPACIDAD_MAXIMA - cantidad;
+    }
+    
 }

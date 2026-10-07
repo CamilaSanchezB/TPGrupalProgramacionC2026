@@ -37,4 +37,8 @@ public abstract class EstadoMotorBase{
     }
 
     public abstract String getNombreEstado();
+
+    public boolean estaDisponible() {
+        return false;
+}
 }
