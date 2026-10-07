@@ -8,11 +8,16 @@ public class Consejero extends Tripulante {
     private int cantidadConsejos;
     private double importePorConsejo;
 
-    public Consejero(String nombre, int antiguedad) {
-        super(nombre, antiguedad, 600, 0.05);
-        cargo = "Consejero";
-        this.cantidadConsejos = 0;
+    public Consejero(String nombre, int antiguedad, int cantidadConsejos) {
+        super(nombre, antiguedad, 600, 0.05, "Consejero");
+        this.cantidadConsejos = cantidadConsejos;
         this.importePorConsejo = 2;
+    }
+    public Consejero(String nombre, int antiguedad) {
+        this(nombre, antiguedad, 0);
+    }
+    public Consejero(String nombre){
+        this(nombre, 0);
     }
 
     public int getCantidadConsejos() {

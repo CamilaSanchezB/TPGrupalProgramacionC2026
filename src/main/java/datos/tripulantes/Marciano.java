@@ -6,26 +6,20 @@ import java.util.List;
 
 public class Marciano extends Decorator {
 
-    public Marciano(Tripulante tripulante, double subsidio) {
-        super(tripulante, subsidio);
-        validarOrigenNoAsignado(tripulante);
+    public Marciano(Tripulante tripulante) {
+        super(tripulante);
         origen = "Marciano"; //origen de marciano? o tripulante.origen = marciano?
     }
 
     @Override
-    public String getOrigen() {
-        return origen;
-    }
-
-    @Override
     public double calcularSueldo() {
-        return tripulante.calcularSueldo() + subsidio;
+        return tripulante.calcularSueldo() + 18;
     }
 
     @Override
     public List<ConceptoHaber> getListaConceptos() {
         List<ConceptoHaber> conceptos = new ArrayList<>(tripulante.getListaConceptos());
-        conceptos.add(new ConceptoHaber("Subsidio por origen (" + origen + ")", subsidio));
+        conceptos.add(new ConceptoHaber("Subsidio por origen (" + origen + ")", 18));
         return conceptos;
     }
 }
