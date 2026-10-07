@@ -1,24 +1,19 @@
 package negocio.ClasesMotorWarp;
 
-public class EnWarp implements  EstadoMotor{
-    @Override
-    public void prepararSalto(MotorWarp motor) {
-        throw new IllegalStateException("Inválido: El motor ya está en Warp.");
-    }
-
-    @Override
-    public void entrarEnWarp(MotorWarp motor) {
-        throw new IllegalStateException("Inválido: Ya se encuentra en Warp.");
-    }
-
+public class EnWarp extends EstadoMotorBase{
     @Override
     public void iniciarEnfriamiento(MotorWarp motor) {
         motor.setEstado(new Enfriamiento());
     }
 
     @Override
-    public void estarDisponible(MotorWarp motor) {
-        throw new IllegalStateException("Inválido: Debe enfriarse antes de estar disponible.");
+    public void terminarSalto(MotorWarp motor) {
+        motor.setEstado(new Disponible());
+    }
+
+    @Override
+    public boolean permitirOperar() {
+        return true;
     }
 
     @Override

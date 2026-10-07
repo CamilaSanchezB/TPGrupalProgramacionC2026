@@ -3,6 +3,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Informe final de una misión. No imprime nada: solo ofrece datos.
+ *
+ * INV: nombreMision, resultado, acciones y observaciones nunca son null
+ * INV: combustibleConsumido >= 0, energiaConsumida >= 0 y desgasteGenerado >= 0
+ * INV: 0 <= combustibleFinal, energiaFinal, desgasteFinal <= 100
+ * INV: es inmutable: ningún dato (ni la lista de acciones) puede modificarse después de creado
+ */
 
 public class InformeMision{
     private final String nombreMision;

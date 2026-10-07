@@ -1,16 +1,39 @@
 package negocio.nave;
 import java.util.ArrayList;
 import datos.tripulantes.Tripulante;
+import datos.Bitacora;
+import negocio.ClasesMotorWarp.MotorWarp;
+import negocio.Recursos;
 
 public abstract class Nave {
     private ArrayList<Tripulante> tripulantes;
-    protected int combustible;
-    protected int energia;
+    private MotorWarp motorWarp;
+    private Bitacora bitacora;
+    private Recursos recursos;
 
-    public Nave(int combustibleMax, int energiaMax) {
-        this.combustible = combustibleMax;
-        this.energia = energiaMax;
+    protected Nave(int combustibleIni, int energiaIni, int desgaste) {
+        this.bitacora = new Bitacora();
+        this.motorWarp = new MotorWarp();
+        this.recursos = new Recursos(combustibleIni, energiaIni, desgaste);
     }
 
-    public abstract void ejecutarMision();
+    public void asignarTripulante(Tripulante t){
+        if (t != null)
+            tripulantes.add(t);
+        else
+            throw new IllegalArgumentException("tripulante invalido");
+    }
+
+    public void prepararSalto() {
+        motorWarp.prepararSalto();
+    }
+    public void entrarEnWarp() {
+        motorWarp.entrarEnWarp();
+    }
+    public void iniciarEnfriamiento() {
+        motorWarp.iniciarEnfriamiento();
+    }
+    public void estarDisponible() {
+        motorWarp.estarDisponible();
+    }
 }

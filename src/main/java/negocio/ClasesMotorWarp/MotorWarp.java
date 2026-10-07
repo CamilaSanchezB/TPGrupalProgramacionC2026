@@ -1,29 +1,43 @@
 package negocio.ClasesMotorWarp;
 
-import negocio.Bitacora;
-//import ar.edu.unmdp.startrek.negocio.clasesMotorWarp.Disponible;
-
+/**
+ * INV: estadoActual!= null
+ */
 public class MotorWarp {
-    private EstadoMotor estadoActual;
-    private Bitacora bitacora;
+    private EstadoMotorBase estadoActual;
 
-    public MotorWarp(Bitacora bitacora) {
-        this.bitacora = bitacora;
+    /**
+     * POST: el motor queda en estado Disponible
+     */
+    public MotorWarp() {
         this.estadoActual = new Disponible();
-        this.bitacora.agregarEvento("motor warp cambia a: " + this.estadoActual.getNombreEstado());
     }
 
-    public void setEstado(EstadoMotor nuevoEstado) {
+    /**
+     * Solo lo invocan los estados
+     * PRE: nuevoEstado != null
+     */
+    public void setEstado(EstadoMotorBase nuevoEstado) {
+        if (nuevoEstado == null)
+            throw new IllegalArgumentException("El estado no puede ser nulo");
         this.estadoActual = nuevoEstado;
-        this.bitacora.agregarEvento("motor warp cambia a: " + nuevoEstado.getNombreEstado());
-
     }
 
-    public EstadoMotor getEstadoActual() {
+    public EstadoMotorBase getEstadoActual() {
         return estadoActual;
     }
 
-    //delega la acción al estado actual
+    /**
+     * @return true si el estado actual permite iniciar una operación
+     */
+    public boolean puedeOperar() {
+        return estadoActual.permitirOperar();
+    }
+
+    /**
+     * Cada acción:
+     * POST: cambia de estado.
+     */
     public void prepararSalto() {
         estadoActual.prepararSalto(this);
     }
@@ -35,6 +49,9 @@ public class MotorWarp {
     }
     public void estarDisponible() {
         estadoActual.estarDisponible(this);
+    }
+    public void terminarSalto() {
+        estadoActual.terminarSalto(this);
     }
 }
 

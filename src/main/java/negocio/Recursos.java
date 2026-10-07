@@ -18,10 +18,8 @@ public class Recursos {
      * POST: si no falla, combustible aumenta dentro de los limites establecidos
      */
     public void cargarCombustible(int combustible) {
-        if (combustible <= 0)
-            throw new IllegalArgumentException("La carga debe ser positiva");
-        if (this.combustible > CAPACIDAD_MAXIMA - combustible)
-            throw new IllegalStateException("La carga supera la capacidad maxima");
+        assert combustible > 0 : "La carga debe ser positiva";
+        assert this.combustible <= CAPACIDAD_MAXIMA - combustible : "La carga supera la capacidad maxima";
         this.combustible += combustible;
     }
 
@@ -31,12 +29,11 @@ public class Recursos {
      * POST: si no falla, energia aumenta dentro de los limites establecidos
      */
     public void cargarEnergia(int energia) {
-        if (energia <= 0)
-            throw new IllegalArgumentException("La carga debe ser positiva");
-        if (this.energia > CAPACIDAD_MAXIMA - energia)
-            throw new IllegalStateException("La carga supera la capacidad maxima");
+        assert energia > 0 : "La carga debe ser positiva";
+        assert this.energia <= CAPACIDAD_MAXIMA - energia : "La carga supera la capacidad maxima";
         this.energia += energia;
     }
+
     /**
      *
      * @param combustible Cantidad de combustible
@@ -46,10 +43,8 @@ public class Recursos {
      * POST: el consumo se efectua, perdiendo combustible y energia y generando desgaste
      */
     public void consumir(int combustible, int energia, int desgaste) {
-        if (combustible < 0 || energia < 0 || desgaste < 0)
-            throw new IllegalArgumentException("Los consumos no pueden ser negativos");
-        if (!puedeConsumir(combustible, energia, desgaste))
-            throw new IllegalStateException("Recursos insuficientes o desgaste excedido");
+        assert combustible >= 0 && energia >= 0 && desgaste >= 0 : "Los consumos no pueden ser negativos";
+        assert puedeConsumir(combustible, energia, desgaste) : "Recursos insuficientes o desgaste excedido";
         this.combustible -= combustible;
         this.energia -= energia;
         this.desgaste += desgaste;
@@ -60,8 +55,7 @@ public class Recursos {
     }
 
     public Recursos(int combustible, int energia, int desgaste) {
-        if (!enRango(combustible) || !enRango(energia) || !enRango(desgaste))
-            throw new IllegalArgumentException("Valores iniciales no válidos");
+        assert enRango(combustible) && enRango(energia) && enRango(desgaste) : "Valores iniciales no válidos";
         this.desgaste = desgaste;
         this.energia = energia;
         this.combustible = combustible;
