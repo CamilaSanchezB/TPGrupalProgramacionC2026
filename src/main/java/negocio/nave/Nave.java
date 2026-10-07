@@ -36,4 +36,38 @@ public abstract class Nave {
     public void estarDisponible() {
         motorWarp.estarDisponible();
     }
+    public void terminarSalto() {
+        motorWarp.terminarSalto();
+    }
+
+    public void cargarCombustible(int cantidad) {
+        this.recursos.cargarCombustible(cantidad);
+    }
+
+    public void cargarEnergia(int cantidad) {
+        this.recursos.cargarEnergia(cantidad);
+    }
+
+    public void consumir(int combustible, int energia, int desgaste) {
+        this.recursos.consumir(combustible, energia, desgaste);
+    }
+
+    public void realizarMantenimiento() {
+        this.recursos.realizarMantenimiento();
+    }
+
+    public boolean requiereMantenimiento() {
+        return this.recursos.requiereMantenimiento();
+    }
+
+    // --- MÉTODOS DE CONSULTA LÓGICA (Para las Misiones y el Asistente) ---
+
+    public boolean puedeConsumir(int combustible, int energia, int desgaste) {
+        return this.recursos.puedeConsumir(combustible, energia, desgaste);
+    }
+
+
+    public int getCombustible() { return this.recursos.getCombustible(); }
+    public int getEnergia() { return this.recursos.getEnergia(); }
+    public int getDesgaste() { return this.recursos.getDesgaste(); }
 }
