@@ -1,4 +1,6 @@
-package negocio;
+package datos;
+
+import negocio.AsistenteDeComando;
 
 /**
  * M-02 Recolección.

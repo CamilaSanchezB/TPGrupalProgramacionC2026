@@ -1,4 +1,6 @@
-package negocio;
+package datos;
+import negocio.AsistenteDeComando;
+
 import java.util.List;
 import java.util.ArrayList;
 

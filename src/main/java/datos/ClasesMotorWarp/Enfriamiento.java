@@ -1,4 +1,4 @@
-package negocio.ClasesMotorWarp;
+package datos.ClasesMotorWarp;
 
 //import ar.edu.unmdp.startrek.negocio.clasesMotorWarp.MotorWarp.Disponible;
 

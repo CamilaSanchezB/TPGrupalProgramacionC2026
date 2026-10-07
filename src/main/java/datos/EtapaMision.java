@@ -1,4 +1,4 @@
-package negocio;
+package datos;
 
 /**
  * Etapas por las que pasa una misión, siempre en este orden:
