@@ -13,7 +13,7 @@ public class Bitacora {
         this.bitacora.add(evento);
     }
 
-    //muestra de mas viejo a mas reciente
+    //Muestra de mas viejo a mas reciente
     public void mostrarBitacora(){
         for(String evento : this.bitacora)
             System.out.println("- " + evento);

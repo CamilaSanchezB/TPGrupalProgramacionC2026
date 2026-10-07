@@ -9,10 +9,18 @@ public interface AsistenteDeComando {
 
     // ---------- Consultas (no modifican nada) ----------
 
-    /** @return true si el Motor Warp de la nave está en estado Disponible */
+    /**
+    * Indica si el Motor Warp de la nave está en estado Disponible.
+    * PRE: ninguna
+    * POST: devuelve true solo si el motor está en Disponible; no modifica la nave
+    */
     boolean estaDisponible();
 
-    /** @return combustible actual de la nave */
+    /** 
+     * Devuelve el combustible actual
+     * PRE: ninguna
+     * POST: devuelve la cantidad de combustible actual (entre 0 y 100); no modifica la nave 
+    */
     int getCombustible();
 
     /** @return energía actual de la nave */
@@ -34,7 +42,7 @@ public interface AsistenteDeComando {
      * PRE: puedeConsumir(...) == true
      * POST: combustible y energía bajan, el desgaste sube; si no se puede, no cambia nada
      */
-    void consumir(int combustible, int energia, int desgaste);
+    void consumir();
 
     void cargarCombustible(int cantidad);
 
