@@ -6,7 +6,7 @@ import negocio.ClasesMotorWarp.MotorWarp;
 import negocio.Recursos;
 
 public abstract class Nave {
-    private ArrayList<Tripulante> tripulantes;
+    public  ArrayList<Tripulante> tripulantes;
     private MotorWarp motorWarp;
     private Bitacora bitacora;
     private Recursos recursos;
@@ -15,6 +15,7 @@ public abstract class Nave {
         this.bitacora = new Bitacora();
         this.motorWarp = new MotorWarp();
         this.recursos = new Recursos(combustibleIni, energiaIni, desgaste);
+        this.tripulantes = new ArrayList<Tripulante>();
     }
 
     public void asignarTripulante(Tripulante t){

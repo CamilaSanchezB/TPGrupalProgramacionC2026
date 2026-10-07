@@ -1,21 +1,14 @@
-package presentacion;
+LNaveFactory fact = new NaveFactory();
 
-import datos.Bitacora;
-import negocio.ClasesMotorWarp.EstadoMotorBase;
-import negocio.ClasesMotorWarp.MotorWarp;
+        Nave naveCombate = NaveFactory.crearNave("combate");
 
-public class Main {
-    public static void main( String[] args){
-        Bitacora b = new Bitacora();
-        MotorWarp motorcito = new MotorWarp();
-        motorcito.prepararSalto();
-        motorcito.entrarEnWarp();
-        motorcito.iniciarEnfriamiento();
-        motorcito.estarDisponible();
-        EstadoMotorBase estado = motorcito.getEstadoActual();
-        System.out.println(estado.getNombreEstado()); //muestra el ultimo estado, en este caso seria disponible
+        Tripulante t = new Capitan("spock", 50);
+        Vulcano spock = new Vulcano(t, 10);
+        naveCombate.asignarTripulante(spock);
 
-        b.mostrarBitacora();
+        AsistenteDeComando jarvis = null;
+        MisionRecoleccion m = new MisionRecoleccion(jarvis);
+        
 
     }
 }
