@@ -4,23 +4,23 @@ public class Prueba {
 
     public static void main(String[] args) {
 
-        Tripulante capitan = new Capitan("A", 3);
+        Tripulante capitan = new Capitan("TEST", 3);
         mostrar(capitan);
 
-        capitan = new Terricola(capitan, 20);
+        capitan = new Terricola(capitan);
         mostrar(capitan);
 
         Tripulante alferez = new Alferez("B", 5);
         mostrar(alferez);
 
-        alferez = new Marciano(alferez, 18);
+        alferez = new Marciano(alferez);
         mostrar(alferez);
 
-        Consejero consejero = new Consejero("C", 2);
+        Consejero consejero = new Consejero("C", 5);
         consejero.setCantidadConsejos(7);
         mostrar(consejero);
 
-        Tripulante consejeroVulcano = new Vulcano(consejero, 30);
+        Tripulante consejeroVulcano = new Vulcano(consejero);
         mostrar(consejeroVulcano);
 
         Tripulante otroCapitan = new Capitan("D", 10);

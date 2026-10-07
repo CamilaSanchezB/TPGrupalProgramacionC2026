@@ -22,11 +22,12 @@ public abstract class Tripulante implements Liquidable {
      * - remuneracion >= 0
      * - porcentajeAntiguedad >= 0
      */
-    public Tripulante(String nombre, int antiguedad, double remuneracion, double porcentajeAntiguedad) {
+    public Tripulante(String nombre, int antiguedad, double remuneracion, double porcentajeAntiguedad, String cargo) {
         this.nombre = validarNombre(nombre);
         this.antiguedad = validarAntiguedad(antiguedad);
         this.remuneracion = validarRemuneracion(remuneracion);
         this.porcentajeAntiguedad = validarPorcentajeAntiguedad(porcentajeAntiguedad);
+        this.cargo = cargo;
     }
 
     /**
@@ -102,7 +103,5 @@ public abstract class Tripulante implements Liquidable {
         return detalle;
     }
 
-    public abstract double calcularSueldo();
 
-    public abstract List<ConceptoHaber> getListaConceptos();
 }
