@@ -36,4 +36,20 @@ public abstract class Nave {
     public void estarDisponible() {
         motorWarp.estarDisponible();
     }
+
+    public void consumir(int combustible, int energia, int desgaste) {
+        recursos.consumir(combustible, energia, desgaste);
+    }
+    public void realizarMantenimiento() {
+        recursos.realizarMantenimiento();
+    }
+
+    public void cargarCombustible(int cantidad){
+        recursos.cargarCombustible(cantidad);
+    }
+
+    public void cargarEnergia(int cantidad){
+        recursos.cargarEnergia(cantidad);
+    }
+
 }
