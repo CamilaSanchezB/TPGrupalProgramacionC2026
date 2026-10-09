@@ -13,9 +13,6 @@ public class Main {
 
         Nave naveCombate = factory.crearNave("combate");
 
-        Tripulante t = new Capitan("spock", 50);
-        Vulcano spock = new Vulcano(t);
-        naveCombate.asignarTripulante(spock);
         Bitacora bitacora = new Bitacora();
         AsistenteDeComando jarvis = new AsistenteDeComando(naveCombate, bitacora);
 

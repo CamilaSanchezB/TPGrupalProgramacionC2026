@@ -46,8 +46,8 @@ public abstract class Nave {
      * Si no se cumple la PRE, lanza IllegalArgumentException y la tripulación no cambia
      */
     public void asignarTripulante(Tripulante t) {
-        if (t == null)
-            throw new IllegalArgumentException("tripulante invalido");
+        assert t != null : "Tripulante invalido. No puede ser nulo";
+
         tripulantes.add(t);
     }
 

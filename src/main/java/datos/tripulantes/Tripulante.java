@@ -56,7 +56,7 @@ public abstract class Tripulante {
     }
 
     private static double validarRemuneracion(double remuneracion) {
-        assert Double.isFinite(remuneracion) && remuneracion >= 0
+        assert  remuneracion >= 0
                 : "Remuneracion invalida para el cargo: " + remuneracion;
         return remuneracion;
     }
