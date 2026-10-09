@@ -18,7 +18,8 @@ public class Main {
     public static void escenarioC() {
         System.out.println("ESCENARIO C:");
         Bitacora miBitacora = new Bitacora();
-        Nave miNave = NaveFactory.crearNave("combate");
+        NaveFactory factory = new NaveFactory();
+        Nave miNave = factory.crearNave("combate");
         AsistenteDeComando asistente = new AsistenteDeComando(miNave, miBitacora);
 
         // 1. Recorrer secuancia valida
@@ -64,7 +65,8 @@ public class Main {
     public static void escenarioD() {
         System.out.println("ESCENARIO D:");
         Bitacora miBitacora = new Bitacora();
-        Nave miNave = NaveFactory.crearNave("Carguero");
+        NaveFactory factory = new NaveFactory();
+        Nave miNave = factory.crearNave("carguero");
         AsistenteDeComando asistente = new AsistenteDeComando(miNave, miBitacora);
 
         // 1. Mostrar estado inicial
