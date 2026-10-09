@@ -4,27 +4,22 @@ public class Prueba {
 
     public static void main(String[] args) {
 
-        Tripulante capitan = new Capitan("TEST", 3);
-        mostrar(capitan);
-
+        Tripulante capitan = new Capitan("CAMI", 3);
         capitan = new Terricola(capitan);
+
         mostrar(capitan);
 
-        Tripulante alferez = new Alferez("B", 5);
-        mostrar(alferez);
+        Tripulante teniente = new Teniente("VALEN", 5);
+        teniente = new Vulcano(teniente);
 
-        alferez = new Marciano(alferez);
-        mostrar(alferez);
+        mostrar(teniente);
 
-        Consejero consejero = new Consejero("C", 5);
-        consejero.setCantidadConsejos(7);
+        Tripulante consejero = new Consejero("TINI", 5, 3);
+        consejero = new Marciano(consejero);
         mostrar(consejero);
 
-        Tripulante consejeroVulcano = new Vulcano(consejero);
-        mostrar(consejeroVulcano);
-
-        Tripulante otroCapitan = new Capitan("D", 10);
-        mostrar(otroCapitan);
+        Tripulante alferez = new Alferez("TEST",1);
+        mostrar(alferez);
     }
 
     private static void mostrar(Tripulante tripulante) {
