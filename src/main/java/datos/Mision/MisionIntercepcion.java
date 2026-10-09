@@ -1,5 +1,6 @@
-package datos;
+package datos.Mision;
 
+import datos.Requisitos;
 import negocio.AsistenteDeComando;
 
 /**
