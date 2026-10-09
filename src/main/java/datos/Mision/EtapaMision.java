@@ -1,4 +1,4 @@
-package datos;
+package datos.Mision;
 
 /**
  * Etapas por las que pasa una misión, siempre en este orden:
