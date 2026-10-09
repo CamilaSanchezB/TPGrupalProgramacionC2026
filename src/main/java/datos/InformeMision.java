@@ -1,7 +1,6 @@
 package datos;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+
+import datos.ClasesBitacora.Bitacora;
 
 /**
  * Informe final de una misión. No imprime nada: solo ofrece datos.
@@ -15,7 +14,7 @@ import java.util.List;
 public class InformeMision{
     private final String nombreMision;
     private final ResultadoMision resultado;
-    private final List <String> acciones;
+    private Bitacora bitacora;
     //Recursos consumidos durante la mision:
     private final int combustibleConsumido;
     private final int energiaConsumida;
@@ -26,7 +25,7 @@ public class InformeMision{
     private final int desgasteFinal;
     private final String observaciones;
 
-    public InformeMision(String nombreMision, ResultadoMision resultado, List<String> acciones,
+    public InformeMision(String nombreMision, ResultadoMision resultado, Bitacora bitacora,
                          int combustibleConsumido, int energiaConsumida, int desgasteGenerado,
                          int combustibleFinal, int energiaFinal, int desgasteFinal,
                          String observaciones) {
@@ -36,7 +35,7 @@ public class InformeMision{
         this.nombreMision = nombreMision;
         this.resultado = resultado;
         // Copia defensiva: si la misión modifica su lista después, el informe no cambia
-        this.acciones = Collections.unmodifiableList(new ArrayList<>(acciones));
+        this.bitacora = bitacora;
         this.combustibleConsumido = combustibleConsumido;
         this.energiaConsumida = energiaConsumida;
         this.desgasteGenerado = desgasteGenerado;
@@ -49,7 +48,7 @@ public class InformeMision{
     // Solo getters: sin setters, el informe no se puede modificar
     public String getNombreMision()       { return nombreMision; }
     public ResultadoMision getResultado() { return resultado; }
-    public List<String> getAcciones()     { return acciones; }
+    public Bitacora getBitacora()     { return bitacora; }
     public int getCombustibleConsumido()  { return combustibleConsumido; }
     public int getEnergiaConsumida()      { return energiaConsumida; }
     public int getDesgasteGenerado()      { return desgasteGenerado; }

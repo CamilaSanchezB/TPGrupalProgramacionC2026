@@ -1,6 +1,5 @@
 package datos.ClasesBitacora;
 import java.util.ArrayList;
-import java.util.List;
 
 public class Bitacora {
     private final ArrayList<RegitroBitacora> eventos;

@@ -1,7 +1,5 @@
 package datos.tripulantes;
 
-import java.util.List;
-
 
 public abstract class Decorator extends Tripulante {
 

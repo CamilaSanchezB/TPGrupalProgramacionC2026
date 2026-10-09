@@ -8,8 +8,21 @@ import negocio.*;
 
 public class Main {
     public static void main(String[] args){
-        escenarioC();
-        escenarioD();
+        NaveFactory factory = new NaveFactory();
+
+        Nave naveCombate = factory.crearNave("combate");
+
+        Tripulante t = new Capitan("spock", 50);
+        Vulcano spock = new Vulcano(t);
+        naveCombate.asignarTripulante(spock);
+        Bitacora bitacora = new Bitacora();
+        AsistenteDeComando jarvis = new AsistenteDeComando(naveCombate, bitacora);
+
+        MisionRecoleccion mision = new MisionRecoleccion(jarvis);
+
+        mision.realizar();
+
+        System.out.print(bitacora.getEventos());
     }
 
 

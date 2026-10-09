@@ -5,8 +5,6 @@ import datos.ClasesBitacora.RegitroBitacora;
 import datos.OperacionRechazadaException;
 import datos.nave.Nave;
 
-import java.util.ArrayList;
-
 /**
  * Único canal de acceso a la nave. Un asistente, una nave.
  * Consulta antes de operar: si una consulta da false, registra el rechazo
@@ -29,6 +27,8 @@ public class AsistenteDeComando {
     }
 
     // ---------- Consultas (no modifican nada) ----------
+
+    public Bitacora getBitacora() { return this.bitacora; }
 
     public boolean estaDisponible() { return nave.estaDisponible(); }
 

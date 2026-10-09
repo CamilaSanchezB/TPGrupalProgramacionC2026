@@ -2,9 +2,6 @@ package datos;
 
 import negocio.AsistenteDeComando;
 
-import java.util.List;
-import java.util.ArrayList;
-
 /**
  * Misión genérica de la nave. Aplica Template Method: realizar() fija el orden
  * preparar -> ejecutarAccion -> evaluar -> cerrar y las subclases solo completan los
@@ -27,7 +24,6 @@ public abstract class Mision{
     private EtapaMision etapa;
     private ResultadoMision resultado;
     private Recursos recursosIniciales;
-    private final List<String> acciones;
     private String observaciones;
     private InformeMision informe;
 
@@ -45,7 +41,6 @@ public abstract class Mision{
         this.asistenteDeComando=asistenteDeComando;
         this.requisitos=requisitos;
         this.etapa= EtapaMision.CREADA;
-        this.acciones= new ArrayList<>();
         this.observaciones="";
     }
 
@@ -59,9 +54,9 @@ public abstract class Mision{
 
     private boolean rechazar(String motivo){
         assert motivo != null && !motivo.trim().isEmpty() : "El motivo del rechazo no puede ser nulo ni vacio";
-        resultado= ResultadoMision.RECHAZADA;
+        resultado = ResultadoMision.RECHAZADA;
         observaciones=motivo;
-        asistenteDeComando.registrar("Mision rechazada: "+motivo); //El asistente la guarda en la bitacora.
+        asistenteDeComando.registrar("Mision rechazada: " + motivo); //El asistente la guarda en la bitacora.
         return false;
     }
 
@@ -113,7 +108,7 @@ public abstract class Mision{
         );
 
         //Guardamos cronologicamente como se fue desarollando la mision.
-        acciones.add("Mision preparada");
+        asistenteDeComando.registrar("Mision preparada");
         //Ahora la mision esta PREPARADA
         this.etapa= EtapaMision.PREPARADA;
         return true;
@@ -136,7 +131,7 @@ public abstract class Mision{
                 requisitos.getEnergia(),
                 requisitos.getDesgaste()
         );
-        acciones.add("Recursos consumidos");
+        asistenteDeComando.registrar("Recursos consumidos");
         cumplirObjetivo();   //propio de cada misión: Nos dice si cumplio el objetivo de la mision.
         this.etapa=EtapaMision.EJECUTADA; //Para este punto la mision ya fue EJECUTADA.
     }
@@ -193,7 +188,7 @@ public abstract class Mision{
         if (resultado == ResultadoMision.EXITOSA) {
             boolean salto = asistenteDeComando.prepararSalto() && asistenteDeComando.saltar();
             if (salto) {
-                acciones.add("Salto realizado");
+                asistenteDeComando.registrar("Salto realizado");
                 asistenteDeComando.terminarSalto();   // vuelve a Disponible
             } else {
                 resultado= ResultadoMision.FALLIDA;
@@ -217,7 +212,7 @@ public abstract class Mision{
             desgGenerado=desgFinal-recursosIniciales.getDesgaste();
         }
 
-        informe = new InformeMision(nombre,resultado,acciones,combConsumido,enerConsumida,desgGenerado,combFinal,enerFinal,desgFinal,observaciones);
+        informe = new InformeMision(nombre,resultado, asistenteDeComando.getBitacora() ,combConsumido,enerConsumida,desgGenerado,combFinal,enerFinal,desgFinal,observaciones);
         etapa=EtapaMision.CERRADA;
         asistenteDeComando.registrar("Mision cerrada: "+ nombre + " - "+ resultado);
     }
@@ -241,7 +236,7 @@ public abstract class Mision{
      * POST: accion queda al final de acciones (el orden cronológico se conserva)
      */
     protected void registrarAccion(String accion) {
-        acciones.add(accion);
+        asistenteDeComando.registrar(accion);
     }
 
     /**
