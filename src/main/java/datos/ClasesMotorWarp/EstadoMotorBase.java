@@ -31,10 +31,6 @@ public abstract class EstadoMotorBase{
         rechazar("volver a disponible");
     }
 
-    public boolean permitirOperar() {
-        return false;
-    }
-
     public abstract String getNombreEstado();
 
     public boolean estaDisponible() {

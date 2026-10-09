@@ -9,10 +9,5 @@ public class Enfriamiento extends  EstadoMotorBase{
     }
 
     @Override
-    public boolean permitirOperar() {
-        return true;
-    }
-
-    @Override
     public String getNombreEstado() { return "Enfriamiento"; }
 }

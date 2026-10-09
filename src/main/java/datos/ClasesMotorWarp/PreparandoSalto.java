@@ -7,10 +7,5 @@ public class PreparandoSalto extends EstadoMotorBase {
     }
 
     @Override
-    public boolean permitirOperar() {
-        return true;
-    }
-
-    @Override
     public String getNombreEstado() { return "Preparando salto"; }
 }

@@ -12,11 +12,6 @@ public class EnWarp extends EstadoMotorBase{
     }
 
     @Override
-    public boolean permitirOperar() {
-        return true;
-    }
-
-    @Override
     public String getNombreEstado() { return "En warp"; }
 }
 

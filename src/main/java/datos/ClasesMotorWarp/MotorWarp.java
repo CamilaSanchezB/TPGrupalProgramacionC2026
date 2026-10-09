@@ -29,14 +29,6 @@ public class MotorWarp {
     }
 
     /**
-     * @return true si el estado actual permite iniciar una operación
-     */
-    public boolean puedeOperar() {
-        assert this.estadoActual != null : "INV violado: estadoActual es nulo";
-        return estadoActual.permitirOperar();
-    }
-
-    /**
      * Cada acción:
      * POST: cambia de estado y mantiene el invariante.
      */

@@ -7,11 +7,6 @@ public class Disponible extends EstadoMotorBase{
     }
 
     @Override
-    public boolean permitirOperar() {
-        return true;
-    }
-
-    @Override
     public String getNombreEstado() { return "Disponible"; }
 
     @Override
