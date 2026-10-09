@@ -1,7 +1,7 @@
 package datos.nave;
 
 public class NaveFactory {
-    public static Nave crearNave(String tipo) {
+    public Nave crearNave(String tipo) {
         tipo = tipo.toUpperCase();
         switch (tipo) {
             case "EXPLORADORA": return new NaveExploradora(60, 80, 0);
