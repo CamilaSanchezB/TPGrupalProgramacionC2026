@@ -1,7 +1,5 @@
 package datos.tripulantes;
-
 import java.util.ArrayList;
-import java.util.List;
 
 
 public class Vulcano extends Decorator {
@@ -17,8 +15,8 @@ public class Vulcano extends Decorator {
     }
 
     @Override
-    public List<ConceptoHaber> getListaConceptos() {
-        List<ConceptoHaber> conceptos = new ArrayList<>(tripulante.getListaConceptos());
+    public ArrayList<ConceptoHaber> getListaConceptos() {
+        ArrayList<ConceptoHaber> conceptos = new ArrayList<>(tripulante.getListaConceptos());
         conceptos.add(new ConceptoHaber("Subsidio por origen (" + origen + ")", 30));
         return conceptos;
     }

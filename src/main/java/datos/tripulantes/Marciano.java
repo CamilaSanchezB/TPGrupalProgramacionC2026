@@ -1,7 +1,6 @@
 package datos.tripulantes;
 
 import java.util.ArrayList;
-import java.util.List;
 
 
 public class Marciano extends Decorator {
@@ -17,8 +16,8 @@ public class Marciano extends Decorator {
     }
 
     @Override
-    public List<ConceptoHaber> getListaConceptos() {
-        List<ConceptoHaber> conceptos = new ArrayList<>(tripulante.getListaConceptos());
+    public ArrayList<ConceptoHaber> getListaConceptos() {
+        ArrayList<ConceptoHaber> conceptos = new ArrayList<>(tripulante.getListaConceptos());
         conceptos.add(new ConceptoHaber("Subsidio por origen (" + origen + ")", 18));
         return conceptos;
     }

@@ -44,20 +44,5 @@ public class Consejero extends Tripulante {
                 + cantidadConsejos * importePorConsejo;
     }
 
-    @Override
-    public List<ConceptoHaber> getListaConceptos() {
-        List<ConceptoHaber> conceptos = new ArrayList<ConceptoHaber>();
-        conceptos.add(new ConceptoHaber("Remuneracion por cargo (" + cargo + ")", remuneracion));
-        if (antiguedad > 0) {
-            conceptos.add(new ConceptoHaber(
-                    "Adicional por antiguedad (" + antiguedad + " anios)",
-                    remuneracion * porcentajeAntiguedad * antiguedad));
-        }
-        if (cantidadConsejos > 0) {
-            conceptos.add(new ConceptoHaber(
-                    "Adicional por consejos registrados (" + cantidadConsejos + ")",
-                    cantidadConsejos * importePorConsejo));
-        }
-        return conceptos;
-    }
+
 }
