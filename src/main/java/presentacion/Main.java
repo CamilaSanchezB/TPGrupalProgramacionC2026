@@ -1,5 +1,5 @@
 package presentacion;
-import datos.Bitacora;
+import datos.ClasesBitacora.Bitacora;
 import datos.nave.*;
 import datos.tripulantes.*;
 import negocio.*;
@@ -14,9 +14,8 @@ public class Main {
         Vulcano spock = new Vulcano(t);
         naveCombate.asignarTripulante(spock);
         Bitacora bitacora = new Bitacora();
-        AsistenteBasico jarvis = new AsistenteBasico(naveCombate, bitacora);
+        AsistenteDeComando jarvis = new AsistenteDeComando(naveCombate, bitacora);
 
-        bitacora.mostrarBitacora();
 
     }
 
