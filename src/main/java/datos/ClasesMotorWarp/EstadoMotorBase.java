@@ -3,14 +3,11 @@ package datos.ClasesMotorWarp;
 
 public abstract class EstadoMotorBase{
 
-    /**
-     * @param accion Accion del motor que fallo
-     * PRE: solo se llamará cuando se haya intentado reproducir una acción inválida
-     * POST: evalúa que la precondición de que la acción sea inválida en este estado se cumpla (falla si se intenta violar el contrato del estado)
-     */
-    protected void rechazar (String accion) {
-        assert false : "Transicion invalida: no se puede " + accion + " en estado " + getNombreEstado();
+    protected void rechazar(String accion) {
+        throw new IllegalStateException(
+                "Transicion invalida: no se puede " + accion + " en estado " + getNombreEstado());
     }
+
     public void prepararSalto(MotorWarp motor) {
         rechazar("preparar salto");
     }
