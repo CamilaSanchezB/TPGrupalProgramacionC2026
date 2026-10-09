@@ -129,6 +129,28 @@ public class AsistenteDeComando {
         return true;
     }
 
+    public boolean iniciarEnfriamiento() {
+        try {
+            nave.iniciarEnfriamiento();
+        } catch (IllegalStateException e) {
+            registrar(e.getMessage());
+            return false;
+        }
+        registrar("Iniciando enfriamniento.");
+        return true;
+    }
+
+    public boolean estarDisponible() {
+        try {
+            nave.estarDisponible();
+        } catch (IllegalStateException e) {
+            registrar(e.getMessage());
+            return false;
+        }
+        registrar("La nave esta disponible");
+        return true;
+    }
+
     // ---------- Bitácora ----------
 
     /**
@@ -139,7 +161,7 @@ public class AsistenteDeComando {
         bitacora.registrar(evento);
     }
 
-    public void mostrarRepporteBitacora() {
+    public void mostrarReporteBitacora() {
         System.out.println("=== INFORME OFICIAL DE LA MISIÓN ===");
 
         for (RegitroBitacora evento : bitacora.getEventos()) {
