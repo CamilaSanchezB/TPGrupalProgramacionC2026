@@ -1,7 +1,5 @@
 package datos.nave;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import datos.tripulantes.*;
@@ -10,7 +8,7 @@ import datos.ClasesMotorWarp.MotorWarp;
 
 /**
  * INV: motorWarp, recursos y tripulantes nunca son null (se asignan una sola vez, en el constructor)
- * INV: tripulantes no contiene elementos null
+ * INV: tripulantes no contiene elementos null (lo garantiza TripulantesCollection)
  * INV: los recursos respetan los invariantes de Recursos en todo momento:
  *      0 <= combustible <= 100, 0 <= energía <= 100, 0 <= desgaste <= 100
  * INV: el motor siempre está en exactamente uno de sus cuatro estados
@@ -21,44 +19,71 @@ import datos.ClasesMotorWarp.MotorWarp;
 public abstract class Nave {
     private MotorWarp motorWarp;
     private Recursos recursos;
-    private List<Tripulante> tripulantes;
-
+    private TripulantesCollection tripulantes;
     /**
      * PRE: 0 <= combustibleIni <= 100, 0 <= energiaIni <= 100 y 0 <= desgaste <= 100
      *      (lo exige Recursos)
      * POST: los recursos quedan con los valores indicados, el motor queda en estado
-     *       Disponible y la tripulación queda vacía
+     *       Disponible y la tripulación queda con la tripulación mínima requerida
+     *       (Capitan, Alferez, Consejero y Teniente, en ese orden)
      */
     protected Nave(int combustibleIni, int energiaIni, int desgaste) {
         this.motorWarp = new MotorWarp();
         this.recursos = new Recursos(combustibleIni, energiaIni, desgaste);
-        tripulantes = new ArrayList<>();
+        tripulantes = new TripulantesCollection();
         asignarTripulante(new Capitan("CAPITAN"));
         asignarTripulante(new Alferez("ALFEREZ"));
         asignarTripulante(new Consejero("CONSEJERO"));
         asignarTripulante(new Teniente("TENIENTE"));
     }
 
-    // ---------- Tripulación ----------
+    // ---------- Tripulación  ----------
     /**
      * PRE: t != null
      * POST: t queda al final de la tripulación y los tripulantes anteriores no se alteran
-     * Si no se cumple la PRE, lanza IllegalArgumentException y la tripulación no cambia
      */
     public void asignarTripulante(Tripulante t) {
-        assert t != null : "Tripulante invalido. No puede ser nulo";
-
-        tripulantes.add(t);
+        tripulantes.agregar(t);
     }
 
     /**
-     * @return vista de solo lectura de la tripulación, en orden de asignación
+     * PRE: nombre != null y no vacío, editado != null, existeTripulante(nombre) == true
+     * POST: el primer tripulante con ese nombre queda reemplazado por editado, en la misma
+     *       posición; el resto de la tripulación no se altera
+     */
+    public void editarTripulante(String nombre, Tripulante editado) {
+        tripulantes.editar(nombre, editado);
+    }
+
+    /**
+     * PRE: nombre != null
+     * @return true si y solo si algún tripulante tiene ese nombre
+     * POST: es una consulta; no modifica nada
+     */
+    public boolean existeTripulante(String nombre) {
+        return tripulantes.existeTripulante(nombre);
+    }
+
+    /**
+     * @return tripulacióm en orden de asignación
      * POST: no modifica la nave; la vista no permite agregar ni quitar tripulantes
      *       (intentarlo lanza UnsupportedOperationException)
      */
     public List<Tripulante> getTripulantes() {
-        return Collections.unmodifiableList(tripulantes);
+        return tripulantes.getTripulantes();
     }
+
+    /**
+     * PRE: cargo != null
+     * @return lista nueva con los tripulantes de ese cargo, en orden de asignación
+     *         (vacía si no hay ninguno)
+     * POST: no modifica la nave
+     */
+    public List<Tripulante> getTripulantesPorCargo(String cargo) {
+        return tripulantes.getTripulantesPorCargo(cargo);
+    }
+
+
 
     // ---------- Motor Warp (delegado en State) ----------
     // Transiciones válidas:

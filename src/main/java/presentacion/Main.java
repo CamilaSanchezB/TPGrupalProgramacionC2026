@@ -2,17 +2,18 @@ package presentacion;
 
 import datos.*;
 import datos.ClasesBitacora.Bitacora;
-import datos.Mision.MisionRecoleccion;
+import datos.Mision.*;
 import datos.nave.*;
 import datos.tripulantes.*;
 import negocio.*;
 
 public class Main {
     public static void main(String[] args){
-     //escenarioC();
-     //escenarioD();
-     escenarioB();
-     //escenarioA();
+        escenarioA();
+        escenarioB();
+        escenarioC();
+        escenarioD();
+        testLiquidacionHaberes();
     }
 
 
@@ -63,7 +64,6 @@ public class Main {
         System.out.println("Verificamos que exista la accion rechazada en la bitacora");
         asistente.mostrarReporteBitacora();
     }
-
 
     public static void escenarioD() {
         System.out.println("ESCENARIO D:");
@@ -210,5 +210,20 @@ public class Main {
     System.out.println("Bitacora:");
     asistente.mostrarReporteBitacora();
 }
+
+    public static void testLiquidacionHaberes(){
+        NaveFactory factory = new NaveFactory();
+        Nave miNave = factory.crearNave("combate");
+        LiquidadorHaberes liquidador = new LiquidadorHaberes();
+        // la nave se crea con la tripulacion minima, asi que hay al menos un capitan
+        Tripulante capitan = miNave.getTripulantesPorCargo("CAPITAN").get(0);
+        capitan.setAntiguedad(10);
+        capitan.setNombre("Test capitan");
+        capitan = new Vulcano(capitan);
+        miNave.editarTripulante("Test capitan", capitan);
+        miNave.asignarTripulante(new Terricola(new Consejero("Test consejero", 5,10)));
+        liquidador.imprimirLiquidacion(miNave);
+
+    }
 }
 
