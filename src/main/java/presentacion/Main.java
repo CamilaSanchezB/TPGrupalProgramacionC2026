@@ -9,18 +9,10 @@ import negocio.*;
 
 public class Main {
     public static void main(String[] args){
-        NaveFactory factory = new NaveFactory();
-
-        Nave naveCombate = factory.crearNave("combate");
-
-        Bitacora bitacora = new Bitacora();
-        AsistenteDeComando jarvis = new AsistenteDeComando(naveCombate, bitacora);
-
-        MisionRecoleccion mision = new MisionRecoleccion(jarvis);
-
-        mision.realizar();
-
-        System.out.print(bitacora.getEventos());
+     //escenarioC();
+     //escenarioD();
+     escenarioB();
+     //escenarioA();
     }
 
 
@@ -121,4 +113,102 @@ public class Main {
         System.out.println("5. Verificamos los rechazos en la bitácora:");
         asistente.mostrarReporteBitacora();
     }
+     
+    public static void escenarioA() {
+    System.out.println("ESCENARIO A: ejecución de las 3 misiones");
+
+    for (int i = 1; i <= 3; i++) {
+        System.out.println("========================================");
+        System.out.println("MISIÓN " + i);
+
+        Bitacora bitacora = new Bitacora();
+        NaveFactory factory = new NaveFactory();
+        Nave miNave = factory.crearNave("combate");
+        AsistenteDeComando asistente = new AsistenteDeComando(miNave, bitacora);
+
+        // dejá la nave con recursos suficientes para poder ejecutar cualquier misión
+
+        Mision mision;
+
+        switch (i) {
+            case 1:
+                mision = new MisionIntercepcion(asistente);
+                break;
+            case 2:
+                mision = new MisionRecoleccion(asistente);
+                break;
+            default:
+                mision = new MisionRetorno(asistente);
+                break;
+        }
+
+        mision.realizar();
+
+        System.out.println("Resultado: " + mision.getResultado());
+        System.out.println("Etapa: " + mision.getEtapa());
+
+        System.out.println("Recursos finales:");
+        System.out.println("  Combustible: " + asistente.getCombustible());
+        System.out.println("  Energia: " + asistente.getEnergia());
+        System.out.println("  Desgaste: " + asistente.getDesgaste());
+
+        if (mision.getInforme() != null) {
+            InformeMision informe = mision.getInforme();
+            System.out.println("Informe:");
+            System.out.println("  Nombre: " + informe.getNombreMision());
+            System.out.println("  Resultado: " + informe.getResultado());
+            System.out.println("  Combustible consumido: " + informe.getCombustibleConsumido());
+            System.out.println("  Energia consumida: " + informe.getEnergiaConsumida());
+            System.out.println("  Desgaste generado: " + informe.getDesgasteGenerado());
+            System.out.println("  Combustible final: " + informe.getCombustibleFinal());
+            System.out.println("  Energia final: " + informe.getEnergiaFinal());
+            System.out.println("  Desgaste final: " + informe.getDesgasteFinal());
+            System.out.println("  Observaciones: " + informe.getObservaciones());
+        }
+
+        System.out.println("Bitácora:");
+        asistente.mostrarReporteBitacora();
+
+        System.out.println("========================================");
+        System.out.println();
+    }
+ }
+
+    public static void escenarioB() {
+    System.out.println("escenario b: la nave quiere hacer una misión pero se queda sin energia o nafta");
+
+    Bitacora bitacora = new Bitacora();
+    
+        NaveFactory factory = new NaveFactory();
+        Nave miNave = factory.crearNave("exploradora");
+
+    AsistenteDeComando asistente = new AsistenteDeComando(miNave, bitacora);
+
+    // Dejo la nave sin recursos para provocar el rechazo
+    miNave.consumir(miNave.getCombustible(), miNave.getEnergia(), 0);
+
+    System.out.println("Recursos antes de la misión:");
+    System.out.println("  Combustible: " + asistente.getCombustible());
+    System.out.println("  Energia: " + asistente.getEnergia());
+    System.out.println("  Desgaste: " + asistente.getDesgaste());
+
+    Mision mision = new MisionIntercepcion(asistente);
+    mision.realizar();
+
+    System.out.println("Resultado final: " + mision.getResultado());
+    System.out.println("Etapa final: " + mision.getEtapa());
+
+    if (mision.getInforme() != null) {
+        System.out.println("Observaciones: " + mision.getInforme().getObservaciones());
+    }
+
+    System.out.println("Recursos finales:");
+    System.out.println("  Combustible: " + asistente.getCombustible());
+    System.out.println("  Energia: " + asistente.getEnergia());
+    System.out.println("  Desgaste: " + asistente.getDesgaste());
+
+    System.out.println("Bitacora:");
+    asistente.mostrarReporteBitacora();
 }
+}
+
