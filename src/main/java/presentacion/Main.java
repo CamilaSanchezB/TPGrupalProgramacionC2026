@@ -2,9 +2,8 @@ package presentacion;
 
 import datos.*;
 import datos.ClasesBitacora.Bitacora;
-import datos.Mision.MisionRecoleccion;
+import datos.Mision.*;
 import datos.nave.*;
-import datos.tripulantes.*;
 import negocio.*;
 
 public class Main {

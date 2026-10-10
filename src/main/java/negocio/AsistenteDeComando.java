@@ -2,7 +2,7 @@ package negocio;
 
 import datos.ClasesBitacora.Bitacora;
 import datos.ClasesBitacora.RegitroBitacora;
-import datos.Mision;
+import datos.Mision.*;
 import datos.OperacionRechazadaException;
 import datos.nave.Nave;
 
