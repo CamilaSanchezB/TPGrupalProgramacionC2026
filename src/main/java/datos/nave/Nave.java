@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import datos.tripulantes.Tripulante;
+import datos.tripulantes.*;
 import datos.Recursos;
 import datos.ClasesMotorWarp.MotorWarp;
 
@@ -19,9 +19,9 @@ import datos.ClasesMotorWarp.MotorWarp;
  *      (la tripulación se expone como vista de solo lectura)
  */
 public abstract class Nave {
-    private final MotorWarp motorWarp;
-    private final Recursos recursos;
-    private final List<Tripulante> tripulantes;
+    private MotorWarp motorWarp;
+    private Recursos recursos;
+    private List<Tripulante> tripulantes;
 
     /**
      * PRE: 0 <= combustibleIni <= 100, 0 <= energiaIni <= 100 y 0 <= desgaste <= 100
@@ -32,19 +32,22 @@ public abstract class Nave {
     protected Nave(int combustibleIni, int energiaIni, int desgaste) {
         this.motorWarp = new MotorWarp();
         this.recursos = new Recursos(combustibleIni, energiaIni, desgaste);
-        this.tripulantes = new ArrayList<>();
+        tripulantes = new ArrayList<>();
+        asignarTripulante(new Capitan("CAPITAN"));
+        asignarTripulante(new Alferez("ALFEREZ"));
+        asignarTripulante(new Consejero("CONSEJERO"));
+        asignarTripulante(new Teniente("TENIENTE"));
     }
 
     // ---------- Tripulación ----------
-
     /**
      * PRE: t != null
      * POST: t queda al final de la tripulación y los tripulantes anteriores no se alteran
      * Si no se cumple la PRE, lanza IllegalArgumentException y la tripulación no cambia
      */
     public void asignarTripulante(Tripulante t) {
-        if (t == null)
-            throw new IllegalArgumentException("tripulante invalido");
+        assert t != null : "Tripulante invalido. No puede ser nulo";
+
         tripulantes.add(t);
     }
 

@@ -2,6 +2,7 @@ package presentacion;
 
 import datos.*;
 import datos.ClasesBitacora.Bitacora;
+import datos.Mision.MisionRecoleccion;
 import datos.nave.*;
 import datos.tripulantes.*;
 import negocio.*;

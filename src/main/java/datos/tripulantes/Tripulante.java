@@ -1,8 +1,9 @@
 package datos.tripulantes;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 
-public abstract class Tripulante implements Liquidable {
+public abstract class Tripulante {
 
     public static String SIN_CARGO = "Sin cargo asignado";
     public static String SIN_ORIGEN = "Sin origen asignado";
@@ -55,7 +56,7 @@ public abstract class Tripulante implements Liquidable {
     }
 
     private static double validarRemuneracion(double remuneracion) {
-        assert Double.isFinite(remuneracion) && remuneracion >= 0
+        assert  remuneracion >= 0
                 : "Remuneracion invalida para el cargo: " + remuneracion;
         return remuneracion;
     }
@@ -90,6 +91,19 @@ public abstract class Tripulante implements Liquidable {
         assert antiguedad >= 0
                 : "La antiguedad no puede ser negativa: " + antiguedad;
         return antiguedad;
+    }
+
+    public abstract double calcularSueldo();
+
+    public ArrayList<ConceptoHaber>getListaConceptos() {
+        ArrayList<ConceptoHaber> conceptos = new ArrayList<ConceptoHaber>();
+        conceptos.add(new ConceptoHaber("Remuneracion por cargo (" + cargo + ")", remuneracion));
+        if (antiguedad > 0) {
+            conceptos.add(new ConceptoHaber(
+                    "Adicional por antiguedad (" + antiguedad + " anios)",
+                    remuneracion * porcentajeAntiguedad * antiguedad));
+        }
+        return conceptos;
     }
 
     public String getConceptos() {
