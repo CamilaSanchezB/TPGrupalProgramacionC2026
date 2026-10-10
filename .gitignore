@@ -26,3 +26,5 @@ replay_pid*
 .vscode/
 TP_Enunciado_V4.1.pdf
 target/
+out/
+

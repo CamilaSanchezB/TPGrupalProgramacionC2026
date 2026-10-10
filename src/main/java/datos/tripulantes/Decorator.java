@@ -1,6 +1,11 @@
 package datos.tripulantes;
 
 
+/**
+ * <b>INV</b>
+ * - tripulante != null
+ * - origen != SIN_ORIGEN (lo asigna cada decorador concreto)
+ */
 public abstract class Decorator extends Tripulante {
 
     // Instancia de la clase Tripulante que el decorador encapsula
@@ -12,6 +17,8 @@ public abstract class Decorator extends Tripulante {
      * - tripulante != null
      * El tripulante no debe tener un origen ya asignado
      * @param tripulante tripulante encapsulado
+     * <b>POST</b>
+     * - el decorador encapsula a tripulante
      */
 
     public Decorator(Tripulante tripulante) {
@@ -46,6 +53,11 @@ public abstract class Decorator extends Tripulante {
     @Override
     public void setAntiguedad(int antiguedad) {
         tripulante.setAntiguedad(antiguedad);
+    }
+
+    @Override
+    public void reiniciarPeriodo() {
+        tripulante.reiniciarPeriodo();
     }
 
 }

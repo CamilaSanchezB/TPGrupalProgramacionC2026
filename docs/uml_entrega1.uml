@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>C:/Users/camil/IdeaProjects/TPGrupalProgramacionC2026</OriginalElement>
+  <nodes>
+    <node x="597.8943157894737" y="247.79242105263157">datos.tripulantes.Vulcano</node>
+    <node x="341.6747368421052" y="513.2930526315788">datos.nave.NaveExploradora</node>
+    <node x="-256.2789473684211" y="473.62282105263165">datos.ClasesBitacora.Bitacora</node>
+    <node x="-502.2894736842104" y="549.0">negocio.AsistenteDeComando</node>
+    <node x="179.5" y="316.31141052631585">datos.nave.Nave</node>
+    <node x="554.8943157894737" y="-100.01052631578915">negocio.LiquidadorHaberes</node>
+    <node x="-13.105684210526306" y="52.41271578947362">datos.ClasesMotorWarp.MotorWarp</node>
+    <node x="833.7214736842104" y="596.5326315789474">presentacion.Main</node>
+    <node x="-41.5884210526317" y="513.2930526315788">datos.nave.NaveCarguero</node>
+    <node x="251.79705263157894" y="100.34147368421048">datos.tripulantes.Consejero</node>
+    <node x="876.2669473684209" y="247.79242105263157">datos.tripulantes.Marciano</node>
+    <node x="734.0806315789473" y="247.79242105263157">datos.tripulantes.Terricola</node>
+    <node x="-827.4568421052631" y="639.0">datos.Requisitos</node>
+    <node x="771.1913684210526" y="169.49178947368418">datos.tripulantes.Decorator</node>
+    <node x="-615.5" y="639.0">datos.Mision.Mision</node>
+    <node x="773.6913684210526" y="4.4475789473683776">datos.tripulantes.Tripulante</node>
+    <node x="-279.7789473684211" y="639.0">datos.Mision.InformeMision</node>
+    <node x="-109.74467368421045" y="202.07267368421049">datos.ClasesMotorWarp.Disponible</node>
+    <node x="39.8084210526315" y="639.0">datos.ClasesBitacora.RegitroBitacora</node>
+    <node x="-245.99612631578947" y="190.10804210526317">datos.ClasesMotorWarp.EnWarp</node>
+    <node x="243.29705263157894" y="247.79242105263154">datos.nave.NaveFactory</node>
+    <node x="144.5" y="513.2930526315788">datos.nave.NaveCombate</node>
+    <node x="-870.3368421052631" y="759.0">datos.Mision.MisionRetorno</node>
+    <node x="986.5852631578946" y="402.77456842105255">datos.tripulantes.TripulantesCollection</node>
+    <node x="662.1913684210526" y="100.34147368421048">datos.tripulantes.Capitan</node>
+    <node x="567.8943157894737" y="-47.1094736842106">datos.tripulantes.ConceptoHaber</node>
+    <node x="-635.6041684210525" y="190.10804210526317">datos.ClasesMotorWarp.Enfriamiento</node>
+    <node x="-591.0" y="339.0">datos.Recursos</node>
+    <node x="-411.6472842105262" y="79.50290526315791">datos.ClasesMotorWarp.EstadoMotorBase</node>
+    <node x="-450.2475789473685" y="190.10804210526317">datos.ClasesMotorWarp.PreparandoSalto</node>
+    <node x="-662.0" y="759.0">datos.Mision.MisionRecoleccion</node>
+    <node x="403.40273684210524" y="100.34147368421048">datos.tripulantes.Teniente</node>
+    <node x="538.7970526315789" y="100.34147368421048">datos.tripulantes.Alferez</node>
+    <node x="-421.66315789473686" y="759.0">datos.Mision.MisionIntercepcion</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="datos.nave.NaveCarguero" target="datos.nave.Nave" relationship="GENERALIZATION">
+      <point x="4.2105263170100216E-4" y="-14.000052631578797" />
+      <point x="39.412" y="429.0" />
+      <point x="224.5" y="429.0" />
+      <point x="0.0" y="13.999589473684125" />
+    </edge>
+    <edge source="datos.Mision.MisionIntercepcion" target="datos.Mision.Mision" relationship="GENERALIZATION">
+      <point x="1.5789473684435507E-4" y="-14.0" />
+      <point x="-323.663" y="713.0" />
+      <point x="-565.0" y="713.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="datos.nave.Nave" target="datos.ClasesMotorWarp.MotorWarp" relationship="TO_ONE">
+      <point x="0.0" y="-14.0" />
+      <point x="224.5" y="66.41271578947362" />
+      <point x="68.0" y="0.0" />
+    </edge>
+    <edge source="datos.tripulantes.Consejero" target="datos.tripulantes.Tripulante" relationship="GENERALIZATION">
+      <point x="-5.263157891022274E-5" y="13.999526315789524" />
+      <point x="316.797" y="149.0" />
+      <point x="837.691" y="149.0" />
+      <point x="-3.684210525989329E-4" y="14.000421052631623" />
+    </edge>
+    <edge source="datos.nave.NaveExploradora" target="datos.nave.Nave" relationship="GENERALIZATION">
+      <point x="2.631578948353308E-4" y="-14.000052631578797" />
+      <point x="432.675" y="429.0" />
+      <point x="224.5" y="429.0" />
+      <point x="0.0" y="13.999589473684125" />
+    </edge>
+    <edge source="datos.nave.Nave" target="datos.Recursos" relationship="TO_ONE">
+      <point x="-15.0" y="13.999589473684125" />
+      <point x="209.5" y="401.0" />
+      <point x="-529.5" y="401.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="datos.ClasesBitacora.Bitacora" target="datos.ClasesBitacora.RegitroBitacora" relationship="TO_MANY">
+      <point x="14.99994736842109" y="14.0" />
+      <point x="-184.779" y="604.0326315789474" />
+      <point x="112.9115789473683" y="604.0326315789474" />
+      <point x="-10.896842105263204" y="-14.0" />
+    </edge>
+    <edge source="datos.tripulantes.Alferez" target="datos.tripulantes.Tripulante" relationship="GENERALIZATION">
+      <point x="-5.263157891022274E-5" y="13.999526315789524" />
+      <point x="591.797" y="149.0" />
+      <point x="837.691" y="149.0" />
+      <point x="-3.684210525989329E-4" y="14.000421052631623" />
+    </edge>
+    <edge source="datos.tripulantes.Terricola" target="datos.tripulantes.Decorator" relationship="GENERALIZATION">
+      <point x="3.684210527126197E-4" y="-14.000421052631538" />
+      <point x="793.081" y="223.0" />
+      <point x="834.691" y="223.0" />
+      <point x="-3.684210525989329E-4" y="14.000210526315811" />
+    </edge>
+    <edge source="datos.Mision.InformeMision" target="datos.ClasesBitacora.Bitacora" relationship="TO_ONE">
+      <point x="-5.263157891022274E-5" y="-14.0" />
+      <point x="-5.263157891022274E-5" y="14.00017894736834" />
+    </edge>
+    <edge source="datos.Mision.Mision" target="datos.Mision.InformeMision" relationship="TO_ONE">
+      <point x="15.0" y="14.0" />
+      <point x="-550.0" y="684.5" />
+      <point x="-199.7789473684211" y="684.5" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="datos.tripulantes.Vulcano" target="datos.tripulantes.Decorator" relationship="GENERALIZATION">
+      <point x="-3.1578947368871013E-4" y="-14.000421052631538" />
+      <point x="653.894" y="223.0" />
+      <point x="834.691" y="223.0" />
+      <point x="-3.684210525989329E-4" y="14.000210526315811" />
+    </edge>
+    <edge source="datos.tripulantes.TripulantesCollection" target="datos.tripulantes.Tripulante" relationship="TO_MANY">
+      <point x="-2.631578945511137E-4" y="-13.999568421052572" />
+      <point x="1093.585" y="91.0" />
+      <point x="937.0" y="91.0" />
+      <point x="937.0" y="18.448" />
+      <point x="63.9996315789474" y="4.2105263162284245E-4" />
+    </edge>
+    <edge source="negocio.AsistenteDeComando" target="datos.nave.Nave" relationship="TO_ONE">
+      <point x="-14.99952631578958" y="-14.0" />
+      <point x="-407.789" y="321.5" />
+      <point x="-45.0" y="-8.811410526315854" />
+    </edge>
+    <edge source="datos.tripulantes.Capitan" target="datos.tripulantes.Tripulante" relationship="GENERALIZATION">
+      <point x="-3.684210525989329E-4" y="13.999526315789524" />
+      <point x="716.691" y="149.0" />
+      <point x="837.691" y="149.0" />
+      <point x="-3.684210525989329E-4" y="14.000421052631623" />
+    </edge>
+    <edge source="datos.ClasesMotorWarp.Enfriamiento" target="datos.ClasesMotorWarp.EstadoMotorBase" relationship="GENERALIZATION">
+      <point x="1.684210524217633E-4" y="-14.000042105263162" />
+      <point x="-562.104" y="149.0" />
+      <point x="-318.147" y="149.0" />
+      <point x="2.8421052621752096E-4" y="14.000094736842087" />
+    </edge>
+    <edge source="datos.tripulantes.Teniente" target="datos.tripulantes.Tripulante" relationship="GENERALIZATION">
+      <point x="2.631578947784874E-4" y="13.999526315789524" />
+      <point x="462.403" y="149.0" />
+      <point x="837.691" y="149.0" />
+      <point x="-3.684210525989329E-4" y="14.000421052631623" />
+    </edge>
+    <edge source="datos.Mision.Mision" target="negocio.AsistenteDeComando" relationship="TO_ONE">
+      <point x="50.5" y="0.0" />
+      <point x="-392.7894736842104" y="653.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="datos.tripulantes.Marciano" target="datos.tripulantes.Decorator" relationship="GENERALIZATION">
+      <point x="5.263157913759642E-5" y="-14.000421052631538" />
+      <point x="936.767" y="223.0" />
+      <point x="834.691" y="223.0" />
+      <point x="-3.684210525989329E-4" y="14.000210526315811" />
+    </edge>
+    <edge source="datos.ClasesMotorWarp.Disponible" target="datos.ClasesMotorWarp.EstadoMotorBase" relationship="GENERALIZATION">
+      <point x="-3.2631578954323004E-4" y="-13.999673684210478" />
+      <point x="-43.745" y="149.0" />
+      <point x="-318.147" y="149.0" />
+      <point x="2.8421052621752096E-4" y="14.000094736842087" />
+    </edge>
+    <edge source="datos.Mision.Mision" target="datos.Requisitos" relationship="TO_ONE">
+      <point x="-50.5" y="0.0" />
+      <point x="65.0" y="0.0" />
+    </edge>
+    <edge source="datos.nave.NaveCombate" target="datos.nave.Nave" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.000052631578797" />
+      <point x="0.0" y="13.999589473684125" />
+    </edge>
+    <edge source="datos.Mision.Mision" target="datos.Recursos" relationship="TO_ONE">
+      <point x="0.0" y="-14.0" />
+      <point x="-565.0" y="401.0" />
+      <point x="-529.5" y="401.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="datos.tripulantes.Decorator" target="datos.tripulantes.Tripulante" relationship="GENERALIZATION">
+      <point x="-3.684210525989329E-4" y="-13.999789473684189" />
+      <point x="834.691" y="149.0" />
+      <point x="837.691" y="149.0" />
+      <point x="-3.684210525989329E-4" y="14.000421052631623" />
+    </edge>
+    <edge source="datos.Mision.MisionRetorno" target="datos.Mision.Mision" relationship="GENERALIZATION">
+      <point x="-1.5789473684435507E-4" y="-14.0" />
+      <point x="-789.337" y="713.0" />
+      <point x="-565.0" y="713.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="datos.ClasesMotorWarp.PreparandoSalto" target="datos.ClasesMotorWarp.EstadoMotorBase" relationship="GENERALIZATION">
+      <point x="-4.210526315091556E-4" y="-14.000042105263162" />
+      <point x="-361.248" y="149.0" />
+      <point x="-318.147" y="149.0" />
+      <point x="2.8421052621752096E-4" y="14.000094736842087" />
+    </edge>
+    <edge source="datos.Mision.MisionRecoleccion" target="datos.Mision.Mision" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="datos.tripulantes.Decorator" target="datos.tripulantes.Tripulante" relationship="TO_ONE">
+      <point x="63.4996315789474" y="2.1052631581142123E-4" />
+      <point x="937.0" y="183.492" />
+      <point x="937.0" y="18.448" />
+      <point x="63.9996315789474" y="4.2105263162284245E-4" />
+    </edge>
+    <edge source="datos.ClasesMotorWarp.MotorWarp" target="datos.ClasesMotorWarp.EstadoMotorBase" relationship="TO_ONE">
+      <point x="-68.0" y="-4.4098105263157095" />
+      <point x="-318.1472842105262" y="62.00290526315791" />
+      <point x="0.0" y="-14.0" />
+    </edge>
+    <edge source="datos.ClasesMotorWarp.EnWarp" target="datos.ClasesMotorWarp.EstadoMotorBase" relationship="GENERALIZATION">
+      <point x="1.2631578945843103E-4" y="-14.000042105263162" />
+      <point x="-190.996" y="149.0" />
+      <point x="-318.147" y="149.0" />
+      <point x="2.8421052621752096E-4" y="14.000094736842087" />
+    </edge>
+    <edge source="datos.nave.Nave" target="datos.tripulantes.TripulantesCollection" relationship="TO_ONE">
+      <point x="15.0" y="14.0" />
+      <point x="239.5" y="414.0" />
+      <point x="-107.0" y="-2.7745684210525496" />
+    </edge>
+    <edge source="negocio.AsistenteDeComando" target="datos.ClasesBitacora.Bitacora" relationship="TO_ONE">
+      <point x="4.7368421041937836E-4" y="-14.0" />
+      <point x="-392.789" y="526.0" />
+      <point x="-199.779" y="526.0" />
+      <point x="-5.263157891022274E-5" y="14.00017894736834" />
+    </edge>
+  </edges>
+  <RemovedNodes>
+    <node>datos.Mision.ResultadoMision</node>
+    <node>datos.package-info</node>
+    <node>datos.OperacionRechazadaException</node>
+    <node>presentacion.package-info</node>
+    <node>negocio.package-info</node>
+    <node>datos.Mision.EtapaMision</node>
+  </RemovedNodes>
+  <RemovedEdges />
+  <settings layout="Hierarchic Compact" zoom="0.5239005736137667" showDependencies="true" x="289.0" y="195.69160583941607" />
+  <SelectedNodes />
+  <Categories />
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+
