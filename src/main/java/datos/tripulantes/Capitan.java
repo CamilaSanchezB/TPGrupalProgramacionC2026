@@ -13,7 +13,7 @@ public class Capitan extends Tripulante {
      * - crea un Capitan con remuneracion 1000 y porcentaje por antiguedad 0.10
      */
     public Capitan(String nombre, int antiguedad) {
-        super(nombre, antiguedad, 1000, 0.10, "Capitan");
+        super(nombre, antiguedad, 1000, 0.20, "Capitan");
     }
     /**
      * <b>PRE</b>
