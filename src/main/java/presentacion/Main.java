@@ -5,7 +5,7 @@ import datos.ClasesBitacora.Bitacora;
 import datos.Mision.*;
 import datos.nave.*;
 import negocio.*;
-
+import datos.tripulantes.*;
 public class Main {
     public static void main(String[] args){
         escenarioA();
