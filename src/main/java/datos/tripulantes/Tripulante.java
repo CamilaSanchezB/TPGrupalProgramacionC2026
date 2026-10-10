@@ -13,8 +13,8 @@ import java.util.Iterator;
  */
 public abstract class Tripulante {
 
-    public static String SIN_CARGO = "Sin cargo asignado";
-    public static String SIN_ORIGEN = "Sin origen asignado";
+    public static final String SIN_CARGO = "Sin cargo asignado";
+    public static final String SIN_ORIGEN = "Sin origen asignado";
 
     protected String nombre;
     protected String cargo = SIN_CARGO;
