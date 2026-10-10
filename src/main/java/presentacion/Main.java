@@ -4,7 +4,6 @@ import datos.*;
 import datos.ClasesBitacora.Bitacora;
 import datos.Mision.*;
 import datos.nave.*;
-import datos.tripulantes.*;
 import negocio.*;
 
 public class Main {
@@ -115,16 +114,17 @@ public class Main {
     }
      
     public static void escenarioA() {
-    System.out.println("ESCENARIO A: ejecución de las 3 misiones");
+    System.out.println(" probamos las 3 misiones");
+
+    Bitacora bitacora = new Bitacora();
+    NaveFactory factory = new NaveFactory();
+    Nave miNave = factory.crearNave("combate");
+    AsistenteDeComando asistente = new AsistenteDeComando(miNave, bitacora);
 
     for (int i = 1; i <= 3; i++) {
         System.out.println("========================================");
-        System.out.println("MISIÓN " + i);
+        System.out.println("MISSION " + i);
 
-        Bitacora bitacora = new Bitacora();
-        NaveFactory factory = new NaveFactory();
-        Nave miNave = factory.crearNave("combate");
-        AsistenteDeComando asistente = new AsistenteDeComando(miNave, bitacora);
 
         // dejá la nave con recursos suficientes para poder ejecutar cualquier misión
 
@@ -144,38 +144,35 @@ public class Main {
 
         mision.realizar();
 
-        System.out.println("Resultado: " + mision.getResultado());
-        System.out.println("Etapa: " + mision.getEtapa());
+        System.out.println("resultado: " + mision.getResultado());
+        System.out.println("etapa: " + mision.getEtapa());
 
-        System.out.println("Recursos finales:");
-        System.out.println("  Combustible: " + asistente.getCombustible());
-        System.out.println("  Energia: " + asistente.getEnergia());
-        System.out.println("  Desgaste: " + asistente.getDesgaste());
+        System.out.println("recursos finales:");
+        System.out.println("  combustible: " + asistente.getCombustible());
+        System.out.println("  energia: " + asistente.getEnergia());
+        System.out.println("  desgaste: " + asistente.getDesgaste());
 
         if (mision.getInforme() != null) {
             InformeMision informe = mision.getInforme();
             System.out.println("Informe:");
-            System.out.println("  Nombre: " + informe.getNombreMision());
-            System.out.println("  Resultado: " + informe.getResultado());
-            System.out.println("  Combustible consumido: " + informe.getCombustibleConsumido());
-            System.out.println("  Energia consumida: " + informe.getEnergiaConsumida());
-            System.out.println("  Desgaste generado: " + informe.getDesgasteGenerado());
-            System.out.println("  Combustible final: " + informe.getCombustibleFinal());
-            System.out.println("  Energia final: " + informe.getEnergiaFinal());
-            System.out.println("  Desgaste final: " + informe.getDesgasteFinal());
-            System.out.println("  Observaciones: " + informe.getObservaciones());
+            System.out.println("  nombre: " + informe.getNombreMision());
+            System.out.println("  resultado: " + informe.getResultado());
+            System.out.println("  combustible consumido: " + informe.getCombustibleConsumido());
+            System.out.println("  energia consumida: " + informe.getEnergiaConsumida());
+            System.out.println("  desgaste generado: " + informe.getDesgasteGenerado());
+            System.out.println("  combustible final: " + informe.getCombustibleFinal());
+            System.out.println("  energia final: " + informe.getEnergiaFinal());
+            System.out.println("  desgaste final: " + informe.getDesgasteFinal());
+            System.out.println("  observaciones: " + informe.getObservaciones());
         }
 
-        System.out.println("Bitácora:");
+        System.out.println("bitacora:");
         asistente.mostrarReporteBitacora();
-
-        System.out.println("========================================");
-        System.out.println();
     }
  }
 
     public static void escenarioB() {
-    System.out.println("escenario b: la nave quiere hacer una misión pero se queda sin energia o nafta");
+    System.out.println("escenario b: la nave quiere hacer una misión pero se queda sin pila o nafta");
 
     Bitacora bitacora = new Bitacora();
     
@@ -184,30 +181,30 @@ public class Main {
 
     AsistenteDeComando asistente = new AsistenteDeComando(miNave, bitacora);
 
-    // Dejo la nave sin recursos para provocar el rechazo
+    // aca consume todos los recursos q tiene usando los gets
     miNave.consumir(miNave.getCombustible(), miNave.getEnergia(), 0);
 
-    System.out.println("Recursos antes de la misión:");
-    System.out.println("  Combustible: " + asistente.getCombustible());
-    System.out.println("  Energia: " + asistente.getEnergia());
-    System.out.println("  Desgaste: " + asistente.getDesgaste());
+    System.out.println("recursos antes");
+    System.out.println("  combustible: " + asistente.getCombustible());
+    System.out.println("  energia: " + asistente.getEnergia());
+    System.out.println("  desgaste: " + asistente.getDesgaste());
 
     Mision mision = new MisionIntercepcion(asistente);
     mision.realizar();
 
-    System.out.println("Resultado final: " + mision.getResultado());
-    System.out.println("Etapa final: " + mision.getEtapa());
+    System.out.println("resultado final: " + mision.getResultado());
+    System.out.println("etapa final: " + mision.getEtapa());
 
     if (mision.getInforme() != null) {
-        System.out.println("Observaciones: " + mision.getInforme().getObservaciones());
+        System.out.println("observaciones: " + mision.getInforme().getObservaciones());
     }
 
-    System.out.println("Recursos finales:");
-    System.out.println("  Combustible: " + asistente.getCombustible());
-    System.out.println("  Energia: " + asistente.getEnergia());
-    System.out.println("  Desgaste: " + asistente.getDesgaste());
+    System.out.println("recursos finales:");
+    System.out.println("  combustible: " + asistente.getCombustible());
+    System.out.println("  energia: " + asistente.getEnergia());
+    System.out.println("  desgaste: " + asistente.getDesgaste());
 
-    System.out.println("Bitacora:");
+    System.out.println("bitacora:");
     asistente.mostrarReporteBitacora();
 }
 

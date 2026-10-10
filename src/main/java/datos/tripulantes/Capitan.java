@@ -1,7 +1,5 @@
 package datos.tripulantes;
 
-import java.util.ArrayList;
-import java.util.List;
 
 public class Capitan extends Tripulante {
 
