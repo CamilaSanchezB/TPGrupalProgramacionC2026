@@ -1,7 +1,6 @@
 package datos.tripulantes;
 
-import java.util.ArrayList;
-import java.util.List;
+
 
 public class Teniente extends Tripulante {
 
