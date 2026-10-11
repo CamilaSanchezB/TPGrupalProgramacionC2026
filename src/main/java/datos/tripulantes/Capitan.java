@@ -8,7 +8,7 @@ public class Capitan extends Tripulante {
      * - nombre != null && nombre no vacio
      * - antiguedad >= 0
      * <b>POST</b>
-     * - crea un Capitan con remuneracion 1000 y porcentaje por antiguedad 0.10
+     * - crea un Capitan con remuneracion 1000 y porcentaje por antiguedad 0.20
      */
     public Capitan(String nombre, int antiguedad) {
         super(nombre, antiguedad, 1000, 0.20, "Capitan");
