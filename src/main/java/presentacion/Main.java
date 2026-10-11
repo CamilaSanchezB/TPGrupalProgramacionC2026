@@ -4,6 +4,7 @@ import datos.*;
 import datos.ClasesBitacora.Bitacora;
 import datos.Mision.*;
 import datos.nave.*;
+import datos.tripulantes.*;
 import negocio.*;
 import datos.tripulantes.*;
 public class Main {
@@ -68,6 +69,8 @@ public class Main {
         System.out.println("ESCENARIO D:");
         Bitacora miBitacora = new Bitacora();
         NaveFactory factory = new NaveFactory();
+        Nave pruebaNave = factory.crearNave("exploradora");
+        Nave pruebaNave2= factory.crearNave("combate");
         Nave miNave = factory.crearNave("carguero");
         AsistenteDeComando asistente = new AsistenteDeComando(miNave, miBitacora);
 

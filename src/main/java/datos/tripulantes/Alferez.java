@@ -9,7 +9,7 @@ public class Alferez extends Tripulante {
      * - nombre != null && nombre no vacio
      * - antiguedad >= 0
      * <b>POST</b>
-     * - crea un Alferez con remuneracion 200 y porcentaje por antiguedad 0.02
+     * - crea un Alferez con remuneracion 200 y porcentaje por antiguedad 0.005
      */
     public Alferez(String nombre, int antiguedad) {
         super(nombre, antiguedad, 200, 0.005, "Alferez");
