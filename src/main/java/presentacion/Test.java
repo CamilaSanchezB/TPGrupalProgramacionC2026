@@ -1,4 +1,4 @@
-package negocio;
+package presentacion;
 
 import datos.OperacionRechazadaException;
 import datos.ClasesBitacora.Bitacora;
@@ -13,6 +13,8 @@ import datos.tripulantes.Consejero;
 import datos.tripulantes.Terricola;
 import datos.tripulantes.Tripulante;
 import datos.tripulantes.Vulcano;
+import negocio.AsistenteDeComando;
+import negocio.LiquidadorHaberes;
 
 public class Test {
     public static void ejecutarEscenarioA(){
