@@ -1,6 +1,6 @@
 package controller;
 
-import model.OperacionRechazadaException;
+import exceptions.OperacionRechazadaException;
 import model.ClasesBitacora.Bitacora;
 import model.ClasesBitacora.RegitroBitacora;
 import model.nave.Nave;

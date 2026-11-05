@@ -2,7 +2,7 @@ package view;
 
 import controller.AsistenteDeComando;
 import controller.LiquidadorHaberes;
-import model.OperacionRechazadaException;
+import exceptions.OperacionRechazadaException;
 import model.ClasesBitacora.Bitacora;
 import model.Mision.InformeMision;
 import model.Mision.Mision;
