@@ -7,8 +7,10 @@ import java.awt.event.ActionListener;
 import java.util.List;
 
 import javax.swing.DefaultListModel;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -27,9 +29,9 @@ public class TripulantesView extends JFrame implements ITripulantes {
 	private JPanel contentPane;
 	private JPanel panel;
 	private JTextField textoNombre;
-	private JTextField textoOrigen;
 	private JTextField textoAntiguedad;
-	private JTextField textoCargo;
+	private JComboBox<String> comboCargo;
+	private JComboBox<String> comboOrigen;
 
 	private TripulantesController controlador;
 	private DefaultListModel<String> modelo;
@@ -79,17 +81,15 @@ public class TripulantesView extends JFrame implements ITripulantes {
 		lblCargo = new JLabel("Cargo");
 		panel.add(lblCargo);
 
-		textoCargo = new JTextField();
-		panel.add(textoCargo);
-		textoCargo.setColumns(10);
-		
+		comboCargo = new JComboBox<>(CARGOS);
+		panel.add(comboCargo);
+
 		lblOrigen = new JLabel("Origen");
 		panel.add(lblOrigen);
 
-		textoOrigen = new JTextField();
-		panel.add(textoOrigen);
-		textoOrigen.setColumns(10);
-		
+		comboOrigen = new JComboBox<>(ORIGENES);
+		panel.add(comboOrigen);
+
 		btnCrear = new JButton("Crear");
 		panel.add(btnCrear);
 		btnCrear.setActionCommand("CREAR");
@@ -161,9 +161,37 @@ public class TripulantesView extends JFrame implements ITripulantes {
 		return list.getSelectedIndex();
 	}
 
+	@Override
 	public void mostrarDatosTripulante(Tripulante tripulante) {
 		this.textoNombre.setText(tripulante.getNombre());
-		
+		this.textoAntiguedad.setText(String.valueOf(tripulante.getAntiguedad()));
+		this.comboCargo.setSelectedItem(tripulante.getCargo());
+		this.comboOrigen.setSelectedItem(tripulante.getOrigen());
+	}
+
+	@Override
+	public String getNombre() {
+		return textoNombre.getText();
+	}
+
+	@Override
+	public String getAntiguedad() {
+		return textoAntiguedad.getText();
+	}
+
+	@Override
+	public String getCargo() {
+		return (String) comboCargo.getSelectedItem();
+	}
+
+	@Override
+	public String getOrigen() {
+		return (String) comboOrigen.getSelectedItem();
+	}
+
+	@Override
+	public void mostrarError(String mensaje) {
+		JOptionPane.showMessageDialog(this, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
 	}
 	
 }

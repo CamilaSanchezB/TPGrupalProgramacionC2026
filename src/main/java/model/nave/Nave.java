@@ -56,6 +56,15 @@ public abstract class Nave {
     }
 
     /**
+     * PRE: nombre != null y no vacío
+     * POST: si lo encuentra, el primer tripulante con ese nombre deja de estar en la
+     *       tripulación; el resto conserva su orden relativo
+     */
+    public void eliminarTripulante(String nombre) {
+        tripulantes.eliminar(nombre);
+    }
+
+    /**
      * PRE: nombre != null
      * @return true si y solo si algún tripulante tiene ese nombre
      * POST: es una consulta; no modifica nada
