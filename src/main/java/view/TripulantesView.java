@@ -1,7 +1,6 @@
 package view;
 
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
@@ -19,45 +18,14 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-
-import com.formdev.flatlaf.FlatLightLaf;
 
 import controller.TripulantesController;
 import net.miginfocom.swing.MigLayout;
 
 @SuppressWarnings("serial")
 public class TripulantesView extends JFrame implements ITripulantes {
-
-	/** Azul de acento para las acciones principales. */
-	private static final Color ACENTO = new Color(2, 132, 199);
-	private static final Color TITULO = new Color(15, 23, 42);
-	private static final String FAMILIA = "Segoe UI";
-	private static final Font FUENTE_TITULO = new Font(FAMILIA, Font.BOLD, 16);
-	private static final Font FUENTE_ETIQUETA = new Font(FAMILIA, Font.PLAIN, 13);
-	private static final Font FUENTE_DETALLE = new Font("Consolas", Font.PLAIN, 13);
-
-	/*
-	 * El Look and Feel se aplica al cargar la clase, antes de que exista cualquier
-	 * componente, para que valga sin importar quien instancie la vista.
-	 */
-	static {
-		try {
-			UIManager.setLookAndFeel(new FlatLightLaf());
-			// Los redondeos van despues de instalar el Look and Feel, no antes.
-			UIManager.put("Button.arc", 12);
-			UIManager.put("Component.arc", 10);
-			UIManager.put("TextComponent.arc", 10);
-			UIManager.put("Component.focusWidth", 1);
-			UIManager.put("Component.accentColor", ACENTO);
-		} catch (UnsupportedLookAndFeelException e) {
-			System.err.println("No se pudo aplicar FlatLaf, sigue el Look and Feel por defecto: "
-					+ e.getMessage());
-		}
-	}
 
 	private JPanel contentPane;
 	private JPanel panel;
@@ -98,6 +66,7 @@ public class TripulantesView extends JFrame implements ITripulantes {
 
 	/** Crea y ubica todos los componentes de la ventana. */
 	private void initialize() {
+		ConfigView.aplicar();
 		setTitle("Tripulación");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 1000, 640);
@@ -114,14 +83,14 @@ public class TripulantesView extends JFrame implements ITripulantes {
 		contentPane.add(panelLista, "cell 0 0, grow");
 
 		lblTripulacion = new JLabel("Tripulación");
-		lblTripulacion.setFont(FUENTE_TITULO);
-		lblTripulacion.setForeground(TITULO);
+		lblTripulacion.setFont(ConfigView.FUENTE_TITULO);
+		lblTripulacion.setForeground(ConfigView.TITULO);
 		panelLista.add(lblTripulacion, "cell 0 0");
 
 		modelo = new DefaultListModel<String>();
 		list = new JList<String>(modelo);
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		list.setFont(FUENTE_ETIQUETA);
+		list.setFont(ConfigView.FUENTE_ETIQUETA);
 		scrollLista = new JScrollPane(list);
 		panelLista.add(scrollLista, "cell 0 1, grow");
 
@@ -136,7 +105,7 @@ public class TripulantesView extends JFrame implements ITripulantes {
 
 		btnLiquidar = new JButton("Liquidar todos");
 		btnLiquidar.setActionCommand("LIQUIDAR");
-		btnLiquidar.setBackground(ACENTO);
+		btnLiquidar.setBackground(ConfigView.ACENTO);
 		btnLiquidar.setForeground(Color.WHITE);
 		panelBotonesLista.add(btnLiquidar, "cell 1 0, grow");
 
@@ -151,12 +120,12 @@ public class TripulantesView extends JFrame implements ITripulantes {
 		panelCentro.add(panel, "cell 0 0, growx");
 
 		lblDatos = new JLabel("Datos del tripulante");
-		lblDatos.setFont(FUENTE_TITULO);
-		lblDatos.setForeground(TITULO);
+		lblDatos.setFont(ConfigView.FUENTE_TITULO);
+		lblDatos.setForeground(ConfigView.TITULO);
 		panel.add(lblDatos, "cell 0 0 2 1");
 
 		lblNombre = new JLabel("Nombre");
-		lblNombre.setFont(FUENTE_ETIQUETA);
+		lblNombre.setFont(ConfigView.FUENTE_ETIQUETA);
 		panel.add(lblNombre, "cell 0 1");
 
 		textoNombre = new JTextField();
@@ -164,7 +133,7 @@ public class TripulantesView extends JFrame implements ITripulantes {
 		panel.add(textoNombre, "cell 1 1, growx");
 
 		lblAntiguedad = new JLabel("Antigüedad");
-		lblAntiguedad.setFont(FUENTE_ETIQUETA);
+		lblAntiguedad.setFont(ConfigView.FUENTE_ETIQUETA);
 		panel.add(lblAntiguedad, "cell 0 2");
 
 		textoAntiguedad = new JTextField();
@@ -172,7 +141,7 @@ public class TripulantesView extends JFrame implements ITripulantes {
 		panel.add(textoAntiguedad, "cell 1 2, growx");
 
 		lblCargo = new JLabel("Cargo");
-		lblCargo.setFont(FUENTE_ETIQUETA);
+		lblCargo.setFont(ConfigView.FUENTE_ETIQUETA);
 		panel.add(lblCargo, "cell 0 3");
 
 		comboCargo = new JComboBox<String>();
@@ -180,7 +149,7 @@ public class TripulantesView extends JFrame implements ITripulantes {
 		panel.add(comboCargo, "cell 1 3, growx");
 
 		lblOrigen = new JLabel("Origen");
-		lblOrigen.setFont(FUENTE_ETIQUETA);
+		lblOrigen.setFont(ConfigView.FUENTE_ETIQUETA);
 		panel.add(lblOrigen, "cell 0 4");
 
 		comboOrigen = new JComboBox<String>();
@@ -188,7 +157,7 @@ public class TripulantesView extends JFrame implements ITripulantes {
 		panel.add(comboOrigen, "cell 1 4, growx");
 
 		lblConsejos = new JLabel("Consejos");
-		lblConsejos.setFont(FUENTE_ETIQUETA);
+		lblConsejos.setFont(ConfigView.FUENTE_ETIQUETA);
 		panel.add(lblConsejos, "cell 0 5");
 
 		textoConsejos = new JTextField();
@@ -201,7 +170,7 @@ public class TripulantesView extends JFrame implements ITripulantes {
 
 		btnCrear = new JButton("Crear");
 		btnCrear.setActionCommand("CREAR");
-		btnCrear.setBackground(ACENTO);
+		btnCrear.setBackground(ConfigView.ACENTO);
 		btnCrear.setForeground(Color.WHITE);
 		panelBotonesForm.add(btnCrear, "cell 0 0, grow");
 
@@ -214,14 +183,14 @@ public class TripulantesView extends JFrame implements ITripulantes {
 		panelBotonesForm.add(btnEliminar, "cell 2 0, grow");
 
 		lblDetalle = new JLabel("Detalle de la liquidación");
-		lblDetalle.setFont(FUENTE_TITULO);
-		lblDetalle.setForeground(TITULO);
+		lblDetalle.setFont(ConfigView.FUENTE_TITULO);
+		lblDetalle.setForeground(ConfigView.TITULO);
 		panelCentro.add(lblDetalle, "cell 0 1");
 
 		// Pantalla en blanco: ahi se escribe el detalle de la liquidacion.
 		areaLiquidacion = new JTextArea();
 		areaLiquidacion.setEditable(false);
-		areaLiquidacion.setFont(FUENTE_DETALLE);
+		areaLiquidacion.setFont(ConfigView.FUENTE_DETALLE);
 		areaLiquidacion.setRows(10);
 		scrollLiquidacion = new JScrollPane(areaLiquidacion);
 		panelCentro.add(scrollLiquidacion, "cell 0 2, grow");
