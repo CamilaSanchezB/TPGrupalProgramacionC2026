@@ -1,12 +1,12 @@
 $ErrorActionPreference = "Stop"
 
-# compila todos los módulos del proyecto y genera MV.exe
+# compila el proyecto y copia las dependencias a target/lib
 & mvn compile
 
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
-# ejecuta el programa compilado
-& mvn exec:java "-Dexec.mainClass=presentacion.Main"
+# ejecuta con las aserciones activas; target/lib trae FlatLaf y MigLayout
+& java -ea -cp "target/classes;target/lib/*" view.Main
 exit $LASTEXITCODE
