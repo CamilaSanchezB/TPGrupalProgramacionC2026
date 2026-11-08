@@ -29,6 +29,16 @@ public abstract class Decorator extends Tripulante {
         this.tripulante = tripulante;
     }
 
+    /**
+     * <b>POST</b>
+     * - devuelve el tripulante encapsulado (!= null); no modifica nada
+     * Permite llegar a los datos propios del cargo decorado, que no estan
+     * en la interfaz de Tripulante (por ejemplo, los consejos del Consejero).
+     */
+    public Tripulante getTripulante() {
+        return tripulante;
+    }
+
     // Los datos de identidad se delegan en el objeto encapsulado
     @Override
     public String getNombre() {

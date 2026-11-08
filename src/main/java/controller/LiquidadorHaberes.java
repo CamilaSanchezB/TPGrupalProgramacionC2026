@@ -54,47 +54,40 @@ public class LiquidadorHaberes {
 
     /**
      * <b>PRE</b>
-     * - tripulante != null
-     * <b>POST</b>
-     * - imprime por pantalla liquidar(tripulante) seguido de una linea en blanco
-     * - el periodo del tripulante queda reiniciado
-     */
-    public void imprimirLiquidacion(Tripulante tripulante) {
-        System.out.println(liquidar(tripulante));
-    }
-
-    /**
-     * <b>PRE</b>
      * - tripulantes != null y no contiene elementos null
      * <b>POST</b>
-     * - imprime por pantalla el recibo de cada tripulante, en el orden de la lista,
-     *   y al final el total a pagar (suma de los sueldos liquidados)
+     * - devuelve el encabezado, el recibo de cada tripulante en el orden de la lista
+     *   separados por una linea en blanco, y al final el total a pagar
+     *   (suma de los sueldos liquidados antes de reiniciar cada periodo)
      * - el periodo de cada tripulante queda reiniciado
      */
-    public void imprimirLiquidacion(List<Tripulante> tripulantes) {
+    public String liquidar(List<Tripulante> tripulantes) {
         assert tripulantes != null : "La lista de tripulantes no puede ser nula.";
-        System.out.println("=== LIQUIDACION DE HABERES ===");
+        StringBuilder detalle = new StringBuilder("=== LIQUIDACION DE HABERES ===\n");
         double total = 0;
         Iterator<Tripulante> iterador = tripulantes.iterator();
         while (iterador.hasNext()) {
             Tripulante tripulante = iterador.next();
             assert tripulante != null : "La lista no puede contener tripulantes nulos.";
+            // El sueldo se suma antes de liquidar, porque liquidar reinicia el periodo.
             total = total + tripulante.calcularSueldo();
-            imprimirLiquidacion(tripulante);
+            detalle.append(liquidar(tripulante)).append("\n");
         }
-        System.out.println("Total a pagar: " + total + " PG");
+        detalle.append("Total a pagar: ").append(total).append(" PG\n");
+        return detalle.toString();
     }
 
     /**
      * <b>PRE</b>
      * - nave != null
      * <b>POST</b>
-     * - imprime por pantalla la liquidacion de toda la tripulacion de la nave
-     *   (imprimirLiquidacion(nave.getTripulantes()))
+     * - devuelve la liquidacion de toda la tripulacion de la nave
+     *   (liquidar(nave.getTripulantes()))
      * - el periodo de cada tripulante de la nave queda reiniciado
      */
-    public void imprimirLiquidacion(Nave nave) {
+    public String liquidar(Nave nave) {
         assert nave != null : "La nave no puede ser nula.";
-        imprimirLiquidacion(nave.getTripulantes());
+        return liquidar(nave.getTripulantes());
     }
+
 }

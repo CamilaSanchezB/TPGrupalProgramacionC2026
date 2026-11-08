@@ -239,7 +239,7 @@ public class Test {
         capitan = new Vulcano(capitan);
         miNave.editarTripulante("Test capitan", capitan);
         miNave.asignarTripulante(new Terricola(new Consejero("Test consejero", 5,10)));
-        liquidador.imprimirLiquidacion(miNave);
+        System.out.println(liquidador.liquidar(miNave));
 
     }
 

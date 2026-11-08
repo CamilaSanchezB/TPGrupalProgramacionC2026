@@ -14,9 +14,14 @@ public interface ITripulantes {
     String CREAR = "CREAR";
     String ACTUALIZAR = "ACTUALIZAR";
     String ELIMINAR = "ELIMINAR";
+    String DESELECCIONAR = "DESELECCIONAR";
+    String LIQUIDAR = "LIQUIDAR";
+
+    /** Unico cargo que tiene cantidad de consejos. */
+    String CARGO_CONSEJERO = "Consejero";
 
     /** Opciones de los selectores de cargo y de origen. */
-    String[] CARGOS = { "Capitan", "Alferez", "Consejero", "Teniente" };
+    String[] CARGOS = { "Capitan", "Alferez", CARGO_CONSEJERO, "Teniente" };
     String[] ORIGENES = { Tripulante.SIN_ORIGEN, "Terricola", "Marciano", "Vulcano" };
 
 	public void setControlador(TripulantesController c);
@@ -26,10 +31,21 @@ public interface ITripulantes {
 	public void setActionListener(ActionListener listener);
 	public void setSeleccionTripulanteListener(ListSelectionListener listener);
 	public int getTripulanteSeleccionado();
-	public void mostrarDatosTripulante(Tripulante tripulante);
+	public void setNombreSeleccionado(String nombre);
+	public void setAntiguedadSeleccionado(int antiguedad);
+	public void setCargoSeleccionado(String cargo);
+	public void setOrigenSeleccionado(String origen);
+	/**
+	 * Escribe la cantidad de consejos; null deja el campo vacio.
+	 * El bloqueo no depende de este valor sino del cargo elegido en la vista.
+	 */
+	public void setCantidadConsejosSeleccionado(Integer cantidadConsejos);
 	public String getNombre();
 	public String getAntiguedad();
 	public String getCargo();
 	public String getOrigen();
+	public String getCantidadConsejos();
 	public void mostrarError(String mensaje);
+	public void limpiarSeleccion();
+	public void mostrarLiquidacion(String recibo);
 }
