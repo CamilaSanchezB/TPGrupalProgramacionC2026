@@ -5,5 +5,5 @@
 CREATE TABLE usuarios (
     id             INTEGER      PRIMARY KEY AUTOINCREMENT,
     nombre_usuario VARCHAR(50)  NOT NULL UNIQUE,
-    contraseña     VARCHAR(255) NOT NULL
+    contrasena     VARCHAR(255) NOT NULL
 );

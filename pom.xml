@@ -13,7 +13,12 @@
     </properties>
 
     <dependencies>
-        <!-- Look and Feel plano y moderno -->
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.47.1.0</version>
+        </dependency>
+        <!-- Look and Feel plano  -->
         <dependency>
             <groupId>com.formdev</groupId>
             <artifactId>flatlaf</artifactId>
@@ -24,6 +29,18 @@
             <groupId>com.miglayout</groupId>
             <artifactId>miglayout-swing</artifactId>
             <version>5.3</version>
+        </dependency>
+        <!-- Driver JDBC de SQLite -->
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.47.1.0</version>
+        </dependency>
+        <!-- El driver loguea con SLF4J; esto evita el aviso "No SLF4J providers were found" -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-nop</artifactId>
+            <version>2.0.16</version>
         </dependency>
     </dependencies>
 
