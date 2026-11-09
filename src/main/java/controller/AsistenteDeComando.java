@@ -176,4 +176,6 @@ public class AsistenteDeComando {
         registrar(motivo);
         throw new OperacionRechazadaException(motivo);
     }
+
+    public boolean estaDestruida() { return nave.estaDestruida(); }
 }
