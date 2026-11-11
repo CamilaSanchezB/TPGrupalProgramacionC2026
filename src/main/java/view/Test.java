@@ -15,7 +15,7 @@ import model.tripulantes.Consejero;
 import model.tripulantes.Terricola;
 import model.tripulantes.Tripulante;
 import model.tripulantes.Vulcano;
-
+/*
 public class Test {
     public static void ejecutarEscenarioA(){
         escenarioA();
@@ -242,5 +242,5 @@ public class Test {
         System.out.println(liquidador.liquidar(miNave));
 
     }
-
+*/
 }

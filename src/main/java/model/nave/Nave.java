@@ -29,8 +29,8 @@ public abstract class Nave {
      *       (Capitan, Alferez, Consejero y Teniente, en ese orden)
      */
     protected Nave(int combustibleIni, int energiaIni, int desgaste) {
-        this.motorWarp = new MotorWarp();
         this.recursos = new Recursos(combustibleIni, energiaIni, desgaste);
+        this.motorWarp = new MotorWarp(recursos);
         tripulantes = new TripulantesCollection();
         asignarTripulante(new Capitan("CAPITAN"));
         asignarTripulante(new Alferez("ALFEREZ"));
@@ -96,49 +96,22 @@ public abstract class Nave {
 
 
     // ---------- Motor Warp (delegado en State) ----------
-    // Transiciones válidas:
-    //   Disponible --prepararSalto--> Preparando salto --entrarEnWarp--> En warp
-    //   En warp --iniciarEnfriamiento--> Enfriamiento --estarDisponible--> Disponible
-    //   En warp --terminarSalto--> Disponible (atajo mientras no se modele el tiempo)
-    // Cualquier otra combinación es una transición inválida:
-    //   POST: lanza IllegalStateException, el estado del motor no cambia y los recursos
-    //         tampoco.
+    // Solo dos operaciones; cada llamada es un turno. Devuelven los casilleros avanzados
+    public int saltar() {
+        return motorWarp.saltar();
+    }
 
-    /**
-     * @return true si el motor está en estado Disponible
-     * POST: es una consulta; no modifica nada
-     */
-    public boolean estaDisponible() { return motorWarp.estaDisponible(); }
+    public int saltarWarp() {
+        return motorWarp.saltarWarp();
+    }
 
-    /**
-     * PRE: el motor está Disponible
-     * POST: el motor pasa a Preparando salto
-     */
-    public void prepararSalto() { motorWarp.prepararSalto(); }
+    public boolean estaDisponible() {
+        return motorWarp.estaDisponible();
+    }
 
-    /**
-     * PRE: el motor está en Preparando salto
-     * POST: el motor pasa a En warp
-     */
-    public void entrarEnWarp() { motorWarp.entrarEnWarp(); }
-
-    /**
-     * PRE: el motor está En warp
-     * POST: el motor pasa a Enfriamiento
-     */
-    public void iniciarEnfriamiento() { motorWarp.iniciarEnfriamiento(); }
-
-    /**
-     * PRE: el motor está en Enfriamiento
-     * POST: el motor pasa a Disponible
-     */
-    public void estarDisponible() { motorWarp.estarDisponible(); }
-
-    /**
-     * PRE: el motor está En warp
-     * POST: el motor pasa directamente a Disponible
-     */
-    public void terminarSalto() { motorWarp.terminarSalto(); }
+    public String getEstadoMotor() {
+        return motorWarp.getNombreEstado();
+    }
 
     // ---------- Recursos: consultas ----------
     // Ninguna modifica la nave.
@@ -207,6 +180,29 @@ public abstract class Nave {
      */
     public void realizarMantenimiento() { recursos.realizarMantenimiento(); }
 
+    public int getGemas() {
+        return recursos.getGemas();
+    }
+
+    public boolean estaDestruida() {
+        return recursos.estaDestruida();
+    }
+
+    public void agregarGemas(int cantidad) {
+        recursos.agregarGemas(cantidad);
+    }
+
+    public void recargarHastaTope(int combustible, int energia) {
+        recursos.recargarHastaTope(combustible, energia);
+    }
+
+    public void recibirImpacto(int energia, int desgaste) {
+        recursos.recibirImpacto(energia, desgaste);
+    }
+
+    public Recursos copiaRecursos() {
+        return recursos.copia();
+    }
     /**
      * PRE: enemiga != null
      * POST: devuelve el resultado del combate desde el punto de vista de esta nave;
