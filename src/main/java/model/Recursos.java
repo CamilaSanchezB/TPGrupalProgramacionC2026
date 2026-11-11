@@ -125,7 +125,7 @@ public class Recursos {
         return cantidad > 0 && energia <= CAPACIDAD_MAXIMA - cantidad;
     }
 
-    public void agergarGemas(int cant) {
+    public void agregarGemas(int cant) {
         assert cant > 0 : "La cantidad de gemas debe ser positiva";
         gemas += cant;
     }

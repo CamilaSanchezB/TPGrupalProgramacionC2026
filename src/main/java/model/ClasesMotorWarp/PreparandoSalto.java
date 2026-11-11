@@ -9,7 +9,7 @@ public class PreparandoSalto extends EstadoMotorBase {
     }
 
     @Override
-    public int saltarWrao(MotorWarp motor) {
+    public int saltarWarp(MotorWarp motor) {
         if (!motor.getRecursos().puedeConsumir(0, MotorWarp.COSTO_ENERGIA_WARP, 0))
             return 0; // sin energía de queda preparando
         turnos++;

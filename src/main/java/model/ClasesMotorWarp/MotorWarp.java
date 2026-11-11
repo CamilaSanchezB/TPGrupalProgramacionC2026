@@ -43,10 +43,6 @@ public class MotorWarp {
      * PRE: nuevoEstado != null
      * POST: actualiza el estado y mantiene el invariante
      */
-    public void setEstado(EstadoMotorBase nuevoEstado) {
-        assert nuevoEstado != null : "PRE violada: El estado no puede ser nulo";
-        this.estadoActual = nuevoEstado;
-    }
 
    public boolean estaDisponible() {
         return estadoActual.estaDisponible();

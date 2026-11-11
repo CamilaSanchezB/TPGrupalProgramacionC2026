@@ -91,64 +91,22 @@ public class AsistenteDeComando {
     }
 
     // ---------- Órdenes sobre el Motor Warp ----------
-    // Una transición inválida lanza IllegalStateException desde el estado actual
-    // (comportamiento propio de State): no tiene efecto sobre la nave, se registra
-    // y se devuelve false.
+    // Cada llamada es un turno del motor. Devuelven los casilleros que avanzó la nave.
 
-    public boolean prepararSalto() {
-        try {
-            nave.prepararSalto();
-        } catch (IllegalStateException e) {
-            registrar(e.getMessage());
-            return false;
-        }
-        registrar("Preparando salto...");
-        return true;
+    public int saltar() {
+        String antes = nave.getEstadoMotor();
+        int casilleros = nave.saltar();
+        registrar("Salto normal: avanza " + casilleros + " casillero(s). Motor: "
+                + antes + " -> " + nave.getEstadoMotor());
+        return casilleros;
     }
 
-    public boolean saltar() {
-        try {
-            nave.entrarEnWarp();
-        } catch (IllegalStateException e) {
-            registrar(e.getMessage());
-            return false;
-        }
-        registrar("Salto realizado, entrando en Warp...");
-        return true;
-    }
-
-    /** Por ahora la nave vuelve directo a Disponible (no se modela el tiempo). */
-    public boolean terminarSalto() {
-        try {
-            nave.terminarSalto();
-        } catch (IllegalStateException e) {
-            registrar(e.getMessage());
-            return false;
-        }
-        registrar("Salto terminado, la nave vuelve a estar disponible.");
-        return true;
-    }
-
-    public boolean iniciarEnfriamiento() {
-        try {
-            nave.iniciarEnfriamiento();
-        } catch (IllegalStateException e) {
-            registrar(e.getMessage());
-            return false;
-        }
-        registrar("Iniciando enfriamniento.");
-        return true;
-    }
-
-    public boolean estarDisponible() {
-        try {
-            nave.estarDisponible();
-        } catch (IllegalStateException e) {
-            registrar(e.getMessage());
-            return false;
-        }
-        registrar("La nave esta disponible");
-        return true;
+    public int saltarWarp() {
+        String antes = nave.getEstadoMotor();
+        int casilleros = nave.saltarWarp();
+        registrar("Salto warp: avanza " + casilleros + " casillero(s). Motor: "
+                + antes + " -> " + nave.getEstadoMotor());
+        return casilleros;
     }
 
     // ---------- Bitácora ----------

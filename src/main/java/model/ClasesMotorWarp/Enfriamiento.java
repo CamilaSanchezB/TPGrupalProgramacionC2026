@@ -9,7 +9,7 @@ public class Enfriamiento extends  EstadoMotorBase{
     }
 
     @Override
-    public int saltarWrap(MotorWarp motor) {
+    public int saltarWarp(MotorWarp motor) {
         return enfriar(motor);
     }
 

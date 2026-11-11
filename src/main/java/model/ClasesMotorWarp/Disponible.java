@@ -12,7 +12,7 @@ public class Disponible extends EstadoMotorBase{
     }
 
     @Override
-    public int saltarWrap(MotorWarp motor) {
+    public int saltarWarp(MotorWarp motor) {
         motor.setEstado(new PreparandoSalto()); // este turno cuenta como el 1ero de preparación
         return 0;
     }
@@ -24,5 +24,4 @@ public class Disponible extends EstadoMotorBase{
     public boolean estaDisponible() {
         return true;
 }
-
 }
