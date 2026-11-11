@@ -2,6 +2,8 @@ package model.Mision;
 
 import controller.AsistenteDeComando;
 import model.Requisitos;
+import model.Universo.Universo;
+import model.Coordenada;
 
 /**
  * M-03 Retorno seguro.
@@ -16,8 +18,8 @@ public class MisionRetorno extends Mision {
      * PRE: asistente != null (lo verifica el constructor de Mision)
      * POST: misión en etapa CREADA
      */
-    public MisionRetorno(AsistenteDeComando asistente) {
-        super("M-03 Retorno seguro", asistente, new Requisitos(4, 0, 4));
+    public MisionRetorno(AsistenteDeComando asistente, Universo universo, Coordenada origen, Coordenada destinoBase) {
+        super("M-03 Retorno seguro", asistente, universo, origen, destinoBase, new Requisitos(4, 0, 4));
     }
 
     /**
@@ -26,7 +28,9 @@ public class MisionRetorno extends Mision {
      */
     @Override
     protected void cumplirObjetivo() {
-        registrarAccion("Regreso a la zona designada completado");
+        if(getNavegador()!=null && getNavegador().haLlegado()) {
+            registrarAccion("Regreso a la zona designada completado");
+        }
     }
 
     /**
@@ -36,6 +40,12 @@ public class MisionRetorno extends Mision {
      */
     @Override
     protected boolean cumplioObjetivo() {
-        return naveOperativa();
+        return naveOperativa() && getNavegador() != null && getNavegador().haLlegado();
+    }
+
+    @Override
+    protected void aplicarEfectosFinales(){
+        getAsistenteDeComando().realizarMantenimiento();
+        registrarAccion("Mantenimiento de base completado al retornar");
     }
 }

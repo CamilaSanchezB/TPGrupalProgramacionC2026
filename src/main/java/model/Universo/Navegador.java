@@ -122,7 +122,7 @@ public class Navegador {
      * sobre un peligro) y la nave sobrevive al costo.
      */
     private boolean puedeWarp(List<ElementoDelUniverso> cercanos) {
-        if (!asistente.estaDisponible()) return false;
+        if (!asistente.estaDisponible()||turnosEnfriamiento>0) return false;
         if (ruta.size() - 1 < ALCANCE_WARP) return false;
         boolean sobrevive = asistente.getCombustible() > WARP_COMBUSTIBLE
                 && asistente.getEnergia() > WARP_ENERGIA
@@ -137,26 +137,21 @@ public class Navegador {
 
     private void saltar() {
         asistente.consumir(SALTO_COMBUSTIBLE, SALTO_ENERGIA, SALTO_DESGASTE);
+        asistente.saltar();
         avanzarEnRuta(1);
         asistente.registrar("Salto a " + posicion);
     }
 
     private void saltarWarp() {
-        if (!asistente.prepararSalto() || !asistente.saltar())
-            throw new IllegalStateException("El motor no pudo entrar en warp");
         asistente.consumir(WARP_COMBUSTIBLE, WARP_ENERGIA, WARP_DESGASTE);
+        asistente.saltarWarp();
         avanzarEnRuta(ALCANCE_WARP);
-        asistente.registrar("Salto warp a " + posicion);
-        if (!asistente.iniciarEnfriamiento())
-            throw new IllegalStateException("El motor no pudo iniciar el enfriamiento");
         turnosEnfriamiento = TURNOS_ENFRIAMIENTO;
     }
 
     private void enfriarUnTurno() {
         if (turnosEnfriamiento > 0) {
             turnosEnfriamiento--;
-            if (turnosEnfriamiento == 0)
-                asistente.estarDisponible();
         }
     }
 

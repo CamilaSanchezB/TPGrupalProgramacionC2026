@@ -184,9 +184,9 @@ public abstract class Nave {
         return recursos.getGemas();
     }
 
-    public boolean estaDestruida() {
+    /**public boolean estaDestruida() {
         return recursos.estaDestruida();
-    }
+    }*/
 
     public void agregarGemas(int cantidad) {
         recursos.agregarGemas(cantidad);

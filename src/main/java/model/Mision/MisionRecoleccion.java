@@ -2,6 +2,8 @@ package model.Mision;
 
 import controller.AsistenteDeComando;
 import model.Requisitos;
+import model.Coordenada;
+import model.Universo.Universo;
 
 /**
  * M-02 Recolección.
@@ -19,8 +21,8 @@ public class MisionRecoleccion extends Mision{
      * PRE: asistenteDeComando != null (lo verifica el constructor de Mision)
      * POST: misión en etapa CREADA, con elementoObtenido == false
      */
-    public MisionRecoleccion(AsistenteDeComando asistenteDeComando){
-        super("M-02 Recoleccion",asistenteDeComando,new Requisitos(4,5,4));
+    public MisionRecoleccion(AsistenteDeComando asistenteDeComando,Universo universo,Coordenada origen, Coordenada destino){
+        super("M-02 Recoleccion", asistenteDeComando, universo, origen, destino, new Requisitos(4, 5, 4));
     }
 
     /**
@@ -29,8 +31,10 @@ public class MisionRecoleccion extends Mision{
      */
     @Override
     protected void cumplirObjetivo(){
-        registrarAccion("Objetivo alcanzado y recoleccion realizada");
-        elementoObtenido= true;
+        if(getNavegador()!=null && getNavegador().haLlegado() && naveOperativa()) {
+            registrarAccion("Objetivo alcanzado y recoleccion realizada");
+            elementoObtenido = true;
+        }
     }
 
     /**
@@ -40,6 +44,6 @@ public class MisionRecoleccion extends Mision{
      */
     @Override
     protected boolean cumplioObjetivo(){
-        return elementoObtenido;
+        return elementoObtenido&&getNavegador() != null && getNavegador().haLlegado();
     }
 }

@@ -3,7 +3,11 @@ package model.Mision;
 import controller.AsistenteDeComando;
 import model.Recursos;
 import model.Requisitos;
-
+import model.Coordenada;
+import model.Universo.Universo;
+import model.Universo.Navegador;
+import model.Universo.ResultadoAvance;
+import model.Universo.ElementoDelUniverso;
 /**
  * Misión genérica de la nave. Aplica Template Method: realizar() fija el orden
  * preparar -> ejecutarAccion -> evaluar -> cerrar y las subclases solo completan los
@@ -22,32 +26,46 @@ import model.Requisitos;
 public abstract class Mision{
     private final String nombre;
     private final AsistenteDeComando asistenteDeComando;
+    private final Universo universo;
+    private final Coordenada origen;
+    private final Coordenada destino;
     private final Requisitos requisitos;
+
     private EtapaMision etapa;
     private ResultadoMision resultado;
     private Recursos recursosIniciales;
     private String observaciones;
     private InformeMision informe;
+    private Navegador navegador;
 
     /**
-     * @param nombre Nombre de la misión (aparece en el informe y en la bitácora)
-     * @param asistenteDeComando Asistente al que se le encomienda la misión
-     * @param requisitos Lo que la misión necesita y consume
-     * PRE: nombre != null, asistenteDeComando != null y requisitos != null
-     * POST: etapa == CREADA, resultado == null, informe == null y acciones vacía
+     * @param nombre Nombre de la misión
+     * @param asistenteDeComando Asistente encomendado
+     * @param universo Entorno del mapa
+     * @param origen Coordenada inicial
+     * @param destino Coordenada final
+     * @param requisitos Requisitos de la misión
      */
 
-    protected Mision(String nombre, AsistenteDeComando asistenteDeComando, Requisitos requisitos){
-        assert nombre != null && asistenteDeComando != null && requisitos != null : "La misión necesita nombre, asistente y requisitos";
-        this.nombre=nombre;
-        this.asistenteDeComando=asistenteDeComando;
-        this.requisitos=requisitos;
-        this.etapa= EtapaMision.CREADA;
-        this.observaciones="";
+    protected Mision(String nombre, AsistenteDeComando asistenteDeComando, Universo universo, Coordenada origen, Coordenada destino, Requisitos requisitos) {
+        assert nombre != null && !nombre.trim().isEmpty() : "El nombre no puede ser nulo ni vacío";
+        assert asistenteDeComando != null : "El asistente de comando no puede ser nulo";
+        assert universo != null : "El universo no puede ser nulo";
+        assert origen != null && destino != null : "Las coordenadas no pueden ser nulas";
+        assert requisitos != null : "Los requisitos no pueden ser nulos";
+
+        this.nombre = nombre;
+        this.asistenteDeComando = asistenteDeComando;
+        this.universo = universo;
+        this.origen = origen;
+        this.destino = destino;
+        this.requisitos = requisitos;
+        this.etapa = EtapaMision.CREADA;
+        this.observaciones = "";
     }
 
     /**
-     * @param motivo Razón del rechazo
+     * @param motivo Razón del rechazo de la mision
      * @return siempre false (para que preparar() pueda hacer "return rechazar(...)")
      * PRE: motivo != null y no vacío (el asistente no acepta eventos vacíos)
      * POST: resultado == RECHAZADA, observaciones == motivo, el rechazo queda registrado
@@ -110,19 +128,17 @@ public abstract class Mision{
         );
 
         //Guardamos cronologicamente como se fue desarollando la mision.
-        asistenteDeComando.registrar("Mision preparada");
+        asistenteDeComando.registrar("Mision preparada cronologicamente hacia destino: "+destino);
         //Ahora la mision esta PREPARADA
         this.etapa= EtapaMision.PREPARADA;
         return true;
     }
 
     /**
-     * Consume los requisitos de la misión y ejecuta su parte propia.
-     * PRE: etapa == PREPARADA y la nave puede consumir los requisitos
-     *      (lo verificó preparar())
-     * POST: combustible y energía de la nave bajan y el desgaste sube según los
-     *       requisitos (una sola vez), acciones registra el consumo y la acción propia
-     *       de la misión, y etapa == EJECUTADA
+     * Fase 2: Consume recursos de despegue y ejecuta el bucle de travesía por turnos.
+     * PRE: etapa == PREPARADA
+     * POST: recursos de despegue consumidos, Navegador avanzó turno a turno interactuando
+     *       con elementos e invocando verificación en destino al arribar; etapa == EJECUTADA.
      */
 
     private void ejecutarAccion() {
@@ -134,9 +150,51 @@ public abstract class Mision{
                 requisitos.getDesgaste()
         );
         asistenteDeComando.registrar("Recursos consumidos");
-        cumplirObjetivo();   //propio de cada misión: Nos dice si cumplio el objetivo de la mision.
-        this.etapa=EtapaMision.EJECUTADA; //Para este punto la mision ya fue EJECUTADA.
+        // Inicializamos el Navegador con el origen y destino
+        this.navegador = new Navegador(asistenteDeComando, universo, origen);
+        boolean viajeIniciado = navegador.iniciarViaje(destino);
+
+        if (!viajeIniciado) {
+            asistenteDeComando.registrar("Sin ruta calculable hacia " + destino);
+        } else {
+            // Bucle de travesía turno por turno con pausa de 800ms
+            while (!asistenteDeComando.estaDestruida() && !navegador.haLlegado()) {
+                ResultadoAvance avance = navegador.avanzarUnTurno();
+                if (avance == ResultadoAvance.SIN_RUTA) {
+                    asistenteDeComando.registrar("Sin ruta disponible en este turno");
+                }
+                // Interacción con obstáculos o estaciones en la casilla actual
+                Coordenada posActual = navegador.getPosicion();
+                for (ElementoDelUniverso elem : universo.elementosEn(posActual)) {
+                    asistenteDeComando.interactuarCon(elem);
+                }
+                // Pausa de 800ms para la visualización del avance en vivo
+                try {
+                    Thread.sleep(800);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    asistenteDeComando.registrar("Ejecución de travesía interrumpida");
+                    break;
+                }
+            }
+        }
+
+        // Verificación hook en destino si se llegó correctamente
+        if (navegador.haLlegado() && !asistenteDeComando.estaDestruida()) {
+            verificarEnDestino();
+        }
+
+        cumplirObjetivo();
+        this.etapa = EtapaMision.EJECUTADA;
     }
+
+
+    /**
+     * Hook opcional: permite a las subclases verificar condiciones extra al arribar a destino.
+     * PRE: etapa == PREPARADA (invocado al finalizar el bucle en ejecutarAccion())
+     * POST: no modifica la nave en la clase base.
+     */
+    protected void verificarEnDestino() {}
 
     /**
      * Hook: la parte propia de cada misión (asistir, recolectar, regresar).
@@ -146,7 +204,6 @@ public abstract class Mision{
      */
     protected abstract void cumplirObjetivo();
 
-    // Paso común del template
     /**
      * Decide si la misión fue exitosa o falló.
      * PRE: etapa == EJECUTADA
@@ -155,68 +212,85 @@ public abstract class Mision{
      */
     private void evaluar() {
         assert etapa == EtapaMision.EJECUTADA : "No se puede evaluar una misión no ejecutada";
-        if (cumplioObjetivo()) {
+
+        if (asistenteDeComando.estaDestruida()) {
+            resultado = ResultadoMision.FALLIDA;
+            observaciones = "Nave destruida durante la travesía";
+        } else if (cumplioObjetivo()) {
             resultado = ResultadoMision.EXITOSA;
         } else {
             resultado = ResultadoMision.FALLIDA;
         }
+
         asistenteDeComando.registrar("Misión evaluada: " + resultado);
         etapa = EtapaMision.EVALUADA;
     }
 
-    // Hook: cada hija responde si logró su objetivo
     /**
-     * Hook: condición de éxito propia de cada misión (según la Ficha de Inicio).
+     * Hook abstracto: condición de éxito propia de cada variante de misión.
      * PRE: etapa == EJECUTADA
-     * POST: devuelve true si y solo si se cumplió el objetivo; es una consulta
-     *       y no modifica la misión ni la nave
+     * POST: devuelve true si y solo si se cumplió el objetivo; es una consulta inmutable.
      */
     protected abstract boolean cumplioObjetivo();
 
     /**
-     * Cierra la misión y genera siempre el informe (también si fue rechazada o falló).
-     * Si la misión resultó EXITOSA, hace que la nave prepare su salto y salte.
-     * PRE: resultado != null (lo fijó evaluar() o rechazar())
-     * POST: informe != null y etapa == CERRADA;
-     *       si el resultado final es EXITOSA, la nave saltó y volvió a estar disponible;
-     *       si el salto no pudo realizarse, resultado == FALLIDA y el motivo quedó en
-     *       observaciones y en la bitácora;
-     *       el informe refleja los recursos consumidos y el estado final de la nave
+     * Cierra la misión, impacta efectos finales, ejecuta el salto final y genera el informe inmutable.
+     * PRE: resultado != null (fijado por evaluar() o rechazar())
+     * POST: informe != null, etapa == CERRADA.
      */
-    private void cerrar(){
-        //PRE: el resultado ya tiene que estar decidido
+    private void cerrar() {
         assert resultado != null : "No se puede cerrar una mision sin resultado";
 
         if (resultado == ResultadoMision.EXITOSA) {
-            boolean salto = asistenteDeComando.prepararSalto() && asistenteDeComando.saltar();
-            if (salto) {
-                asistenteDeComando.registrar("Salto realizado");
-                asistenteDeComando.terminarSalto();   // vuelve a Disponible
-            } else {
-                resultado= ResultadoMision.FALLIDA;
-                observaciones="No se pudo realizar el salto";
-                asistenteDeComando.registrar("Salto fallido en "+nombre);
+            aplicarEfectosFinales();
+
+            try {
+                int casilleros = asistenteDeComando.saltar();
+                asistenteDeComando.registrar("Salto final realizado: avanza " + casilleros + " casillero(s).");
+            } catch (RuntimeException e) {
+                resultado = ResultadoMision.FALLIDA;
+                observaciones = "No se pudo realizar el salto final";
+                asistenteDeComando.registrar("Salto fallido en " + nombre);
             }
         }
 
-        //Estado final de la nave:
-        int combFinal= asistenteDeComando.getCombustible();
-        int enerFinal= asistenteDeComando.getEnergia();
+        int combFinal = asistenteDeComando.getCombustible();
+        int enerFinal = asistenteDeComando.getEnergia();
         int desgFinal = asistenteDeComando.getDesgaste();
 
-        int combConsumido=0;
-        int enerConsumida=0;
-        int desgGenerado=0;
+        int combConsumido = 0;
+        int enerConsumida = 0;
+        int desgGenerado = 0;
 
-        if(recursosIniciales!=null){
-            combConsumido=recursosIniciales.getCombustible()-combFinal;
-            enerConsumida=recursosIniciales.getEnergia()-enerFinal;
-            desgGenerado=desgFinal-recursosIniciales.getDesgaste();
+        if (recursosIniciales != null) {
+            combConsumido = recursosIniciales.getCombustible() - combFinal;
+            enerConsumida = recursosIniciales.getEnergia() - enerFinal;
+            desgGenerado = desgFinal - recursosIniciales.getDesgaste();
         }
 
-        informe = new InformeMision(nombre,resultado, asistenteDeComando.getBitacora() ,combConsumido,enerConsumida,desgGenerado,combFinal,enerFinal,desgFinal,observaciones);
-        etapa=EtapaMision.CERRADA;
-        asistenteDeComando.registrar("Mision cerrada: "+ nombre + " - "+ resultado);
+        this.informe = new InformeMision(
+                nombre,
+                resultado,
+                asistenteDeComando.getBitacora(),
+                combConsumido,
+                enerConsumida,
+                desgGenerado,
+                combFinal,
+                enerFinal,
+                desgFinal,
+                observaciones
+        );
+        this.etapa = EtapaMision.CERRADA;
+        asistenteDeComando.registrar("Mision cerrada: " + nombre + " - " + resultado);
+    }
+
+    /**
+     * Hook opcional: permite a las subclases transferir recursos o efectuar cambios al cerrar con éxito.
+     * PRE: resultado == EXITOSA (se llama dentro de cerrar())
+     * POST: impacta de forma definitiva en el estado de la nave si la subclase lo especifica.
+     */
+    protected void aplicarEfectosFinales() {
+        // Por defecto no realiza transferencias adicionales
     }
 
     public InformeMision getInforme(){
@@ -230,6 +304,10 @@ public abstract class Mision{
     public EtapaMision getEtapa(){
         return etapa;
     }
+
+    public AsistenteDeComando getAsistenteDeComando() { return asistenteDeComando; }
+
+    public Navegador getNavegador() { return navegador; }
 
     /**
      * Permite a las subclases anotar acciones sin acceder a la lista.

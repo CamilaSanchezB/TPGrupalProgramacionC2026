@@ -242,5 +242,5 @@ public class Test {
         System.out.println(liquidador.liquidar(miNave));
 
     }
-*/
 }
+*/
