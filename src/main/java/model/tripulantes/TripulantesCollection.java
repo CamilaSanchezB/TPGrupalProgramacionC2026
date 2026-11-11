@@ -60,6 +60,25 @@ public class TripulantesCollection {
 
     /**
      * <b>PRE</b>
+     * - nombre != null y no vacio
+     * <b>POST</b>
+     * - si lo encuentra, el primer tripulante con ese nombre deja de estar en la coleccion;
+     *   el resto conserva su orden relativo
+     */
+    public void eliminar(String nombre) {
+        assert nombre != null && !nombre.trim().isEmpty() : "Nombre invalido. No puede estar vacio";
+        Iterator<Tripulante> iterador = tripulantes.iterator();
+        boolean encontrado = false;
+        while (!encontrado && iterador.hasNext()) {
+            if (iterador.next().getNombre().equals(nombre)) {
+                iterador.remove();
+                encontrado = true;
+            }
+        }
+    }
+
+    /**
+     * <b>PRE</b>
      * - nombre != null
      * <b>POST</b>
      * - devuelve true si y solo si algun tripulante tiene ese nombre; no modifica nada

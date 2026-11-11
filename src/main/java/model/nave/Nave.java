@@ -20,6 +20,7 @@ public abstract class Nave {
     private MotorWarp motorWarp;
     private Recursos recursos;
     private TripulantesCollection tripulantes;
+    private boolean destruidaEnBatalla = false;   // una vez true, no vuelve a false
     /**
      * PRE: 0 <= combustibleIni <= 100, 0 <= energiaIni <= 100 y 0 <= desgaste <= 100
      *      (lo exige Recursos)
@@ -53,6 +54,15 @@ public abstract class Nave {
      */
     public void editarTripulante(String nombre, Tripulante editado) {
         tripulantes.editar(nombre, editado);
+    }
+
+    /**
+     * PRE: nombre != null y no vacío
+     * POST: si lo encuentra, el primer tripulante con ese nombre deja de estar en la
+     *       tripulación; el resto conserva su orden relativo
+     */
+    public void eliminarTripulante(String nombre) {
+        tripulantes.eliminar(nombre);
     }
 
     /**
@@ -193,4 +203,43 @@ public abstract class Nave {
     public Recursos copiaRecursos() {
         return recursos.copia();
     }
+    /**
+     * PRE: enemiga != null
+     * POST: devuelve el resultado del combate desde el punto de vista de esta nave;
+     *       no modifica ninguna de las dos naves (quien llama aplica las consecuencias)
+     * @throws IllegalArgumentException si enemiga es null
+     */
+    public abstract ResultadoBatalla batallar(Nave enemiga);
+
+    // Segundo despacho: "yo soy la enemiga, ¿cómo me va contra esta nave propia?"
+    protected abstract ResultadoBatalla recibirBatallaDe(NaveExploradora propia);
+    protected abstract ResultadoBatalla recibirBatallaDe(NaveCarguero propia);
+    protected abstract ResultadoBatalla recibirBatallaDe(NaveCombate propia);
+
+    /**
+     * Validación común de batallar() Las subclases la llaman antes de despachar  
+     * @throws IllegalArgumentException si enemiga es null
+     */
+    protected static void exigirEnemiga(Nave enemiga) {
+    if (enemiga == null)
+        throw new IllegalArgumentException("La nave enemiga no puede ser nula");
+    }
+
+    /**
+     * @return true si la nave quedó inoperativa: desgaste 100, energía 0, combustible 0
+     *         o fue destruida en batalla
+     * POST: es una consulta; no modifica nada
+     */
+    public boolean estaDestruida() {
+        return destruidaEnBatalla || recursos.getDesgaste() >= Recursos.DESGASTE_MAXIMO || recursos.getEnergia() == 0 || recursos.getCombustible() == 0;
+    }
+
+    /**
+     * Se usa cuando la nave pierde una batalla.
+     * POST: estaDestruida() == true y lo seguirá siendo
+     */
+    public void destruir() {
+        destruidaEnBatalla = true;
+    }
+
 }
