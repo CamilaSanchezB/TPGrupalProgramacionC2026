@@ -1,14 +1,22 @@
 package model.ClasesMotorWarp;
+import model.Recursos;
 
 public class EnWarp extends EstadoMotorBase{
     @Override
-    public void iniciarEnfriamiento(MotorWarp motor) {
-        motor.setEstado(new Enfriamiento());
+    public int saltar(MotorWarp motor) {
+        return 0;
     }
 
     @Override
-    public void terminarSalto(MotorWarp motor) {
-        motor.setEstado(new Disponible());
+    public int saltarWrap(MotorWarp motor) {
+        Recursos r = motor.getRecursos();
+        if (r.puedeConsumir(0,MotorWarp.COSTO_ENERGIA_WARP, 0)) {
+            motor.setEstado(new PreparandoSalto()); // aborta y vuelve a preparación
+            return 0;
+        }
+        r.consumir(0, MotorWarp.COSTO_ENERGIA_WARP, 0);
+        motor.setEstado(new Enfriamiento());
+        return 2;
     }
 
     @Override

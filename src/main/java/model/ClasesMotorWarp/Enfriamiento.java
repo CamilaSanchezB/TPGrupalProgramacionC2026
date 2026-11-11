@@ -4,8 +4,19 @@ package model.ClasesMotorWarp;
 
 public class Enfriamiento extends  EstadoMotorBase{
     @Override
-    public void estarDisponible(MotorWarp motor) {
+    public int saltar(MotorWarp motor) {
+        return enfriar(motor);
+    }
+
+    @Override
+    public int saltarWrap(MotorWarp motor) {
+        return enfriar(motor);
+    }
+
+    private int enfriar(MotorWarp motor) {
+        motor.getRecursos().recibirImpacto(0, MotorWarp.DESGASTE_ENFRIAMIENTO);
         motor.setEstado(new Disponible());
+        return 0;
     }
 
     @Override
