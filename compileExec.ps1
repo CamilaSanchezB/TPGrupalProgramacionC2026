@@ -8,5 +8,5 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 # ejecuta el programa compilado
-& mvn exec:java "-Dexec.mainClass=presentacion.Main"
+& mvn exec:java "-Dexec.mainClass=controller.Controlador"
 exit $LASTEXITCODE

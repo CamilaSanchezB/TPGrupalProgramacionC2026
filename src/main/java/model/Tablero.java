@@ -240,6 +240,7 @@ public class Tablero extends Observable {
      */
     public void moverNave(Posicion posicion) {
         posicionNave = posicion;
+        setChanged();
         notifyObservers();
     } 
 
@@ -285,7 +286,7 @@ public class Tablero extends Observable {
      * <p><b>Postcondiciones:</b> el estado permanece igual.</p>
      * @return objetivo actual, o {@code null} si todavía no se eligió uno
      */
-    protected Posicion getObjetivo() {
+    public Posicion getObjetivo() {
         return objetivo;
     }
 
@@ -316,6 +317,7 @@ public class Tablero extends Observable {
             libre = libres.get(azar.nextInt(libres.size()));
         }
         this.objetivo = libre;
+        setChanged();
         notifyObservers();
         return libre;
     }
@@ -345,6 +347,7 @@ public class Tablero extends Observable {
      * <p><b>Excepciones declaradas:</b> ninguna.</p>
      */
     protected void notificarActualizacion(){
+        setChanged();
         notifyObservers();
     }
 
@@ -375,4 +378,14 @@ public class Tablero extends Observable {
         return tablero;
     }
 
+    /**
+     * (implementacion propia de Tinisius para el tablero)
+     * Consulta el elemento ubicado en una posicion.
+     * <p><b>Precondiciones:</b> ninguna.</p>
+     * <p><b>Postcondiciones:</b> el estado permanece igual.</p>
+     * @return elemento en posicion, o {@code null} si no hay elemento
+     */
+    public ElementoDelUniverso getElementoEn(Posicion posicion) {
+       return ocupacion.get(posicion);
+   }
 }

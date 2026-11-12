@@ -1,7 +1,8 @@
 package model.ClasesBitacora;
 import java.util.ArrayList;
+import java.util.Observable;
 
-public class Bitacora {
+public class Bitacora extends Observable{
     private final ArrayList<RegitroBitacora> eventos;
 
     public Bitacora() {
@@ -18,7 +19,7 @@ public class Bitacora {
         this.eventos.add(new RegitroBitacora(descripcion));
     }
 
-    public ArrayList<RegitroBitacora> getEventos() {
+    public synchronized ArrayList<RegitroBitacora> getEventos() {
         return eventos;
     }
 }
