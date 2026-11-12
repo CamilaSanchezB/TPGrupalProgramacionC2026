@@ -10,7 +10,7 @@ public class EnWarp extends EstadoMotorBase{
     @Override
     public int saltarWarp(MotorWarp motor) {
         Recursos r = motor.getRecursos();
-        if (r.puedeConsumir(0,MotorWarp.COSTO_ENERGIA_WARP, 0)) {
+        if (!r.puedeConsumir(0,MotorWarp.COSTO_ENERGIA_WARP, 0)) {
             motor.setEstado(new PreparandoSalto()); // aborta y vuelve a preparación
             return 0;
         }
