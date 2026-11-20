@@ -8,6 +8,7 @@ import model.Universo.Universo;
 import model.Universo.Navegador;
 import model.Universo.ResultadoAvance;
 import model.Universo.ElementoDelUniverso;
+import model.Universo.AdaptadorTableroUniverso;
 /**
  * Misión genérica de la nave. Aplica Template Method: realizar() fija el orden
  * preparar -> ejecutarAccion -> evaluar -> cerrar y las subclases solo completan los
@@ -165,6 +166,9 @@ public abstract class Mision{
                 }
                 // Interacción con obstáculos o estaciones en la casilla actual
                 Coordenada posActual = navegador.getPosicion();
+                if (universo instanceof AdaptadorTableroUniverso) {
+                    ((AdaptadorTableroUniverso) universo).actualizarPosicionNave(posActual);
+                }
                 for (ElementoDelUniverso elem : universo.elementosEn(posActual)) {
                     asistenteDeComando.interactuarCon(elem);
                 }

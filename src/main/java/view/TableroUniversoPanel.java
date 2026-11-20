@@ -1,9 +1,10 @@
 package view;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import model.Tablero;
+import model.destinoytablero.Tablero;
 
 /** Pantalla 3: tablero en vivo. */
 public class TableroUniversoPanel extends JPanel {
@@ -11,14 +12,18 @@ public class TableroUniversoPanel extends JPanel {
 
     public TableroUniversoPanel() {
         super(new BorderLayout());
+        setOpaque(true);
+        setBackground(Color.BLACK);
         // TODO: botón "Volver", bitácora, recursos, etc.
-        add(new JLabel("TABLERO"), BorderLayout.NORTH);
+        JLabel titulo = new JLabel("TABLERO");
+        titulo.setForeground(Color.WHITE);
+        add(titulo, BorderLayout.NORTH);
     }
 
     /** Muestra el tablero en el centro, reemplazando el anterior si lo hubiera. */
-    public void mostrarTablero(Tablero tablero) {
+    public void mostrarTablero(Tablero tablero, String tipoNave) {
         desconectar();
-        tableroView = new TableroView(tablero);
+        tableroView = new TableroView(tablero, tipoNave);
         add(tableroView, BorderLayout.CENTER);
         revalidate();
         repaint();

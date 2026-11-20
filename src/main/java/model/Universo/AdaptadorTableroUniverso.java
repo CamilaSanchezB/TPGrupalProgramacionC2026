@@ -22,6 +22,13 @@ public class AdaptadorTableroUniverso implements Universo {
         return this.tablero;
     }
 
+    /** Sincroniza la posición visible del tablero con el navegador. */
+    public void actualizarPosicionNave(Coordenada posicion) {
+        tablero.moverNave(new model.destinoytablero.Posicion(
+                posicion.getX(),
+                posicion.getY()));
+    }
+
     @Override
     public boolean contiene(Coordenada c) {
         if (c == null) {
