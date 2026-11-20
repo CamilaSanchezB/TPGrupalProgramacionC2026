@@ -20,6 +20,8 @@ import javax.swing.Scrollable;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
+import model.Concurrencia.ObservadorVisor;
+
 /**
  * Vista de usuario de la plataforma de baterias.
  *
@@ -31,10 +33,10 @@ import javax.swing.SwingUtilities;
  * Todos los metodos publicos pueden llamarse desde cualquier hilo (por ejemplo,
  * desde el hilo de cada nave): internamente se ejecutan en el hilo de Swing (EDT).
  */
-public class VistaNaves extends JFrame {
+public class VistaNaves extends JFrame implements ObservadorVisor {
 
     private static final Color COLOR_GENERADORA = new Color(190, 215, 255);
-    private static final Color COLOR_CONSUMIDORA = new Color(255, 218, 170);
+    private static final Color COLOR_CONSUMIDORA = new Color(255, 245, 157);
 
     private final JButton btnVolver = new JButton("< Volver");
     private final JButton btnAgregarGeneradora = new JButton("Agregar nave generadora");
