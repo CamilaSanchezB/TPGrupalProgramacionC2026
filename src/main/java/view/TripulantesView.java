@@ -1,5 +1,6 @@
 package view;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,7 +10,6 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -25,7 +25,7 @@ import controller.TripulantesController;
 import net.miginfocom.swing.MigLayout;
 
 @SuppressWarnings("serial")
-public class TripulantesView extends JFrame implements ITripulantes {
+public class TripulantesView extends JPanel implements ITripulantes {
 
 	private JPanel contentPane;
 	private JPanel panel;
@@ -59,27 +59,24 @@ public class TripulantesView extends JFrame implements ITripulantes {
 	private JTextField textoConsejos;
 	private JButton btnDeseleccionar;
 	private JButton btnLiquidar;
+	private JButton btnVolver;
 
 	public TripulantesView() {
 		initialize();
 	}
 
-	/** Crea y ubica todos los componentes de la ventana. */
+	/** Crea y ubica todos los componentes de la pantalla. */
 	private void initialize() {
 		ConfigView.aplicar();
-		setTitle("Tripulación");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 1000, 640);
-		// Abre maximizada; setBounds queda como el tamanio al restaurarla.
-		setExtendedState(JFrame.MAXIMIZED_BOTH);
 
 		contentPane = new JPanel();
 		contentPane.setLayout(new MigLayout("insets 20, gap 20", "[320!][grow]", "[grow]"));
-		setContentPane(contentPane);
+		setLayout(new BorderLayout());
+		add(contentPane);
 
 		// ---------- Columna izquierda: la tripulacion ----------
 		panelLista = new JPanel();
-		panelLista.setLayout(new MigLayout("insets 0, gap 10", "[grow]", "[]10[grow][]"));
+		panelLista.setLayout(new MigLayout("insets 0, gap 10", "[grow]", "[]10[grow][][]"));
 		contentPane.add(panelLista, "cell 0 0, grow");
 
 		lblTripulacion = new JLabel("Tripulación");
@@ -108,6 +105,10 @@ public class TripulantesView extends JFrame implements ITripulantes {
 		btnLiquidar.setBackground(ConfigView.ACENTO);
 		btnLiquidar.setForeground(Color.WHITE);
 		panelBotonesLista.add(btnLiquidar, "cell 1 0, grow");
+
+		// Volver al main: el listener lo engancha quien arma el flujo (view.Main).
+		btnVolver = new JButton("Volver");
+		panelLista.add(btnVolver, "cell 0 3, growx, h 36!");
 
 		// ---------- Columna derecha: formulario y detalle ----------
 		panelCentro = new JPanel();
@@ -244,6 +245,11 @@ public class TripulantesView extends JFrame implements ITripulantes {
 	@Override
 	public void setControlador(TripulantesController c) {
 		this.controlador = c;
+	}
+
+	/** Listener del botón Volver (lo usa view.Main para cambiar de pantalla). */
+	public void addVolverListener(ActionListener listener) {
+		btnVolver.addActionListener(listener);
 	}
 
 	@Override
