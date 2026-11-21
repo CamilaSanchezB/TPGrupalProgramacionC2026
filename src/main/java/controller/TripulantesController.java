@@ -9,15 +9,10 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import model.nave.Nave;
-import model.tripulantes.Alferez;
-import model.tripulantes.Capitan;
 import model.tripulantes.Consejero;
 import model.tripulantes.Decorator;
-import model.tripulantes.Marciano;
-import model.tripulantes.Teniente;
-import model.tripulantes.Terricola;
 import model.tripulantes.Tripulante;
-import model.tripulantes.Vulcano;
+import model.tripulantes.TripulanteFactory;
 import view.ITripulantes;
 
 public class TripulantesController implements ActionListener, ListSelectionListener {
@@ -25,10 +20,12 @@ public class TripulantesController implements ActionListener, ListSelectionListe
 	private LiquidadorHaberes liq;
 	private ITripulantes vista;
 	private Tripulante nuevoTripulante;
-	
+	private TripulanteFactory factory;
+
 	public TripulantesController(Nave nave, LiquidadorHaberes liq) {
 		this.nave = nave;
 		this.liq = liq;
+		this.factory = new TripulanteFactory();
 	}
 
 	public ITripulantes getVista() {
@@ -99,7 +96,7 @@ public class TripulantesController implements ActionListener, ListSelectionListe
 			return;
 		}
 		nave.asignarTripulante(
-				crearTripulante(nombre, antiguedad, vista.getCargo(), vista.getOrigen(), consejos));
+				factory.crearTripulante(nombre, antiguedad, vista.getCargo(), vista.getOrigen(), consejos));
 		cargarTripulantesEnVista();
 		vista.limpiarSeleccion();
 	}
@@ -126,7 +123,7 @@ public class TripulantesController implements ActionListener, ListSelectionListe
 			return;
 		}
 		nave.editarTripulante(seleccionado.getNombre(),
-				crearTripulante(nombre, antiguedad, vista.getCargo(), vista.getOrigen(), consejos));
+				factory.crearTripulante(nombre, antiguedad, vista.getCargo(), vista.getOrigen(), consejos));
 		cargarTripulantesEnVista();
 	}
 
@@ -224,45 +221,6 @@ public class TripulantesController implements ActionListener, ListSelectionListe
 			return null;
 		}
 		return nave.getTripulantes().get(index);
-	}
-
-	/**
-	 * Arma un tripulante del cargo indicado, decorado con su origen si tiene uno.
-	 * cantidadConsejos solo lo usa el Consejero; los demas cargos lo ignoran.
-	 */
-	private Tripulante crearTripulante(String nombre, int antiguedad, String cargo, String origen,
-			int cantidadConsejos) {
-		Tripulante tripulante;
-		switch (cargo) {
-		case "Capitan":
-			tripulante = new Capitan(nombre, antiguedad);
-			break;
-		case "Alferez":
-			tripulante = new Alferez(nombre, antiguedad);
-			break;
-		case "Consejero":
-			tripulante = new Consejero(nombre, antiguedad, cantidadConsejos);
-			break;
-		case "Teniente":
-			tripulante = new Teniente(nombre, antiguedad);
-			break;
-		default:
-			throw new IllegalArgumentException("Cargo desconocido: " + cargo);
-		}
-		switch (origen) {
-		case "Terricola":
-			tripulante = new Terricola(tripulante);
-			break;
-		case "Marciano":
-			tripulante = new Marciano(tripulante);
-			break;
-		case "Vulcano":
-			tripulante = new Vulcano(tripulante);
-			break;
-		default:
-			break;
-		}
-		return tripulante;
 	}
 
 	private void actualizarVistaTripulanteSeleccionado() {
