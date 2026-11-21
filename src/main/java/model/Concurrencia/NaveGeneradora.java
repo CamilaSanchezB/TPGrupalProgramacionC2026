@@ -18,7 +18,7 @@ public class NaveGeneradora implements Runnable {
     public void run() {
         try {
             while (!Thread.currentThread().isInterrupted()) {
-                Thread.sleep(600 + random.nextInt(1200)); // tiempo de produccion
+                Thread.sleep(3000 + random.nextInt(2000)); // tiempo de produccion
                 plataforma.depositar(new Bateria(), nombre);
             }
         } catch (InterruptedException e) {
