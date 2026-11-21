@@ -51,7 +51,7 @@ Para compilar y ejecutar una prueba (el classpath incluye las dependencias que M
 
 ```
 mvn compile
-java -ea -cp "target/classes;target/lib/*" pruebas.PruebaMisiones
+java -ea -cp "target/classes;target/lib/*" view.Main
 ```
 
 La opción `-ea` activa las aserciones (`assert`), con las que se verifican varios contratos internos. Sin ella la JVM las ignora. El programa no tiene una única clase principal: cada tema se ejecuta con su propia clase del paquete `pruebas`, y las ventanas de login y de tripulantes con `PruebaLogin` y `PruebaABMTripulantes`.
@@ -307,4 +307,4 @@ La verificación se ejecuta con las clases del paquete `pruebas` y con `view.Tes
 
 ## Uso de inteligencia artificial
 
-El uso de IA está declarado en `docs/uso-ia.md`: se utilizó como herramienta de apoyo para orientarse, explorar alternativas de diseño y entender puntos poco claros. Las decisiones de diseño, la integración y la revisión final las tomó el equipo.
+El uso de IA está declarado en `uso-ia.md`: se utilizó como herramienta de apoyo para orientarse, explorar alternativas de diseño y entender puntos poco claros. Las decisiones de diseño, la integración y la revisión final las tomó el equipo.

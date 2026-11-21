@@ -20,6 +20,7 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.BorderFactory;
 
 import controller.TripulantesController;
 import net.miginfocom.swing.MigLayout;
@@ -69,64 +70,81 @@ public class TripulantesView extends JPanel implements ITripulantes {
 	private void initialize() {
 		ConfigView.aplicar();
 
+		setOpaque(true);
+		setBackground(ConfigView.FONDO_COMANDO);
+
 		contentPane = new JPanel();
 		contentPane.setLayout(new MigLayout("insets 20, gap 20", "[320!][grow]", "[grow]"));
+		contentPane.setOpaque(true);
+		contentPane.setBackground(ConfigView.FONDO_COMANDO);
 		setLayout(new BorderLayout());
 		add(contentPane);
 
 		// ---------- Columna izquierda: la tripulacion ----------
 		panelLista = new JPanel();
 		panelLista.setLayout(new MigLayout("insets 0, gap 10", "[grow]", "[]10[grow][][]"));
+		estilizarTarjeta(panelLista);
 		contentPane.add(panelLista, "cell 0 0, grow");
 
 		lblTripulacion = new JLabel("Tripulación");
 		lblTripulacion.setFont(ConfigView.FUENTE_TITULO);
-		lblTripulacion.setForeground(ConfigView.TITULO);
+		lblTripulacion.setForeground(ConfigView.ACENTO_CIAN);
 		panelLista.add(lblTripulacion, "cell 0 0");
 
 		modelo = new DefaultListModel<String>();
 		list = new JList<String>(modelo);
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		list.setFont(ConfigView.FUENTE_ETIQUETA);
+		list.setBackground(ConfigView.FONDO_COMANDO);
+		list.setForeground(ConfigView.TEXTO_CLARO);
+		list.setSelectionBackground(ConfigView.ACENTO);
+		list.setSelectionForeground(Color.WHITE);
 		scrollLista = new JScrollPane(list);
+		scrollLista.setBorder(BorderFactory.createLineBorder(ConfigView.BORDE_COMANDO));
+		scrollLista.getViewport().setBackground(ConfigView.FONDO_COMANDO);
 		panelLista.add(scrollLista, "cell 0 1, grow");
 
 		// Botones que operan sobre la lista, debajo de ella.
 		panelBotonesLista = new JPanel();
 		panelBotonesLista.setLayout(new MigLayout("insets 0, gap 10", "[grow][grow]", "[36!]"));
+		panelBotonesLista.setOpaque(false);
 		panelLista.add(panelBotonesLista, "cell 0 2, growx");
 
 		btnDeseleccionar = new JButton("Deseleccionar");
 		btnDeseleccionar.setActionCommand("DESELECCIONAR");
+		estilizarBotonSecundario(btnDeseleccionar);
 		panelBotonesLista.add(btnDeseleccionar, "cell 0 0, grow");
 
 		btnLiquidar = new JButton("Liquidar todos");
 		btnLiquidar.setActionCommand("LIQUIDAR");
-		btnLiquidar.setBackground(ConfigView.ACENTO);
-		btnLiquidar.setForeground(Color.WHITE);
+		ConfigView.primario(btnLiquidar);
 		panelBotonesLista.add(btnLiquidar, "cell 1 0, grow");
 
 		// Volver al main: el listener lo engancha quien arma el flujo (view.Main).
 		btnVolver = new JButton("Volver");
+		estilizarBotonSecundario(btnVolver);
 		panelLista.add(btnVolver, "cell 0 3, growx, h 36!");
 
 		// ---------- Columna derecha: formulario y detalle ----------
 		panelCentro = new JPanel();
 		panelCentro.setLayout(new MigLayout("insets 0, gap 10", "[grow]", "[]18[]10[grow]"));
+		estilizarTarjeta(panelCentro);
 		contentPane.add(panelCentro, "cell 1 0, grow");
 
 		panel = new JPanel();
 		panel.setLayout(new MigLayout("insets 0, gap 14 10", "[110!][300:560:700,grow]",
 				"[]12[32!][32!][32!][32!][32!]16[]"));
 		panelCentro.add(panel, "cell 0 0, growx");
+		panel.setOpaque(false);
 
 		lblDatos = new JLabel("Datos del tripulante");
 		lblDatos.setFont(ConfigView.FUENTE_TITULO);
-		lblDatos.setForeground(ConfigView.TITULO);
+		lblDatos.setForeground(ConfigView.ACENTO_CIAN);
 		panel.add(lblDatos, "cell 0 0 2 1");
 
 		lblNombre = new JLabel("Nombre");
 		lblNombre.setFont(ConfigView.FUENTE_ETIQUETA);
+		lblNombre.setForeground(ConfigView.TEXTO_CLARO);
 		panel.add(lblNombre, "cell 0 1");
 
 		textoNombre = new JTextField();
@@ -135,6 +153,7 @@ public class TripulantesView extends JPanel implements ITripulantes {
 
 		lblAntiguedad = new JLabel("Antigüedad");
 		lblAntiguedad.setFont(ConfigView.FUENTE_ETIQUETA);
+		lblAntiguedad.setForeground(ConfigView.TEXTO_CLARO);
 		panel.add(lblAntiguedad, "cell 0 2");
 
 		textoAntiguedad = new JTextField();
@@ -143,6 +162,7 @@ public class TripulantesView extends JPanel implements ITripulantes {
 
 		lblCargo = new JLabel("Cargo");
 		lblCargo.setFont(ConfigView.FUENTE_ETIQUETA);
+		lblCargo.setForeground(ConfigView.TEXTO_CLARO);
 		panel.add(lblCargo, "cell 0 3");
 
 		comboCargo = new JComboBox<String>();
@@ -151,6 +171,7 @@ public class TripulantesView extends JPanel implements ITripulantes {
 
 		lblOrigen = new JLabel("Origen");
 		lblOrigen.setFont(ConfigView.FUENTE_ETIQUETA);
+		lblOrigen.setForeground(ConfigView.TEXTO_CLARO);
 		panel.add(lblOrigen, "cell 0 4");
 
 		comboOrigen = new JComboBox<String>();
@@ -167,33 +188,40 @@ public class TripulantesView extends JPanel implements ITripulantes {
 
 		panelBotonesForm = new JPanel();
 		panelBotonesForm.setLayout(new MigLayout("insets 0, gap 10", "[110!][110!][110!]", "[36!]"));
+		panelBotonesForm.setOpaque(false);
 		panel.add(panelBotonesForm, "cell 1 6, alignx right");
 
 		btnCrear = new JButton("Crear");
 		btnCrear.setActionCommand("CREAR");
-		btnCrear.setBackground(ConfigView.ACENTO);
-		btnCrear.setForeground(Color.WHITE);
+		ConfigView.primario(btnCrear);
 		panelBotonesForm.add(btnCrear, "cell 0 0, grow");
 
 		btnActualizar = new JButton("Actualizar");
 		btnActualizar.setActionCommand("ACTUALIZAR");
+		estilizarBotonSecundario(btnDeseleccionar);
 		panelBotonesForm.add(btnActualizar, "cell 1 0, grow");
 
 		btnEliminar = new JButton("Eliminar");
 		btnEliminar.setActionCommand("ELIMINAR");
+		estilizarBotonSecundario(btnDeseleccionar);
 		panelBotonesForm.add(btnEliminar, "cell 2 0, grow");
 
 		lblDetalle = new JLabel("Detalle de la liquidación");
 		lblDetalle.setFont(ConfigView.FUENTE_TITULO);
-		lblDetalle.setForeground(ConfigView.TITULO);
+		lblDetalle.setForeground(ConfigView.ACENTO_CIAN);
 		panelCentro.add(lblDetalle, "cell 0 1");
 
 		// Pantalla en blanco: ahi se escribe el detalle de la liquidacion.
 		areaLiquidacion = new JTextArea();
 		areaLiquidacion.setEditable(false);
 		areaLiquidacion.setFont(ConfigView.FUENTE_DETALLE);
+		areaLiquidacion.setBackground(ConfigView.FONDO_COMANDO);
+		areaLiquidacion.setForeground(ConfigView.TEXTO_CLARO);
+		areaLiquidacion.setBorder(BorderFactory.createEmptyBorder(10, 12, 10, 12));
 		areaLiquidacion.setRows(10);
 		scrollLiquidacion = new JScrollPane(areaLiquidacion);
+		scrollLiquidacion.setBorder(BorderFactory.createLineBorder(ConfigView.BORDE_COMANDO));
+		scrollLiquidacion.getViewport().setBackground(ConfigView.FONDO_COMANDO);
 		panelCentro.add(scrollLiquidacion, "cell 0 2, grow");
 
 		// Sin seleccion: arranca habilitado Crear y deshabilitados Actualizar y Eliminar.
@@ -213,6 +241,23 @@ public class TripulantesView extends JPanel implements ITripulantes {
 			}
 		});
 		actualizarBloqueoConsejos();
+	}
+
+	private static void estilizarTarjeta(JPanel panel) {
+		panel.setOpaque(true);
+		panel.setBackground(ConfigView.TARJETA_COMANDO);
+		panel.setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createLineBorder(ConfigView.BORDE_COMANDO),
+				BorderFactory.createEmptyBorder(14, 14, 14, 14)));
+	}
+
+	private static void estilizarBotonSecundario(JButton boton) {
+		boton.setBackground(ConfigView.BOTON_SECUNDARIO_COMANDO);
+		boton.setForeground(ConfigView.TEXTO_CLARO);
+		boton.setFocusPainted(false);
+		boton.setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createLineBorder(ConfigView.BORDE_COMANDO),
+				BorderFactory.createEmptyBorder(6, 12, 6, 12)));
 	}
 
 	/**

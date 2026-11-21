@@ -3,7 +3,9 @@ package view;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ActionListener;
+import java.awt.Dimension;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -41,60 +43,100 @@ public class LoginView extends JPanel implements ILogin {
 	private void initialize() {
 		ConfigView.aplicar();
 
-		contentPane = new JPanel();
-		contentPane.setLayout(new MigLayout("insets 24", "[grow][][grow]", "[grow][][grow]"));
 		setLayout(new BorderLayout());
-		add(contentPane);
+		setOpaque(true);
+		setBackground(ConfigView.FONDO);
 
-		// La tarjeta de acceso queda centrada en las dos direcciones.
-		panelAcceso = new JPanel();
-		panelAcceso.setLayout(new MigLayout("insets 0, gap 14 10", "[100!][260!]",
-				"[]4[]18[32!][32!]18[]12[]"));
-		contentPane.add(panelAcceso, "cell 1 1");
+		contentPane = new JPanel(new MigLayout(
+				"insets 0, fill, align center center", "[grow]", "[grow]"));
+		contentPane.setOpaque(false);
+		add(contentPane, BorderLayout.CENTER);
 
-		lblTitulo = new JLabel("Acceso");
-		lblTitulo.setFont(ConfigView.FUENTE_TITULO_GRANDE);
+		panelAcceso = new JPanel(new BorderLayout());
+		panelAcceso.setOpaque(true);
+		panelAcceso.setBackground(ConfigView.SUPERFICIE);
+		panelAcceso.setBorder(BorderFactory.createLineBorder(ConfigView.BORDE));
+		panelAcceso.setPreferredSize(new Dimension(460, 480));
+		contentPane.add(panelAcceso, "align center");
+
+		JPanel panelMarca = new JPanel(new MigLayout(
+				"insets 24 24 20 24, wrap 1, align center", "[grow]", "[]8[]"));
+		panelMarca.setOpaque(true);
+		panelMarca.setBackground(ConfigView.ACENTO);
+		panelMarca.setBorder(BorderFactory.createMatteBorder(
+				0, 0, 4, 0, ConfigView.ACENTO_CALIDO));
+
+		JLabel lblMarca = new JLabel("MISIÓN INTERESTELAR");
+		lblMarca.setFont(ConfigView.FUENTE_TITULO_GRANDE);
+		lblMarca.setForeground(Color.WHITE);
+		panelMarca.add(lblMarca, "align center");
+
+		JLabel lblFrase = new JLabel("La aventura está por comenzar");
+		lblFrase.setFont(ConfigView.FUENTE_ETIQUETA);
+		lblFrase.setForeground(ConfigView.TEXTO_BANNER);
+		panelMarca.add(lblFrase, "align center");
+
+		panelAcceso.add(panelMarca, BorderLayout.NORTH);
+
+		JPanel formulario = new JPanel(new MigLayout(
+				"insets 28 34 26 34, fillx, wrap 1",
+				"[grow]",
+				"[]4[]14[]6[38!]14[]6[38!]18[42!]10[]"));
+		formulario.setOpaque(true);
+		formulario.setBackground(ConfigView.SUPERFICIE);
+		panelAcceso.add(formulario, BorderLayout.CENTER);
+
+		lblTitulo = new JLabel("Iniciar sesión");
+		lblTitulo.setFont(ConfigView.FUENTE_TITULO);
 		lblTitulo.setForeground(ConfigView.TITULO);
-		panelAcceso.add(lblTitulo, "cell 0 0 2 1");
+		formulario.add(lblTitulo, "growx");
 
-		lblSubtitulo = new JLabel("Ingresá con tu usuario o registrate");
+		lblSubtitulo = new JLabel("Prepará tu nave y elegí tu próxima misión.");
 		lblSubtitulo.setFont(ConfigView.FUENTE_ETIQUETA);
-		panelAcceso.add(lblSubtitulo, "cell 0 1 2 1");
+		lblSubtitulo.setForeground(ConfigView.TEXTO_SECUNDARIO);
+		formulario.add(lblSubtitulo, "growx");
 
 		lblUsuario = new JLabel("Usuario");
 		lblUsuario.setFont(ConfigView.FUENTE_ETIQUETA);
-		panelAcceso.add(lblUsuario, "cell 0 2");
+		lblUsuario.setForeground(ConfigView.TITULO);
+		formulario.add(lblUsuario, "growx");
 
 		textoUsuario = new JTextField();
-		textoUsuario.setColumns(10);
-		panelAcceso.add(textoUsuario, "cell 1 2, growx");
+		textoUsuario.setColumns(15);
+		formulario.add(textoUsuario, "growx, h 38!");
 
 		lblContrasena = new JLabel("Contraseña");
 		lblContrasena.setFont(ConfigView.FUENTE_ETIQUETA);
-		panelAcceso.add(lblContrasena, "cell 0 3");
+		lblContrasena.setForeground(ConfigView.TITULO);
+		formulario.add(lblContrasena, "growx");
 
 		textoContrasena = new JPasswordField();
-		textoContrasena.setColumns(10);
-		panelAcceso.add(textoContrasena, "cell 1 3, growx");
+		textoContrasena.setColumns(15);
+		formulario.add(textoContrasena, "growx, h 38!");
 
-		panelBotones = new JPanel();
-		panelBotones.setLayout(new MigLayout("insets 0, gap 10", "[grow][grow]", "[36!]"));
-		panelAcceso.add(panelBotones, "cell 0 4 2 1, growx");
+		panelBotones = new JPanel(new MigLayout(
+				"insets 0, gap 12", "[grow][grow]", "[42!]"));
+		panelBotones.setOpaque(false);
+		formulario.add(panelBotones, "growx");
 
 		btnIngresar = new JButton("Ingresar");
 		btnIngresar.setActionCommand("INGRESAR");
-		btnIngresar.setBackground(ConfigView.ACENTO);
-		btnIngresar.setForeground(Color.WHITE);
-		panelBotones.add(btnIngresar, "cell 0 0, grow");
+		ConfigView.primario(btnIngresar);
+		panelBotones.add(btnIngresar, "grow");
 
-		btnRegistrar = new JButton("Registrarse");
+		btnRegistrar = new JButton("Crear cuenta");
 		btnRegistrar.setActionCommand("REGISTRAR");
-		panelBotones.add(btnRegistrar, "cell 1 0, grow");
+		btnRegistrar.setOpaque(true);
+		btnRegistrar.setBackground(ConfigView.SUPERFICIE);
+		btnRegistrar.setForeground(ConfigView.ACENTO);
+		btnRegistrar.setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createLineBorder(ConfigView.ACENTO),
+				BorderFactory.createEmptyBorder(6, 12, 6, 12)));
+		panelBotones.add(btnRegistrar, "grow");
 
-		// Franja de feedback: queda vacía hasta que haya algo que decir.
 		lblMensaje = new JLabel(" ");
 		lblMensaje.setFont(ConfigView.FUENTE_MENSAJE);
-		panelAcceso.add(lblMensaje, "cell 0 5 2 1, growx");
+		formulario.add(lblMensaje, "growx");
 	}
 
 	@Override

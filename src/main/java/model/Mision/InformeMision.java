@@ -28,6 +28,7 @@ public class InformeMision {
     private final int energiaFinal;
     private final int desgasteFinal;
     private final String observaciones;
+    private final int gemasGanadas;
 
     /**
      * PRE: nombreMision, resultado y eventos != null
@@ -35,10 +36,22 @@ public class InformeMision {
      *       observaciones null se guarda como ""
      * @throws IllegalArgumentException si se viola la PRE
      */
+
     public InformeMision(String nombreMision, ResultadoMision resultado, List<RegitroBitacora> eventos,
                          int combustibleConsumido, int energiaConsumida, int desgasteGenerado,
                          int combustibleFinal, int energiaFinal, int desgasteFinal,
                          String observaciones) {
+        this(nombreMision, resultado, eventos, combustibleConsumido, energiaConsumida, desgasteGenerado,
+                combustibleFinal, energiaFinal, desgasteFinal, observaciones, 0);
+    }
+
+    /**
+     *POST: igual al anterior, y además guarda las gemas ganadas en la misión (>=0)
+     */
+    public InformeMision(String nombreMision, ResultadoMision resultado, List<RegitroBitacora> eventos,
+                         int combustibleConsumido, int energiaConsumida, int desgasteGenerado,
+                         int combustibleFinal, int energiaFinal, int desgasteFinal,
+                         String observaciones, int gemasGanadas) {
         if (nombreMision == null || resultado == null || eventos == null)
             throw new IllegalArgumentException("El informe necesita misión, resultado y eventos");
         this.nombreMision = nombreMision;
@@ -51,6 +64,7 @@ public class InformeMision {
         this.energiaFinal = energiaFinal;
         this.desgasteFinal = desgasteFinal;
         this.observaciones = observaciones == null ? "" : observaciones;
+        this.gemasGanadas = Math.max(0, gemasGanadas);
     }
 
     // Solo getters: sin setters, el informe no se puede modificar
@@ -65,4 +79,5 @@ public class InformeMision {
     public int getEnergiaFinal()          { return energiaFinal; }
     public int getDesgasteFinal()         { return desgasteFinal; }
     public String getObservaciones()      { return observaciones; }
+    public int getGemasGanadas()          { return gemasGanadas; }
 }
