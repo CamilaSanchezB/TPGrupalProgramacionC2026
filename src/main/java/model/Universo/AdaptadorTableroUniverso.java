@@ -39,10 +39,13 @@ public class AdaptadorTableroUniverso implements Universo {
 
     /** Equivalente público de Tablero.vecinasDe (que es private), incluyendo la casilla propia. */
     private void revelarAlrededor(int x, int y) {
-        for (int dx = -1; dx <= 1; dx++)
-            for (int dy = -1; dy <= 1; dy++)
-                if (contiene(new Coordenada(x + dx, y + dy)))
-                    reveladas.add(new Posicion(x + dx, y + dy));
+        synchronized (reveladas) {            // atómico: la vista nunca ve el set a medio armar
+            reveladas.clear();
+            for (int dx = -1; dx <= 1; dx++)
+                for (int dy = -1; dy <= 1; dy++)
+                    if (contiene(new Coordenada(x + dx, y + dy)))
+                        reveladas.add(new Posicion(x + dx, y + dy));
+        }
     }
 
     @Override
