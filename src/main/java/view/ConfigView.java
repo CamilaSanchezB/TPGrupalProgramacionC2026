@@ -2,7 +2,6 @@ package view;
 
 import java.awt.Color;
 import java.awt.Font;
-
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.JButton;
@@ -16,10 +15,16 @@ import com.formdev.flatlaf.FlatLightLaf;
 public final class ConfigView {
 
 	/** Azul de acento para las acciones principales. */
-	public static final Color ACENTO = new Color(2, 132, 199);
+	public static final Color ACENTO = new Color(37, 99, 235);
 	public static final Color TITULO = new Color(15, 23, 42);
 	public static final Color ERROR = new Color(190, 18, 60);
 	public static final Color AVISO = new Color(21, 128, 61);
+	public static final Color FONDO = new Color(239, 246, 255);
+	public static final Color SUPERFICIE = Color.WHITE;
+	public static final Color BORDE = new Color(203, 213, 225);
+	public static final Color TEXTO_SECUNDARIO = new Color(82, 101, 126);
+	public static final Color ACENTO_CALIDO = new Color(249, 115, 22);
+	public static final Color TEXTO_BANNER = new Color(235, 245, 255);
 
 	public static final String FAMILIA = "Segoe UI";
 	public static final Font FUENTE_TITULO_GRANDE = new Font(FAMILIA, Font.BOLD, 20);
