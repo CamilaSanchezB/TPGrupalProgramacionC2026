@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Queue;
 import java.util.Random;
 import java.util.Set;
+import java.util.Observable;
 import model.Universo.ElementoDelUniverso;
 
 /**
@@ -238,7 +239,8 @@ public class Tablero extends Observable {
      */
     public void moverNave(Posicion posicion) {
         posicionNave = posicion;
-        notificarObservadores("La nave se movió a la posición ("
+        setChanged();
+        notifyObservers("La nave se movió a la posición ("
                 + posicion.getX() + ", " + posicion.getY() + ").");
     } 
 
@@ -315,7 +317,8 @@ public class Tablero extends Observable {
             libre = libres.get(azar.nextInt(libres.size()));
         }
         this.objetivo = libre;
-        notificarObservadores("Se estableció el objetivo en la posición ("
+        setChanged();
+        notifyObservers("Se estableció el objetivo en la posición ("
                 + libre.getX() + ", " + libre.getY() + ").");
         return libre;
     }
@@ -346,7 +349,8 @@ public class Tablero extends Observable {
      * @param mensaje texto que describe la actualización
      */
     protected void notificarActualizacion(String mensaje){
-        notificarObservadores(mensaje);
+        setChanged();
+        notifyObservers(mensaje);
     }
 
 
@@ -374,6 +378,13 @@ public class Tablero extends Observable {
             }
         }
         return tablero;
+    }
+
+    public ElementoDelUniverso getElementoEn(Posicion posicion) {
+        if (posicion == null) {
+            return null;
+        }
+        return ocupacion.get(posicion);
     }
 
 }

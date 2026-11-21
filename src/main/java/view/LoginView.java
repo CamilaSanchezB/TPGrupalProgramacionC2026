@@ -1,20 +1,21 @@
 package view;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 import controller.LoginController;
 import net.miginfocom.swing.MigLayout;
 
 @SuppressWarnings("serial")
-public class LoginView extends JFrame implements ILogin {
+public class LoginView extends JPanel implements ILogin {
 
 	private JPanel contentPane;
 	private JPanel panelAcceso;
@@ -30,22 +31,20 @@ public class LoginView extends JFrame implements ILogin {
 	private JButton btnRegistrar;
 
 	private LoginController controlador;
+	private Runnable alIngresar;
 
 	public LoginView() {
 		initialize();
 	}
 
-	/** Crea y ubica todos los componentes de la ventana. */
+	/** Crea y ubica todos los componentes de la pantalla. */
 	private void initialize() {
 		ConfigView.aplicar();
-		setTitle("Acceso");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 560, 420);
-		setLocationRelativeTo(null);
 
 		contentPane = new JPanel();
 		contentPane.setLayout(new MigLayout("insets 24", "[grow][][grow]", "[grow][][grow]"));
-		setContentPane(contentPane);
+		setLayout(new BorderLayout());
+		add(contentPane);
 
 		// La tarjeta de acceso queda centrada en las dos direcciones.
 		panelAcceso = new JPanel();
@@ -96,9 +95,6 @@ public class LoginView extends JFrame implements ILogin {
 		lblMensaje = new JLabel(" ");
 		lblMensaje.setFont(ConfigView.FUENTE_MENSAJE);
 		panelAcceso.add(lblMensaje, "cell 0 5 2 1, growx");
-
-		// Enter en cualquiera de los dos campos equivale a apretar Ingresar.
-		getRootPane().setDefaultButton(btnIngresar);
 	}
 
 	@Override
@@ -106,9 +102,18 @@ public class LoginView extends JFrame implements ILogin {
 		this.controlador = c;
 	}
 
+	/** Acción a ejecutar cuando el usuario ingresó correctamente (cambiar de pantalla). */
+	public void setAlIngresar(Runnable alIngresar) {
+		this.alIngresar = alIngresar;
+	}
+
+	/** Llamar con la pantalla ya visible: el botón por defecto necesita el rootPane. */
 	@Override
 	public void arranca() {
-		setVisible(true);
+		if (SwingUtilities.getRootPane(this) != null) {
+			// Enter en cualquiera de los dos campos equivale a apretar Ingresar.
+			SwingUtilities.getRootPane(this).setDefaultButton(btnIngresar);
+		}
 		textoUsuario.requestFocusInWindow();
 	}
 
@@ -146,8 +151,13 @@ public class LoginView extends JFrame implements ILogin {
 		lblMensaje.setText(mensaje);
 	}
 
+	/** El usuario entró: limpia la pantalla y avisa a quien la abrió. */
 	@Override
 	public void cerrar() {
-		dispose();
+		textoContrasena.setText("");
+		lblMensaje.setText(" ");
+		if (alIngresar != null) {
+			alIngresar.run();
+		}
 	}
 }

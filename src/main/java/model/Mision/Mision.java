@@ -8,6 +8,7 @@ import model.Universo.Universo;
 import model.Universo.Navegador;
 import model.Universo.ResultadoAvance;
 import model.Universo.ElementoDelUniverso;
+import model.Universo.AdaptadorTableroUniverso;
 /**
  * Misión genérica de la nave. Aplica Template Method: realizar() fija el orden
  * preparar -> ejecutarAccion -> evaluar -> cerrar y las subclases solo completan los
@@ -158,19 +159,28 @@ public abstract class Mision{
             asistenteDeComando.registrar("Sin ruta calculable hacia " + destino);
         } else {
             // Bucle de travesía turno por turno con pausa de 800ms
-            while (!asistenteDeComando.estaDestruida() && !navegador.haLlegado()) {
+            final int MAX_TURNOS = 300;   // seguro contra un motor trabado
+            int turnos = 0;
+            while (!asistenteDeComando.estaDestruida() && !navegador.haLlegado() && turnos++ < MAX_TURNOS) {
+                Coordenada anterior = navegador.getPosicion();
                 ResultadoAvance avance = navegador.avanzarUnTurno();
                 if (avance == ResultadoAvance.SIN_RUTA) {
                     asistenteDeComando.registrar("Sin ruta disponible en este turno");
                 }
-                // Interacción con obstáculos o estaciones en la casilla actual
                 Coordenada posActual = navegador.getPosicion();
-                for (ElementoDelUniverso elem : universo.elementosEn(posActual)) {
-                    asistenteDeComando.interactuarCon(elem);
+                if (universo instanceof AdaptadorTableroUniverso) {
+                    ((AdaptadorTableroUniverso) universo).actualizarPosicionNave(posActual);  // revela y notifica
                 }
-                // Pausa de 800ms para la visualización del avance en vivo
+                if (!posActual.equals(anterior)) {          // solo interactúa si se movió
+                    for (ElementoDelUniverso elem : universo.elementosEn(posActual)) {
+                        asistenteDeComando.interactuarCon(elem);
+                    }
+                }
+                if (universo instanceof AdaptadorTableroUniverso) {
+                    ((AdaptadorTableroUniverso) universo).turnoDestino();   // el universo se mueve
+                }
                 try {
-                    Thread.sleep(800);
+                    Thread.sleep(1000);                      // 1 turno por segundo
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     asistenteDeComando.registrar("Ejecución de travesía interrumpida");

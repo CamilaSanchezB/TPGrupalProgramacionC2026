@@ -1,7 +1,8 @@
 package model.ClasesBitacora;
 import java.util.ArrayList;
+import java.util.Observable;
 
-public class Bitacora {
+public class Bitacora extends Observable{
     private final ArrayList<RegitroBitacora> eventos;
 
     public Bitacora() {
@@ -13,12 +14,14 @@ public class Bitacora {
      * PRE: el evento no puede ser nulo o vacio
      * POST: el evento quedará registrado con su descripcion y la fechg en la que fue hecho el registro
      */
-    public void registrar(String descripcion) {
+    public synchronized void registrar(String descripcion) {
         assert descripcion != null && !descripcion.trim().isEmpty() : "No se ha ingresado ningun evento";
         this.eventos.add(new RegitroBitacora(descripcion));
+        setChanged();
+        notifyObservers();
     }
 
-    public ArrayList<RegitroBitacora> getEventos() {
-        return eventos;
+    public synchronized ArrayList<RegitroBitacora> getEventos() {
+        return new ArrayList<RegitroBitacora>(eventos);
     }
 }
