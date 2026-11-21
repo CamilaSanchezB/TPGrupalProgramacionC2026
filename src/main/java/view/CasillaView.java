@@ -19,6 +19,7 @@ import model.Universo.EstacionDeCarga;
 import model.Universo.NaveEnemiga;
 import model.destinoytablero.Posicion;
 import model.destinoytablero.Tablero;
+import model.nave.NaveCarguero;
 import model.nave.NaveCombate;
 import model.nave.NaveExploradora;
 
@@ -43,6 +44,8 @@ public class CasillaView extends JPanel implements Observer {
     private final String tipoMision;
 
     private final ImageIcon iconoNave;
+    private final ImageIcon iconoEnemiga;
+    private final ImageIcon iconoEstacion;
     private final ImageIcon iconoPlaneta;
     private final ImageIcon iconoAsteroide;
     private final ImageIcon iconoCombate;
@@ -65,6 +68,8 @@ public class CasillaView extends JPanel implements Observer {
             String tipoMision,
             int lado,
             ImageIcon iconoNave,
+            ImageIcon iconoEnemiga,
+            ImageIcon iconoEstacion,
             ImageIcon iconoPlaneta,
             ImageIcon iconoAsteroide,
             ImageIcon iconoCombate,
@@ -77,6 +82,8 @@ public class CasillaView extends JPanel implements Observer {
         this.destinoMision = destinoMision;
         this.tipoMision = tipoMision;
         this.iconoNave = iconoNave;
+        this.iconoEnemiga = iconoEnemiga;
+        this.iconoEstacion = iconoEstacion;
         this.iconoPlaneta = iconoPlaneta;
         this.iconoAsteroide = iconoAsteroide;
         this.iconoCombate = iconoCombate;
@@ -140,6 +147,7 @@ public class CasillaView extends JPanel implements Observer {
         setBackground(visible ? COLOR_REVELADA : COLOR_VACIA);
         setBorder(BORDE_NORMAL);
         etiqueta.setText("");
+        etiqueta.setForeground(Color.WHITE);
 
         if (hayNave) {
             etiqueta.setIcon(iconoNave);
@@ -161,7 +169,7 @@ public class CasillaView extends JPanel implements Observer {
             }
             setToolTipText(enemiga.toString());
         } else if (elemento instanceof EstacionDeCarga) {
-            etiqueta.setIcon(iconoPlaneta);
+            etiqueta.setIcon(iconoEstacion);
             setBorder(BORDE_ESTACION);
             setToolTipText("Estación de Carga");
         } else if (hayObjetivo) {
@@ -200,6 +208,9 @@ public class CasillaView extends JPanel implements Observer {
         if (enemiga.getNave() instanceof NaveExploradora) {
             return iconoExploradora;
         }
-        return iconoCarguera;
+        if (enemiga.getNave() instanceof NaveCarguero) {
+            return iconoCarguera;
+        }
+        return iconoEnemiga;
     }
 }

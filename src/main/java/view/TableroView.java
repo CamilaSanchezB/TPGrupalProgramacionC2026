@@ -3,6 +3,8 @@ package view;
 import java.awt.Color;
 import java.awt.GridLayout;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
+
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import model.destinoytablero.Posicion;
@@ -36,13 +38,16 @@ public class TableroView extends JPanel {
             archivoNave = "exploradora.png";
         }
 
+        String[] planetas = {"planeta.png", "planeta2.png", "planeta3.png"};
+        String archivoPlaneta = planetas[ThreadLocalRandom.current().nextInt(planetas.length)];
         ImageIcon iconoNave = Assets.cargarEscalada(archivoNave, tamIcono);
-        ImageIcon iconoPlaneta = Assets.cargarEscalada("planeta.png", tamIcono);
+        ImageIcon iconoEnemiga = Assets.cargarEscalada("naveEnemiga.png", tamIcono);
+        ImageIcon iconoEstacion = Assets.cargarEscalada("estacionDeCarga.png", tamIcono);
+        ImageIcon iconoPlaneta = Assets.cargarEscalada(archivoPlaneta, tamIcono);
         ImageIcon iconoAsteroide = Assets.cargarEscalada("asteroide.png", tamIcono);
         ImageIcon iconoCombate = Assets.cargarEscalada("combate.png", tamIcono);
         ImageIcon iconoCarguera = Assets.cargarEscalada("carguera.png", tamIcono);
         ImageIcon iconoExploradora = Assets.cargarEscalada("exploradora.png", tamIcono);
-
         casillas = new CasillaView[filas][columnas];
         for (int i = 0; i < filas; i++) {
             for (int j = 0; j < columnas; j++) {
@@ -53,6 +58,8 @@ public class TableroView extends JPanel {
                         tipoMision,
                         lado,
                         iconoNave,
+                        iconoEnemiga,
+                        iconoEstacion,
                         iconoPlaneta,
                         iconoAsteroide,
                         iconoCombate,
