@@ -33,6 +33,14 @@ public final class ConfigView {
 	public static final Font FUENTE_MENSAJE = new Font(FAMILIA, Font.PLAIN, 12);
 	public static final Font FUENTE_DETALLE = new Font("Consolas", Font.PLAIN, 13);
 
+	public static final Color FONDO_COMANDO = new Color(13, 17, 23);
+	public static final Color TARJETA_COMANDO = new Color(30, 41, 55);
+	public static final Color BORDE_COMANDO = new Color(59, 130, 246);
+	public static final Color TEXTO_CLARO = new Color(230, 237, 243);
+	public static final Color TEXTO_SECUNDARIO_COMANDO = new Color(139, 148, 158);
+	public static final Color BOTON_SECUNDARIO_COMANDO = new Color(33, 38, 45);
+	public static final Color ACENTO_CIAN = new Color(56, 189, 248);
+
 	private static boolean aplicado = false;
 
 	private ConfigView() {
