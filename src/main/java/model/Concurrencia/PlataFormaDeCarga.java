@@ -39,6 +39,7 @@ public class PlataFormaDeCarga {
         for (ObservadorVisor o : observadores) {
             o.naveGeneroBateria(nombre);
         }
+        Thread.sleep(800);
         notifyAll();
     }
 
@@ -56,6 +57,7 @@ public class PlataFormaDeCarga {
         for (ObservadorVisor o : observadores) {
             o.naveConsumioBateria(nombre);
         }
+        Thread.sleep(800);
         notifyAll();
         return b;
     }

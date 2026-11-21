@@ -19,7 +19,7 @@ public class NaveConsumidora implements Runnable {
         try {
             while (!Thread.currentThread().isInterrupted()) {
                 plataforma.retirar(nombre);
-                Thread.sleep(900 + random.nextInt(1500)); // tiempo de consumo
+                Thread.sleep(3000 + random.nextInt(2000)); // tiempo de consumo
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

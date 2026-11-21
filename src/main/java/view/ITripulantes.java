@@ -35,10 +35,6 @@ public interface ITripulantes {
 	public void setAntiguedadSeleccionado(int antiguedad);
 	public void setCargoSeleccionado(String cargo);
 	public void setOrigenSeleccionado(String origen);
-	/**
-	 * Escribe la cantidad de consejos; null deja el campo vacio.
-	 * El bloqueo no depende de este valor sino del cargo elegido en la vista.
-	 */
 	public void setCantidadConsejosSeleccionado(Integer cantidadConsejos);
 	public String getNombre();
 	public String getAntiguedad();
