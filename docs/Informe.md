@@ -51,7 +51,7 @@ Para compilar y ejecutar una prueba (el classpath incluye las dependencias que M
 
 ```
 mvn compile
-java -ea -cp "target/classes;target/lib/*" pruebas.PruebaMisiones
+java -ea -cp "target/classes;target/lib/*" view.Main
 ```
 
 La opción `-ea` activa las aserciones (`assert`), con las que se verifican varios contratos internos. Sin ella la JVM las ignora. El programa no tiene una única clase principal: cada tema se ejecuta con su propia clase del paquete `pruebas`, y las ventanas de login y de tripulantes con `PruebaLogin` y `PruebaABMTripulantes`.

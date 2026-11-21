@@ -5,6 +5,7 @@ import java.awt.Font;
 
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.JButton;
 
 import com.formdev.flatlaf.FlatLightLaf;
 
@@ -57,5 +58,10 @@ public final class ConfigView {
 			System.err.println("No se pudo aplicar FlatLaf, sigue el Look and Feel por defecto: "
 					+ e.getMessage());
 		}
+	}
+
+	public static void primario(JButton boton) {
+		boton.setBackground(ACENTO);
+		boton.setForeground(Color.WHITE);
 	}
 }

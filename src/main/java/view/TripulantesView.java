@@ -102,8 +102,7 @@ public class TripulantesView extends JPanel implements ITripulantes {
 
 		btnLiquidar = new JButton("Liquidar todos");
 		btnLiquidar.setActionCommand("LIQUIDAR");
-		btnLiquidar.setBackground(ConfigView.ACENTO);
-		btnLiquidar.setForeground(Color.WHITE);
+		ConfigView.primario(btnLiquidar);
 		panelBotonesLista.add(btnLiquidar, "cell 1 0, grow");
 
 		// Volver al main: el listener lo engancha quien arma el flujo (view.Main).
@@ -171,8 +170,7 @@ public class TripulantesView extends JPanel implements ITripulantes {
 
 		btnCrear = new JButton("Crear");
 		btnCrear.setActionCommand("CREAR");
-		btnCrear.setBackground(ConfigView.ACENTO);
-		btnCrear.setForeground(Color.WHITE);
+		ConfigView.primario(btnCrear);
 		panelBotonesForm.add(btnCrear, "cell 0 0, grow");
 
 		btnActualizar = new JButton("Actualizar");

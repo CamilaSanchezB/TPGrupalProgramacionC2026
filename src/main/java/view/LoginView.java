@@ -83,8 +83,7 @@ public class LoginView extends JPanel implements ILogin {
 
 		btnIngresar = new JButton("Ingresar");
 		btnIngresar.setActionCommand("INGRESAR");
-		btnIngresar.setBackground(ConfigView.ACENTO);
-		btnIngresar.setForeground(Color.WHITE);
+		ConfigView.primario(btnIngresar);
 		panelBotones.add(btnIngresar, "cell 0 0, grow");
 
 		btnRegistrar = new JButton("Registrarse");
