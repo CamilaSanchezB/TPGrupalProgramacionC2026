@@ -8,6 +8,7 @@ import model.ClasesBitacora.Bitacora;
 import model.ClasesBitacora.RegitroBitacora;
 import model.Universo.ElementoDelUniverso;
 import model.nave.Nave;
+import model.Recursos;
 
 import java.util.List;
 
@@ -203,4 +204,7 @@ public class AsistenteDeComando {
 
         return informe;
     }
+
+    public void agregarGemas(int cantidad) { nave.agregarGemas(cantidad); registrar("Gemas recibidas: " + cantidad); }
+    public void recargarTotal() { nave.recargarHastaTope(Recursos.CAPACIDAD_MAXIMA, Recursos.CAPACIDAD_MAXIMA); registrar("Recarga total"); }
 }
