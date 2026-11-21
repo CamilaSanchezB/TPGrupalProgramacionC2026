@@ -18,6 +18,10 @@ import model.Coordenada;
 public class RadarLargoAlcance {
     private static final int[][] DIRECCIONES = { {1, 0}, {-1, 0}, {0, 1}, {0, -1} };
 
+    public List<Coordenada> calcularRuta(Universo universo, Coordenada origen, Coordenada destino) {
+        return calcularRuta(universo, origen, destino, true);
+    }
+
     /**
      * PRE: universo, origen y destino != null; ambas coordenadas dentro del universo
      * @return la ruta más corta, desde origen hasta destino, ambos incluidos
@@ -27,7 +31,7 @@ public class RadarLargoAlcance {
      * POST: es una consulta; no modifica nada
      * @throws IllegalArgumentException si se viola la PRE
      */
-    public List<Coordenada> calcularRuta(Universo universo, Coordenada origen, Coordenada destino) {
+    public List<Coordenada> calcularRuta(Universo universo, Coordenada origen, Coordenada destino, boolean evitarObstaculos) {
         if (universo == null || origen == null || destino == null)
             throw new IllegalArgumentException("El radar necesita universo, origen y destino");
         if (!universo.contiene(origen) || !universo.contiene(destino))
@@ -45,7 +49,7 @@ public class RadarLargoAlcance {
 
             for (int[] d : DIRECCIONES) {
                 Coordenada siguiente = actual.desplazar(d[0], d[1]);
-                if (!universo.contiene(siguiente) || padre.containsKey(siguiente))
+                if (evitarObstaculos && !universo.contiene(siguiente) || padre.containsKey(siguiente))
                     continue;
                 if (!siguiente.equals(destino) && hayObstaculo(universo, siguiente))
                     continue;

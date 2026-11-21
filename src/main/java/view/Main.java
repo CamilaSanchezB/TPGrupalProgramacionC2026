@@ -33,9 +33,11 @@ public class Main {
     private static AsistenteDeComando asistente;
     private static boolean ultimoGano;
     private static Tablero tableroDeMision;
-    private static String tipoNaveSeleccionada;
+    private static String tipoNaveSeleccionada = null;
     private static boolean partidaEnCurso;
     private static VistaNaves visor;
+
+    private static AdaptadorTableroUniverso universoDeMision;
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() { public void run() { armar(); } });
@@ -73,6 +75,8 @@ public class Main {
 
     /** Crea la nave y su asistente, y arma la pantalla de tripulantes de ESA nave. */
     private static void elegirNave(String tipo) {
+        tableroDeMision = null;
+        universoDeMision = null;
         tipoNaveSeleccionada = tipo;
         nave = crearNave(tipo);                       // COMBATE / CARGUERA / EXPLORADORA
         asistente = new AsistenteDeComando(nave, new Bitacora());
@@ -85,33 +89,19 @@ public class Main {
     }
 
     private static void iniciarPartida() {
-        if (partidaEnCurso) {
-            return;
-        }
+        if (partidaEnCurso || tipoNaveSeleccionada == null) return;
         partidaEnCurso = true;
 
-        if (tipoNaveSeleccionada != null) {
-            nave = crearNave(tipoNaveSeleccionada);
-            asistente = new AsistenteDeComando(nave, new Bitacora());
-
-            TripulantesView trip = new TripulantesView();
-            new TripulantesController(nave, new LiquidadorHaberes()).setVista(trip);
-            trip.addVolverListener(e -> v.mostrar(Ventana.MAIN));
-            v.agregarPantalla(Ventana.TRIPULANTES, trip);
-        }
-
         final Mision mision = crearMision();
-        partida.mostrarTablero(
-                getTablero(),
-                tipoNaveSeleccionada,
-                asistente.getBitacora());
+        partida.mostrarTablero(tableroDeMision, tipoNaveSeleccionada,
+                asistente.getBitacora(), universoDeMision.getReveladas());
         v.mostrar(Ventana.TABLERO);
 
         new Thread(new Runnable() { public void run() {
             boolean gano;
             try {
                 asistente.encomendarMision(mision);   // bloquea; el sleep(1000) por turno está en la misión
-                gano = !asistente.estaDestruida();    // TODO: ajustar con el informe (ver abajo)
+                gano = mision.getResultado() == ResultadoMision.EXITOSA;
             } catch (RuntimeException ex) {           // p. ej. OperacionRechazadaException
                 gano = false;
             }
@@ -137,22 +127,20 @@ public class Main {
     }
 
     private static Mision crearMision() {
-        ArrayList<ElementoDelUniverso> elementos = new ArrayList<ElementoDelUniverso>();
-        elementos.add(new Asteroide(new Coordenada(2, 3)));
-        elementos.add(new EstacionDeCarga(new Coordenada(4, 4)));
-
-        try {
-            tableroDeMision = new Tablero(20, 20, elementos);
-        } catch (DimensionesDeTableroInconsistentesException | CantidadDeElementosSuperaCasillaException ex) {
-            throw new IllegalStateException("No se pudo crear el tablero de misión", ex);
+        if (tableroDeMision == null) {                 // tablero solo en la primera misión de esta nave
+            ArrayList<ElementoDelUniverso> elementos = new ArrayList<ElementoDelUniverso>();
+            for (int i = 0; i < 8; i++) elementos.add(new Asteroide(new Coordenada(0, 0)));      // el tablero fija la posición real
+            for (int i = 0; i < 3; i++) elementos.add(new EstacionDeCarga(new Coordenada(0, 0)));
+            try {
+                tableroDeMision = new Tablero(20, 20, elementos);
+            } catch (DimensionesDeTableroInconsistentesException | CantidadDeElementosSuperaCasillaException ex) {
+                throw new IllegalStateException("No se pudo crear el tablero de misión", ex);
+            }
+            universoDeMision = new AdaptadorTableroUniverso(tableroDeMision);
         }
-        AdaptadorTableroUniverso universo = new AdaptadorTableroUniverso(tableroDeMision);
-        Posicion posicionOrigen = tableroDeMision.getPosicionNave();
-        Posicion posicionDestino = tableroDeMision.obtenerObjetivo();
-        Coordenada origen = new Coordenada(posicionOrigen.getX(), posicionOrigen.getY());
-        Coordenada destino = new Coordenada(posicionDestino.getX(), posicionDestino.getY());
-
-        return new MisionRecoleccion(asistente, universo, origen, destino);
+        Posicion po = tableroDeMision.getPosicionNave();    // donde quedó la nave
+        Posicion pd = tableroDeMision.obtenerObjetivo();    // objetivo nuevo
+        return new MisionRecoleccion(asistente, universoDeMision, new Coordenada(po.getX(), po.getY()), new Coordenada(pd.getX(), pd.getY()));
     }
 
     private static Tablero getTablero() {

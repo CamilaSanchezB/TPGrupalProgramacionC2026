@@ -6,8 +6,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import model.destinoytablero.Tablero;
 import java.awt.event.ActionListener;
+import java.util.Set;
+
 import javax.swing.JButton;
 import model.ClasesBitacora.Bitacora;
+import model.destinoytablero.Posicion;
 
 /** Pantalla 3: tablero en vivo. */
 public class TableroUniversoPanel extends JPanel {
@@ -31,9 +34,9 @@ public class TableroUniversoPanel extends JPanel {
     }
 
     /** Muestra el tablero en el centro, reemplazando el anterior si lo hubiera. */
-    public void mostrarTablero(Tablero tablero, String tipoNave, Bitacora bitacora) {
+    public void mostrarTablero(Tablero tablero, String tipoNave, Bitacora bitacora, Set<Posicion> reveladas) {
         desconectar();
-        tableroView = new TableroView(tablero, tipoNave);
+        tableroView = new TableroView(tablero, tipoNave, reveladas);
         bitacoraView = new BitacoraView(bitacora);
         add(tableroView, BorderLayout.CENTER);
         add(bitacoraView, BorderLayout.EAST);

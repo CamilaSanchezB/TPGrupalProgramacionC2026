@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Random;
+import model.destinoytablero.Posicion;
+
 
 /** Coordina los intentos de movimiento aleatorio de los elementos del tablero. */
 public class Destino {

@@ -11,6 +11,8 @@ import java.util.Set;
 import java.util.Observable;
 import exceptions.DimensionesDeTableroInconsistentesException;
 import exceptions.CantidadDeElementosSuperaCasillaException;
+import model.destinoytablero.Posicion;
+
 
 /**
  * Administra una grilla rectangular, sus elementos, la nave y el objetivo.

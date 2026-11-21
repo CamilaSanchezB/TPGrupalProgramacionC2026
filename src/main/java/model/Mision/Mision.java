@@ -159,22 +159,28 @@ public abstract class Mision{
             asistenteDeComando.registrar("Sin ruta calculable hacia " + destino);
         } else {
             // Bucle de travesía turno por turno con pausa de 800ms
-            while (!asistenteDeComando.estaDestruida() && !navegador.haLlegado()) {
+            final int MAX_TURNOS = 300;   // seguro contra un motor trabado
+            int turnos = 0;
+            while (!asistenteDeComando.estaDestruida() && !navegador.haLlegado() && turnos++ < MAX_TURNOS) {
+                Coordenada anterior = navegador.getPosicion();
                 ResultadoAvance avance = navegador.avanzarUnTurno();
                 if (avance == ResultadoAvance.SIN_RUTA) {
                     asistenteDeComando.registrar("Sin ruta disponible en este turno");
                 }
-                // Interacción con obstáculos o estaciones en la casilla actual
                 Coordenada posActual = navegador.getPosicion();
                 if (universo instanceof AdaptadorTableroUniverso) {
-                    ((AdaptadorTableroUniverso) universo).actualizarPosicionNave(posActual);
+                    ((AdaptadorTableroUniverso) universo).actualizarPosicionNave(posActual);  // revela y notifica
                 }
-                for (ElementoDelUniverso elem : universo.elementosEn(posActual)) {
-                    asistenteDeComando.interactuarCon(elem);
+                if (!posActual.equals(anterior)) {          // solo interactúa si se movió
+                    for (ElementoDelUniverso elem : universo.elementosEn(posActual)) {
+                        asistenteDeComando.interactuarCon(elem);
+                    }
                 }
-                // Pausa de 800ms para la visualización del avance en vivo
+                if (universo instanceof AdaptadorTableroUniverso) {
+                    ((AdaptadorTableroUniverso) universo).turnoDestino();   // el universo se mueve
+                }
                 try {
-                    Thread.sleep(800);
+                    Thread.sleep(1000);                      // 1 turno por segundo
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     asistenteDeComando.registrar("Ejecución de travesía interrumpida");

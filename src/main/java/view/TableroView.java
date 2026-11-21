@@ -2,6 +2,8 @@ package view;
 
 import java.awt.Color;
 import java.awt.GridLayout;
+import java.util.Set;
+
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import model.destinoytablero.Posicion;
@@ -14,7 +16,7 @@ public class TableroView extends JPanel {
     /**
      * @param tablero tablero a mostrar (no nulo)
      */
-    public TableroView(Tablero tablero, String tipoNave) {
+    public TableroView(Tablero tablero, String tipoNave, Set<Posicion> reveladas) {
         super(new GridLayout(tablero.getX(), tablero.getY(), 1, 1));
         setOpaque(true);
         setBackground(Color.BLACK);
@@ -42,14 +44,15 @@ public class TableroView extends JPanel {
                         lado,
                         iconoNave,
                         iconoPlaneta,
-                        iconoAsteroide);
+                        iconoAsteroide,
+                        reveladas);
                 add(casillas[i][j]);
             }
         }
     }
 
-    public TableroView(Tablero tablero) {
-        this(tablero, "EXPLORADORA");
+    public TableroView(Tablero tablero, Set<Posicion> reveladas) {
+        this(tablero, "EXPLORADORA", reveladas);
     }
 
     /** Desregistra todas las casillas del tablero observado. */

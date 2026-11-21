@@ -15,6 +15,7 @@ import model.Universo.Asteroide;
 import model.Universo.ElementoDelUniverso;
 import model.destinoytablero.Posicion;
 import model.destinoytablero.Tablero;
+import java.util.Set;
 
 /**
  * Un cuadrado del tablero. Observa al {@link Tablero} y, cuando este notifica,
@@ -33,6 +34,9 @@ public class CasillaView extends JPanel implements Observer {
     private ElementoDelUniverso elemento;
     private boolean hayNave;
     private boolean hayObjetivo;
+    private static final Color COLOR_REVELADA = new Color(20, 20, 40);
+    private final Set<Posicion> reveladas;
+    private boolean visible;
 
     /**
      * @param tablero tablero observado (no nulo)
@@ -45,13 +49,15 @@ public class CasillaView extends JPanel implements Observer {
             int lado,
             ImageIcon iconoNave,
             ImageIcon iconoPlaneta,
-            ImageIcon iconoAsteroide) {
+            ImageIcon iconoAsteroide,
+            Set<Posicion> reveladas) {
         super(new BorderLayout());
         this.tablero = tablero;
         this.posicion = posicion;
         this.iconoNave = iconoNave;
         this.iconoPlaneta = iconoPlaneta;
         this.iconoAsteroide = iconoAsteroide;
+
         setOpaque(true);
         setBackground(COLOR_VACIA);
         setPreferredSize(new Dimension(lado, lado));
@@ -60,6 +66,7 @@ public class CasillaView extends JPanel implements Observer {
         etiqueta.setForeground(Color.WHITE);
         add(etiqueta, BorderLayout.CENTER);
         tablero.addObserver(this);
+        this.reveladas = reveladas;
         actualizarSiCambio();
     }
 
@@ -83,20 +90,18 @@ public class CasillaView extends JPanel implements Observer {
     }
 
     private void actualizarSiCambio() {
-        ElementoDelUniverso nuevoElemento = tablero.getElementoEn(posicion);
+        boolean nuevaVisible = reveladas.contains(posicion);
+        ElementoDelUniverso nuevoElemento = nuevaVisible ? tablero.getElementoEn(posicion) : null;
         boolean nuevaNave = posicion.equals(tablero.getPosicionNave());
-        boolean nuevoObjetivo = posicion.equals(tablero.getObjetivo());
-        if (nuevoElemento == elemento && nuevaNave == hayNave && nuevoObjetivo == hayObjetivo) {
-            return;
-        }
-        elemento = nuevoElemento;
-        hayNave = nuevaNave;
-        hayObjetivo = nuevoObjetivo;
+        boolean nuevoObjetivo = posicion.equals(tablero.getObjetivo());   // el objetivo siempre se ve
+        if (nuevaVisible == visible && nuevoElemento == elemento
+                && nuevaNave == hayNave && nuevoObjetivo == hayObjetivo) return;
+        visible = nuevaVisible; elemento = nuevoElemento; hayNave = nuevaNave; hayObjetivo = nuevoObjetivo;
         pintar();
     }
 
     private void pintar() {
-        setBackground(COLOR_VACIA);
+        setBackground(visible ? COLOR_REVELADA : COLOR_VACIA);
 
         if (hayNave) {
             etiqueta.setIcon(iconoNave);
