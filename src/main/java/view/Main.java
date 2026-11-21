@@ -22,6 +22,8 @@ import model.Universo.EstacionDeCarga;
 import persistencia.ServicioUsuarios;
 import persistencia.dao.UsuarioDAOSqlite;
 import java.util.ArrayList;
+import controller.ControladorVisor;
+import model.Concurrencia.UniversoParalelo;
 
 public class Main {
     private static Ventana v;
@@ -33,6 +35,7 @@ public class Main {
     private static Tablero tableroDeMision;
     private static String tipoNaveSeleccionada;
     private static boolean partidaEnCurso;
+    private static VistaNaves visor;
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() { public void run() { armar(); } });
@@ -54,6 +57,7 @@ public class Main {
         main.addIniciarListener(e -> iniciarPartida());
 
         partida = new TableroUniversoPanel();
+        partida.addUniversoListener(e -> abrirUniversoParalelo());
         resultado = new ResultadoPanel();
         resultado.addAccionListener(e -> v.mostrar(ultimoGano ? Ventana.MAIN : Ventana.SELECTOR));
 
@@ -151,4 +155,15 @@ public class Main {
     private static Tablero getTablero(Mision m) {
         return tableroDeMision;
     }
+
+    private static void abrirUniversoParalelo() {
+    if (visor != null && visor.isDisplayable()) { // ya está abierto
+        visor.toFront();
+        return;
+    }
+    visor = new VistaNaves();
+    UniversoParalelo universo = new UniversoParalelo();
+    new ControladorVisor(visor, universo, visor::dispose).iniciar();
+    }
+
 }

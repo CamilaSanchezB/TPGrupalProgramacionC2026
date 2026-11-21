@@ -50,7 +50,7 @@ public class VistaNaves extends JFrame implements ObservadorVisor {
 
     public VistaNaves() {
         super("Plataforma de baterias");
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setSize(950, 620);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(8, 8));

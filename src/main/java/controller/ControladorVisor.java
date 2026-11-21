@@ -26,6 +26,12 @@ public class ControladorVisor {
             universo.detener();
             alVolver.run();
         });
+        vista.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosed(java.awt.event.WindowEvent e) {
+                universo.detener();
+            }
+        });
     }
 
     public void iniciar() {

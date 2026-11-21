@@ -5,19 +5,27 @@ import java.awt.Color;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import model.destinoytablero.Tablero;
+import java.awt.event.ActionListener;
+import javax.swing.JButton;
 
 /** Pantalla 3: tablero en vivo. */
 public class TableroUniversoPanel extends JPanel {
     private TableroView tableroView;
+    private final JButton btnUniverso = new JButton("Abrir universo paralelo");
 
     public TableroUniversoPanel() {
         super(new BorderLayout());
         setOpaque(true);
         setBackground(Color.BLACK);
         // TODO: botón "Volver", bitácora, recursos, etc.
-        JLabel titulo = new JLabel("TABLERO");
-        titulo.setForeground(Color.WHITE);
-        add(titulo, BorderLayout.NORTH);
+       JLabel titulo = new JLabel("TABLERO");
+    titulo.setForeground(Color.WHITE);
+
+    JPanel barra = new JPanel(new BorderLayout());
+    barra.setOpaque(false);
+    barra.add(titulo, BorderLayout.WEST);
+    barra.add(btnUniverso, BorderLayout.EAST);
+    add(barra, BorderLayout.NORTH);
     }
 
     /** Muestra el tablero en el centro, reemplazando el anterior si lo hubiera. */
@@ -36,6 +44,10 @@ public class TableroUniversoPanel extends JPanel {
             remove(tableroView);
             tableroView = null;
         }
+    }
+
+    public void addUniversoListener(ActionListener l) {
+    btnUniverso.addActionListener(l);
     }
 
     // TODO: public void addVolverListener(ActionListener listener) { ... }
