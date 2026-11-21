@@ -45,6 +45,7 @@ public abstract class Mision{
     private InformeMision informe;
     private Navegador navegador;
     private int inicioBitacora;   // desde dónde empiezan los eventos de ESTA misión
+    private int gemasIniciales;
     public static final int MAX_TURNOS = 300;   // evita bucle infinito si la nave no puede avanzar
 
     /**
@@ -147,6 +148,7 @@ public abstract class Mision{
                 asistenteDeComando.getEnergia(),
                 asistenteDeComando.getDesgaste()
         );
+        gemasIniciales = asistenteDeComando.getGemas();
 
         //Guardamos cronologicamente como se fue desarollando la mision.
         asistenteDeComando.registrar("Mision preparada cronologicamente hacia destino: "+destino);
@@ -314,6 +316,9 @@ public abstract class Mision{
             }
         }
 
+        // Gemas ganadas: se mide después de las recompensas (las entrega aplicarEfectosFinales)
+        int gemasGanadas = recursosIniciales == null ? 0 : asistenteDeComando.getGemas() - gemasIniciales;
+
         asistenteDeComando.registrar("Mision cerrada: " + nombre + " - " + resultado);
 
         // 4) Informe con SOLO los eventos de esta misión (copia desde inicioBitacora)
@@ -330,7 +335,8 @@ public abstract class Mision{
                 asistenteDeComando.getCombustible(),
                 asistenteDeComando.getEnergia(),
                 asistenteDeComando.getDesgaste(),
-                observaciones
+                observaciones,
+                gemasGanadas
         );
         this.etapa = EtapaMision.CERRADA;
     }

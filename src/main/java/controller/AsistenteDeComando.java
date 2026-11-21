@@ -52,6 +52,10 @@ public class AsistenteDeComando {
 
     public boolean requiereMantenimiento() { return nave.requiereMantenimiento(); }
 
+    public int getGemas() { return nave.getGemas(); }
+
+    public String getEstadoMotor() { return nave.getEstadoMotor(); }
+
     // ---------- Órdenes sobre recursos ----------
 
     /**

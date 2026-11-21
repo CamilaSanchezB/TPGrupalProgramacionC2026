@@ -304,4 +304,4 @@ La verificación se ejecuta con las clases del paquete `pruebas` y con `view.Tes
 
 ## Uso de inteligencia artificial
 
-El uso de IA está declarado en `docs/uso-ia.md`: se utilizó como herramienta de apoyo para orientarse, explorar alternativas de diseño y entender puntos poco claros. Las decisiones de diseño, la integración y la revisión final las tomó el equipo.
+El uso de IA está declarado en `uso-ia.md`: se utilizó como herramienta de apoyo para orientarse, explorar alternativas de diseño y entender puntos poco claros. Las decisiones de diseño, la integración y la revisión final las tomó el equipo.
