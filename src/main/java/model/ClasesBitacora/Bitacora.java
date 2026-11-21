@@ -14,12 +14,14 @@ public class Bitacora extends Observable{
      * PRE: el evento no puede ser nulo o vacio
      * POST: el evento quedará registrado con su descripcion y la fechg en la que fue hecho el registro
      */
-    public void registrar(String descripcion) {
+    public synchronized void registrar(String descripcion) {
         assert descripcion != null && !descripcion.trim().isEmpty() : "No se ha ingresado ningun evento";
         this.eventos.add(new RegitroBitacora(descripcion));
+        setChanged();
+        notifyObservers();
     }
 
     public synchronized ArrayList<RegitroBitacora> getEventos() {
-        return eventos;
+        return new ArrayList<RegitroBitacora>(eventos);
     }
 }

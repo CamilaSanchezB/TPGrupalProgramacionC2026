@@ -101,7 +101,10 @@ public class Main {
         }
 
         final Mision mision = crearMision();
-        partida.mostrarTablero(getTablero(), tipoNaveSeleccionada);
+        partida.mostrarTablero(
+                getTablero(),
+                tipoNaveSeleccionada,
+                asistente.getBitacora());
         v.mostrar(Ventana.TABLERO);
 
         new Thread(new Runnable() { public void run() {

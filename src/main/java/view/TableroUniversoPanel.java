@@ -7,10 +7,12 @@ import javax.swing.JPanel;
 import model.destinoytablero.Tablero;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
+import model.ClasesBitacora.Bitacora;
 
 /** Pantalla 3: tablero en vivo. */
 public class TableroUniversoPanel extends JPanel {
     private TableroView tableroView;
+    private BitacoraView bitacoraView;
     private final JButton btnUniverso = new JButton("Abrir universo paralelo");
 
     public TableroUniversoPanel() {
@@ -29,10 +31,12 @@ public class TableroUniversoPanel extends JPanel {
     }
 
     /** Muestra el tablero en el centro, reemplazando el anterior si lo hubiera. */
-    public void mostrarTablero(Tablero tablero, String tipoNave) {
+    public void mostrarTablero(Tablero tablero, String tipoNave, Bitacora bitacora) {
         desconectar();
         tableroView = new TableroView(tablero, tipoNave);
+        bitacoraView = new BitacoraView(bitacora);
         add(tableroView, BorderLayout.CENTER);
+        add(bitacoraView, BorderLayout.EAST);
         revalidate();
         repaint();
     }
@@ -43,6 +47,11 @@ public class TableroUniversoPanel extends JPanel {
             tableroView.desconectar();
             remove(tableroView);
             tableroView = null;
+        }
+        if (bitacoraView != null) {
+            bitacoraView.desconectar();
+            remove(bitacoraView);
+            bitacoraView = null;
         }
     }
 
