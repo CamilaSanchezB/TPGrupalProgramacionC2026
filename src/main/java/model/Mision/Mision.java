@@ -4,16 +4,20 @@ import controller.AsistenteDeComando;
 import model.Recursos;
 import model.Requisitos;
 import model.Coordenada;
-import model.Universo.Universo;
 import model.Universo.Navegador;
 import model.Universo.ResultadoAvance;
 import model.Universo.ElementoDelUniverso;
-import model.Universo.AdaptadorTableroUniverso;
+import model.Universo.UniversoDinamico;
+import exceptions.OperacionRechazadaException;
+import model.ClasesBitacora.RegitroBitacora;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Misión genérica de la nave. Aplica Template Method: realizar() fija el orden
  * preparar -> ejecutarAccion -> evaluar -> cerrar y las subclases solo completan los
  * pasos propios (cumplirObjetivo y cumplioObjetivo).
- * INV: nombre, asistenteDeComando, requisitos, acciones y observaciones nunca son null
+ * INV: nombre, asistenteDeComando, universo, requisitos y observaciones nunca son null
  * INV: etapa nunca es null y avanza solo en el orden
  *      CREADA -> PREPARADA -> EJECUTADA -> EVALUADA -> CERRADA
  *      (si la misión se rechaza, pasa de CREADA directamente a CERRADA)
@@ -22,12 +26,14 @@ import model.Universo.AdaptadorTableroUniverso;
  *      (una misión rechazada tiene resultado RECHAZADA aunque su etapa todavía sea CREADA)
  * INV: informe != null si y solo si etapa == CERRADA
  * INV: una misión RECHAZADA no modifica la nave; los requisitos se consumen una sola vez
+ * INV: la travesía dura como máximo MAX_TURNOS turnos
+ * INV: el balance del informe es el del viaje (antes de las recompensas de aplicarEfectosFinales)
  */
 
 public abstract class Mision{
+    private final UniversoDinamico universo;
     private final String nombre;
     private final AsistenteDeComando asistenteDeComando;
-    private final Universo universo;
     private final Coordenada origen;
     private final Coordenada destino;
     private final Requisitos requisitos;
@@ -38,26 +44,36 @@ public abstract class Mision{
     private String observaciones;
     private InformeMision informe;
     private Navegador navegador;
+    private int inicioBitacora;   // desde dónde empiezan los eventos de ESTA misión
+    public static final int MAX_TURNOS = 300;   // evita bucle infinito si la nave no puede avanzar
 
     /**
      * @param nombre Nombre de la misión
      * @param asistenteDeComando Asistente encomendado
-     * @param universo Entorno del mapa
+     * @param universoDinamico Entorno del mapa
      * @param origen Coordenada inicial
      * @param destino Coordenada final
      * @param requisitos Requisitos de la misión
+     * PRE: ningún parámetro es null y nombre no es vacío
+     * POST: misión en etapa CREADA, sin resultado ni informe
+     * @throws IllegalArgumentException si se viola la PRE
      */
 
-    protected Mision(String nombre, AsistenteDeComando asistenteDeComando, Universo universo, Coordenada origen, Coordenada destino, Requisitos requisitos) {
-        assert nombre != null && !nombre.trim().isEmpty() : "El nombre no puede ser nulo ni vacío";
-        assert asistenteDeComando != null : "El asistente de comando no puede ser nulo";
-        assert universo != null : "El universo no puede ser nulo";
-        assert origen != null && destino != null : "Las coordenadas no pueden ser nulas";
-        assert requisitos != null : "Los requisitos no pueden ser nulos";
+    protected Mision(String nombre, AsistenteDeComando asistenteDeComando, UniversoDinamico universoDinamico, Coordenada origen, Coordenada destino, Requisitos requisitos) {
+        if (nombre == null || nombre.trim().isEmpty())
+            throw new IllegalArgumentException("El nombre no puede ser nulo ni vacío");
+        if (asistenteDeComando == null)
+            throw new IllegalArgumentException("El asistente de comando no puede ser nulo");
+        if (universoDinamico == null)
+            throw new IllegalArgumentException("El universo no puede ser nulo");
+        if (origen == null || destino == null)
+            throw new IllegalArgumentException("Las coordenadas no pueden ser nulas");
+        if (requisitos == null)
+            throw new IllegalArgumentException("Los requisitos no pueden ser nulos");
 
         this.nombre = nombre;
         this.asistenteDeComando = asistenteDeComando;
-        this.universo = universo;
+        this.universo = universoDinamico;
         this.origen = origen;
         this.destino = destino;
         this.requisitos = requisitos;
@@ -74,7 +90,8 @@ public abstract class Mision{
      */
 
     private boolean rechazar(String motivo){
-        assert motivo != null && !motivo.trim().isEmpty() : "El motivo del rechazo no puede ser nulo ni vacio";
+        if (motivo == null || motivo.trim().isEmpty())
+            throw new IllegalArgumentException("El motivo del rechazo no puede ser nulo ni vacio");
         resultado = ResultadoMision.RECHAZADA;
         observaciones=motivo;
         asistenteDeComando.registrar("Mision rechazada: " + motivo); //El asistente la guarda en la bitacora.
@@ -84,12 +101,14 @@ public abstract class Mision{
     /**
      * Template Method: fija el orden del ciclo y las subclases no pueden alterarlo.
      * PRE: etapa == CREADA (una misión se realiza una sola vez)
+     * @throws IllegalStateException si la misión ya se realizó
      * POST: etapa == CERRADA, resultado != null e informe != null
      *       (también cuando la misión es rechazada o falla)
      *       si resultado == RECHAZADA, la nave no fue modificada
      */
 
     public final void realizar(){
+        inicioBitacora = asistenteDeComando.getBitacora().getEventos().size();
         if(preparar()) {
             ejecutarAccion();
             evaluar();
@@ -108,7 +127,8 @@ public abstract class Mision{
      */
 
     private boolean preparar(){
-        assert etapa == EtapaMision.CREADA : "La mision ya fue preparada";
+        if (etapa != EtapaMision.CREADA)
+            throw new IllegalStateException("La mision ya fue preparada");
 
         //La nave esta disponible?(el motor debe estar disponible)
         //Crear en asistente de comando una funcion que diga si la nave esta disponible!!
@@ -143,7 +163,8 @@ public abstract class Mision{
      */
 
     private void ejecutarAccion() {
-        assert etapa == EtapaMision.PREPARADA : "No se puede ejecutar una mision que no fue preparada";
+        if (etapa != EtapaMision.PREPARADA)
+            throw new IllegalStateException("No se puede ejecutar una mision que no fue preparada");
         //Consumimos de la nave considerando los requisitos de la mision.
         asistenteDeComando.consumir(
                 requisitos.getCombustible(),
@@ -151,41 +172,42 @@ public abstract class Mision{
                 requisitos.getDesgaste()
         );
         asistenteDeComando.registrar("Recursos consumidos");
-        // Inicializamos el Navegador con el origen y destino
+        universo.ubicarNave(origen);   // el tablero tiene que saber dónde está la nave
         this.navegador = new Navegador(asistenteDeComando, universo, origen);
-        boolean viajeIniciado = navegador.iniciarViaje(destino);
 
-        if (!viajeIniciado) {
+        if (!navegador.iniciarViaje(destino)) {
             asistenteDeComando.registrar("Sin ruta calculable hacia " + destino);
         } else {
-            // Bucle de travesía turno por turno con pausa de 800ms
-            final int MAX_TURNOS = 300;   // seguro contra un motor trabado
-            int turnos = 0;
-            while (!asistenteDeComando.estaDestruida() && !navegador.haLlegado() && turnos++ < MAX_TURNOS) {
-                Coordenada anterior = navegador.getPosicion();
-                ResultadoAvance avance = navegador.avanzarUnTurno();
-                if (avance == ResultadoAvance.SIN_RUTA) {
-                    asistenteDeComando.registrar("Sin ruta disponible en este turno");
-                }
-                Coordenada posActual = navegador.getPosicion();
-                if (universo instanceof AdaptadorTableroUniverso) {
-                    ((AdaptadorTableroUniverso) universo).actualizarPosicionNave(posActual);  // revela y notifica
-                }
-                if (!posActual.equals(anterior)) {          // solo interactúa si se movió
-                    for (ElementoDelUniverso elem : universo.elementosEn(posActual)) {
-                        asistenteDeComando.interactuarCon(elem);
-                    }
-                }
-                if (universo instanceof AdaptadorTableroUniverso) {
-                    ((AdaptadorTableroUniverso) universo).turnoDestino();   // el universo se mueve
-                }
+            int turno = 0;
+            ElementoDelUniverso ultimo = null;   // para no interactuar dos veces con el mismo elemento
+            while (!asistenteDeComando.estaDestruida() && !navegador.haLlegado() && turno < MAX_TURNOS) {
+                turno++;
+                Coordenada antes = navegador.getPosicion();
                 try {
-                    Thread.sleep(1000);                      // 1 turno por segundo
+                    if (navegador.avanzarUnTurno() == ResultadoAvance.SIN_RUTA) {
+                        asistenteDeComando.registrar("Sin ruta disponible en este turno");
+                    }
+                    universo.ubicarNave(navegador.getPosicion());
+                    ElementoDelUniverso aca = universo.inspeccionarNave();
+                    boolean seMovio = !antes.equals(navegador.getPosicion());
+                    if (aca != null && (seMovio || aca != ultimo)) {
+                        asistenteDeComando.interactuarCon(aca);
+                    }
+                    ultimo = aca;
+                } catch (OperacionRechazadaException e) {
+                    asistenteDeComando.registrar("Turno " + turno + " rechazado: " + e.getMessage());
+                }
+                universo.turnoDestino();   // Destino mueve los elementos
+                try {
+                    Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     asistenteDeComando.registrar("Ejecución de travesía interrumpida");
                     break;
                 }
+            }
+            if (turno >= MAX_TURNOS && !navegador.haLlegado()) {
+                asistenteDeComando.registrar("Travesía abortada: máximo de turnos");
             }
         }
 
@@ -221,7 +243,8 @@ public abstract class Mision{
      *       registrada en la bitácora y etapa == EVALUADA
      */
     private void evaluar() {
-        assert etapa == EtapaMision.EJECUTADA : "No se puede evaluar una misión no ejecutada";
+        if (etapa != EtapaMision.EJECUTADA)
+            throw new IllegalStateException("No se puede evaluar una misión no ejecutada");
 
         if (asistenteDeComando.estaDestruida()) {
             resultado = ResultadoMision.FALLIDA;
@@ -244,19 +267,24 @@ public abstract class Mision{
     protected abstract boolean cumplioObjetivo();
 
     /**
-     * Cierra la misión, impacta efectos finales, ejecuta el salto final y genera el informe inmutable.
+     * Cierra la misión: enfría el motor, mide el balance del viaje, aplica las recompensas y
+     * genera el informe inmutable (también si fue rechazada o falló).
      * PRE: resultado != null (fijado por evaluar() o rechazar())
-     * POST: informe != null, etapa == CERRADA.
+     * POST: informe != null con solo los eventos de esta misión y etapa == CERRADA;
+     *       si EXITOSA, el motor quedó Disponible y se aplicaron los efectos finales;
+     *       si el enfriamiento o los efectos finales fallan, resultado == FALLIDA y el motivo
+     *       queda en observaciones; el informe se genera igual.
      */
     private void cerrar() {
-        assert resultado != null : "No se puede cerrar una mision sin resultado";
+        if (resultado == null)
+            throw new IllegalStateException("No se puede cerrar una mision sin resultado");
 
-        if (resultado == ResultadoMision.EXITOSA) {
-            aplicarEfectosFinales();
-
+        // 1) Si el warp dejó el motor en Enfriamiento, un turno más lo devuelve a Disponible.
+        //    Va ANTES de las recompensas: el enfriamiento suma desgaste y no debe pisar el mantenimiento.
+        if (resultado == ResultadoMision.EXITOSA
+                && !asistenteDeComando.estaDisponible() && !asistenteDeComando.estaDestruida()) {
             try {
-                int casilleros = asistenteDeComando.saltar();
-                asistenteDeComando.registrar("Salto final realizado: avanza " + casilleros + " casillero(s).");
+                asistenteDeComando.saltar();
             } catch (RuntimeException e) {
                 resultado = ResultadoMision.FALLIDA;
                 observaciones = "No se pudo realizar el salto final";
@@ -264,34 +292,47 @@ public abstract class Mision{
             }
         }
 
-        int combFinal = asistenteDeComando.getCombustible();
-        int enerFinal = asistenteDeComando.getEnergia();
-        int desgFinal = asistenteDeComando.getDesgaste();
-
+        // 2) Balance del viaje: se mide antes de las recompensas (si no, M-03 daría consumo negativo)
         int combConsumido = 0;
         int enerConsumida = 0;
         int desgGenerado = 0;
-
         if (recursosIniciales != null) {
-            combConsumido = recursosIniciales.getCombustible() - combFinal;
-            enerConsumida = recursosIniciales.getEnergia() - enerFinal;
-            desgGenerado = desgFinal - recursosIniciales.getDesgaste();
+            combConsumido = recursosIniciales.getCombustible() - asistenteDeComando.getCombustible();
+            enerConsumida = recursosIniciales.getEnergia() - asistenteDeComando.getEnergia();
+            desgGenerado = asistenteDeComando.getDesgaste() - recursosIniciales.getDesgaste();
         }
+
+        // 3) Recompensas / entregas propias de la misión. Si fallan, la misión no queda en el aire:
+        //    se marca FALLIDA y el informe se genera igual.
+        if (resultado == ResultadoMision.EXITOSA) {
+            try {
+                aplicarEfectosFinales();
+            } catch (RuntimeException e) {
+                resultado = ResultadoMision.FALLIDA;
+                observaciones = "No se pudieron aplicar los efectos finales: " + e.getMessage();
+                asistenteDeComando.registrar("Efectos finales fallidos en " + nombre);
+            }
+        }
+
+        asistenteDeComando.registrar("Mision cerrada: " + nombre + " - " + resultado);
+
+        // 4) Informe con SOLO los eventos de esta misión (copia desde inicioBitacora)
+        List<RegitroBitacora> todos = asistenteDeComando.getBitacora().getEventos();
+        List<RegitroBitacora> propios = new ArrayList<RegitroBitacora>(todos.subList(inicioBitacora, todos.size()));
 
         this.informe = new InformeMision(
                 nombre,
                 resultado,
-                asistenteDeComando.getBitacora(),
+                propios,
                 combConsumido,
                 enerConsumida,
                 desgGenerado,
-                combFinal,
-                enerFinal,
-                desgFinal,
+                asistenteDeComando.getCombustible(),
+                asistenteDeComando.getEnergia(),
+                asistenteDeComando.getDesgaste(),
                 observaciones
         );
         this.etapa = EtapaMision.CERRADA;
-        asistenteDeComando.registrar("Mision cerrada: " + nombre + " - " + resultado);
     }
 
     /**

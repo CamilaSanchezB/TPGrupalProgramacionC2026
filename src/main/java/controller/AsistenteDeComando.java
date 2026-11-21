@@ -203,4 +203,27 @@ public class AsistenteDeComando {
 
         return informe;
     }
+
+    // ---------- Recompensas de misión ----------
+
+    /**
+     * PRE: cantidad > 0
+     * POST: las gemas de la nave suben en cantidad y queda registrado en la bitácora
+     * @throws IllegalArgumentException si cantidad <= 0
+     */
+    public void agregarGemas(int cantidad) {
+        if (cantidad <= 0)
+            throw new IllegalArgumentException("La cantidad de gemas debe ser positiva");
+        nave.agregarGemas(cantidad);
+        registrar("Gemas recibidas: " + cantidad);
+    }
+
+    /**
+     * Recarga total (100%) de combustible y energía.
+     * POST: getCombustible() == getEnergia() == Recursos.CAPACIDAD_MAXIMA; queda en la bitácora
+     */
+    public void recargarTotal() {
+        nave.recargarHastaTope(model.Recursos.CAPACIDAD_MAXIMA, model.Recursos.CAPACIDAD_MAXIMA);
+        registrar("Recarga total de combustible y energía");
+    }
 }
