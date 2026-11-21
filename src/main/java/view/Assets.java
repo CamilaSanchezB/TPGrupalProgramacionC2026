@@ -9,13 +9,24 @@ public final class Assets {
     private Assets() {
     }
 
+    private static String rutaCompleta(String ruta) {
+        return ruta.startsWith("/") ? ruta : "/assets/" + ruta;
+    }
+
+    /** true si el archivo existe en /assets. Lo usa el fondo para omitir sprites que falten. */
+    public static boolean existe(String ruta) {
+        if (ruta == null || ruta.isEmpty()) {
+            return false;
+        }
+        return Assets.class.getResource(rutaCompleta(ruta)) != null;
+    }
+
     public static ImageIcon cargar(String ruta) {
         if (ruta == null || ruta.isEmpty()) {
             throw new IllegalArgumentException("La ruta del asset no puede estar vacía");
         }
 
-        String recursoCompleto = ruta.startsWith("/") ? ruta : "/assets/" + ruta;
-        URL recurso = Assets.class.getResource(recursoCompleto);
+        URL recurso = Assets.class.getResource(rutaCompleta(ruta));
         if (recurso == null) {
             throw new IllegalStateException("No se encontró el asset: " + ruta);
         }

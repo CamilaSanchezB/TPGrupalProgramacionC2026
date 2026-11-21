@@ -1,7 +1,6 @@
 package view;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.event.ActionListener;
 import java.awt.Dimension;
 
@@ -17,7 +16,7 @@ import controller.LoginController;
 import net.miginfocom.swing.MigLayout;
 
 @SuppressWarnings("serial")
-public class LoginView extends JPanel implements ILogin {
+public class LoginView extends FondoEstrellas implements ILogin {
 
 	private JPanel contentPane;
 	private JPanel panelAcceso;
@@ -62,13 +61,13 @@ public class LoginView extends JPanel implements ILogin {
 		JPanel panelMarca = new JPanel(new MigLayout(
 				"insets 24 24 20 24, wrap 1, align center", "[grow]", "[]8[]"));
 		panelMarca.setOpaque(true);
-		panelMarca.setBackground(ConfigView.ACENTO);
+		panelMarca.setBackground(ConfigView.FONDO);
 		panelMarca.setBorder(BorderFactory.createMatteBorder(
-				0, 0, 4, 0, ConfigView.ACENTO_CALIDO));
+				0, 0, 3, 0, ConfigView.ACENTO_CIAN));
 
 		JLabel lblMarca = new JLabel("MISIÓN INTERESTELAR");
 		lblMarca.setFont(ConfigView.FUENTE_TITULO_GRANDE);
-		lblMarca.setForeground(Color.WHITE);
+		lblMarca.setForeground(ConfigView.ACENTO_CIAN);
 		panelMarca.add(lblMarca, "align center");
 
 		JLabel lblFrase = new JLabel("La aventura está por comenzar");
@@ -103,6 +102,7 @@ public class LoginView extends JPanel implements ILogin {
 
 		textoUsuario = new JTextField();
 		textoUsuario.setColumns(15);
+		textoUsuario.putClientProperty("JTextField.placeholderText", "Tu nombre de piloto");
 		formulario.add(textoUsuario, "growx, h 38!");
 
 		lblContrasena = new JLabel("Contraseña");
@@ -112,6 +112,7 @@ public class LoginView extends JPanel implements ILogin {
 
 		textoContrasena = new JPasswordField();
 		textoContrasena.setColumns(15);
+		textoContrasena.putClientProperty("JTextField.placeholderText", "Tu contraseña");
 		formulario.add(textoContrasena, "growx, h 38!");
 
 		panelBotones = new JPanel(new MigLayout(
@@ -126,12 +127,7 @@ public class LoginView extends JPanel implements ILogin {
 
 		btnRegistrar = new JButton("Crear cuenta");
 		btnRegistrar.setActionCommand("REGISTRAR");
-		btnRegistrar.setOpaque(true);
-		btnRegistrar.setBackground(ConfigView.SUPERFICIE);
-		btnRegistrar.setForeground(ConfigView.ACENTO);
-		btnRegistrar.setBorder(BorderFactory.createCompoundBorder(
-				BorderFactory.createLineBorder(ConfigView.ACENTO),
-				BorderFactory.createEmptyBorder(6, 12, 6, 12)));
+		ConfigView.secundario(btnRegistrar);
 		panelBotones.add(btnRegistrar, "grow");
 
 		lblMensaje = new JLabel(" ");

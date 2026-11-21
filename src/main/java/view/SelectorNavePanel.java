@@ -8,6 +8,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Point;
+import javax.swing.SwingUtilities;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,12 +21,12 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 // SelectorNavePanel: 3 figuras clicables
-public class SelectorNavePanel extends JPanel {
+public class SelectorNavePanel extends FondoEstrellas {
     private final List<ActionListener> oyentes = new ArrayList<ActionListener>();
 
-    private static final Color COLOR_COMBATE = new Color(124, 58, 237);
-    private static final Color COLOR_CARGUERA = new Color(14, 165, 164);
-    private static final Color COLOR_EXPLORADORA = new Color(71, 85, 105);
+    private static final Color COLOR_COMBATE = new Color(167, 139, 250);
+    private static final Color COLOR_CARGUERA = new Color(45, 212, 191);
+    private static final Color COLOR_EXPLORADORA = new Color(148, 163, 184);
 
     public SelectorNavePanel() {
         super(new BorderLayout(0, 24));
@@ -63,12 +66,10 @@ public class SelectorNavePanel extends JPanel {
             setOpaque(false);
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-            JPanel marcoImagen = new JPanel(new BorderLayout());
+            final JPanel marcoImagen = new JPanel(new BorderLayout());
             marcoImagen.setOpaque(true);
             marcoImagen.setBackground(ConfigView.SUPERFICIE);
-            marcoImagen.setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createLineBorder(color, 2),
-                    BorderFactory.createEmptyBorder(14, 14, 14, 14)));
+            marcoImagen.setBorder(marco(ConfigView.BORDE, 2));
 
             JLabel imagen = new JLabel(
                     Assets.cargarEscalada(archivo, 150), SwingConstants.CENTER);
@@ -92,10 +93,38 @@ public class SelectorNavePanel extends JPanel {
                 }
             };
 
-            addMouseListener(selector);
-            marcoImagen.addMouseListener(selector);
-            imagen.addMouseListener(selector);
-            nombre.addMouseListener(selector);
+            // Hover: al pasar el mouse el marco toma el color de la nave y se aclara el fondo.
+            MouseAdapter resaltar = new MouseAdapter() {
+                @Override
+                public void mouseEntered(MouseEvent evento) {
+                    marcoImagen.setBorder(marco(color, 3));
+                    marcoImagen.setBackground(ConfigView.TARJETA_COMANDO);
+                }
+
+                @Override
+                public void mouseExited(MouseEvent evento) {
+                    // Pasar de la figura a su imagen también dispara "exited": solo
+                    // quitamos el resaltado si el mouse salió de verdad de toda la figura.
+                    Point p = SwingUtilities.convertPoint(
+                            (Component) evento.getSource(), evento.getPoint(), Figura.this);
+                    if (!Figura.this.contains(p)) {
+                        marcoImagen.setBorder(marco(ConfigView.BORDE, 2));
+                        marcoImagen.setBackground(ConfigView.SUPERFICIE);
+                    }
+                }
+            };
+
+            for (Component c : new Component[] { this, marcoImagen, imagen, nombre }) {
+                c.addMouseListener(selector);
+                c.addMouseListener(resaltar);
+            }
+        }
+
+        private javax.swing.border.Border marco(Color color, int grosor) {
+            return BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(color, grosor),
+                    BorderFactory.createEmptyBorder(14 - (grosor - 2), 14 - (grosor - 2),
+                            14 - (grosor - 2), 14 - (grosor - 2)));
         }
     }
 }
