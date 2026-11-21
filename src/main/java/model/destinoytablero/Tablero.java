@@ -380,4 +380,11 @@ public class Tablero extends Observable {
         return tablero;
     }
 
+    public ElementoDelUniverso getElementoEn(Posicion posicion) {
+        if (posicion == null) {
+            return null;
+        }
+        return ocupacion.get(posicion);
+    }
+
 }

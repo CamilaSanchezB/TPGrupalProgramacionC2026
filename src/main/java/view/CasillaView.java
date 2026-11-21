@@ -1,20 +1,17 @@
 package view;
 
 import java.awt.BorderLayout;
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Polygon;
-import java.awt.RenderingHints;
 import java.util.Observable;
 import java.util.Observer;
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import model.Universo.Asteroide;
 import model.Universo.ElementoDelUniverso;
 import model.destinoytablero.Posicion;
 import model.destinoytablero.Tablero;
@@ -25,12 +22,12 @@ import model.destinoytablero.Tablero;
  */
 public class CasillaView extends JPanel implements Observer {
     private static final Color COLOR_VACIA = Color.BLACK;
-    private static final Color COLOR_ELEMENTO = new Color(230, 140, 40);
-    private static final Color COLOR_OBJETIVO = new Color(60, 180, 90);
 
     private final Tablero tablero;
     private final Posicion posicion;
-    private final String tipoNave;
+    private final ImageIcon iconoNave;
+    private final ImageIcon iconoPlaneta;
+    private final ImageIcon iconoAsteroide;
     private final JLabel etiqueta = new JLabel("", SwingConstants.CENTER);
 
     private ElementoDelUniverso elemento;
@@ -42,11 +39,19 @@ public class CasillaView extends JPanel implements Observer {
      * @param posicion casilla que representa este cuadrado (no nula)
      * @param lado lado del cuadrado en píxeles
      */
-    public CasillaView(Tablero tablero, Posicion posicion, int lado, String tipoNave) {
+    public CasillaView(
+            Tablero tablero,
+            Posicion posicion,
+            int lado,
+            ImageIcon iconoNave,
+            ImageIcon iconoPlaneta,
+            ImageIcon iconoAsteroide) {
         super(new BorderLayout());
         this.tablero = tablero;
         this.posicion = posicion;
-        this.tipoNave = tipoNave == null ? "EXPLORADORA" : tipoNave.toUpperCase(java.util.Locale.ROOT);
+        this.iconoNave = iconoNave;
+        this.iconoPlaneta = iconoPlaneta;
+        this.iconoAsteroide = iconoAsteroide;
         setOpaque(true);
         setBackground(COLOR_VACIA);
         setPreferredSize(new Dimension(lado, lado));
@@ -54,12 +59,8 @@ public class CasillaView extends JPanel implements Observer {
         etiqueta.setFont(new Font(Font.SANS_SERIF, Font.BOLD, Math.max(8, lado / 2)));
         etiqueta.setForeground(Color.WHITE);
         add(etiqueta, BorderLayout.CENTER);
-        actualizarSiCambio();
         tablero.addObserver(this);
-    }
-
-    public CasillaView(Tablero tablero, Posicion posicion, int lado) {
-        this(tablero, posicion, lado, "EXPLORADORA");
+        actualizarSiCambio();
     }
 
     /** Deja de observar al tablero. */
@@ -82,7 +83,7 @@ public class CasillaView extends JPanel implements Observer {
     }
 
     private void actualizarSiCambio() {
-        ElementoDelUniverso nuevoElemento = tablero.verTablero()[posicion.getX()][posicion.getY()];
+        ElementoDelUniverso nuevoElemento = tablero.getElementoEn(posicion);
         boolean nuevaNave = posicion.equals(tablero.getPosicionNave());
         boolean nuevoObjetivo = posicion.equals(tablero.getObjetivo());
         if (nuevoElemento == elemento && nuevaNave == hayNave && nuevoObjetivo == hayObjetivo) {
@@ -95,58 +96,34 @@ public class CasillaView extends JPanel implements Observer {
     }
 
     private void pintar() {
+        setBackground(COLOR_VACIA);
+
         if (hayNave) {
-            setBackground(COLOR_VACIA);
+            etiqueta.setIcon(iconoNave);
+        } else if (elemento instanceof Asteroide) {
+            etiqueta.setIcon(iconoAsteroide);
         } else if (hayObjetivo) {
-            setBackground(COLOR_OBJETIVO);
-        } else if (elemento != null) {
-            setBackground(COLOR_ELEMENTO);
+            etiqueta.setIcon(iconoPlaneta);
         } else {
-            setBackground(COLOR_VACIA);
+            etiqueta.setIcon(null);
         }
-        if (elemento != null) {
+
+        if (hayNave) {
+            etiqueta.setText("");
+            setToolTipText(null);
+        } else if (elemento instanceof Asteroide) {
+            etiqueta.setText("");
+            setToolTipText(elemento.toString());
+        } else if (elemento != null) {
             etiqueta.setText(elemento.getClass().getSimpleName().substring(0, 1));
             setToolTipText(elemento.toString());
+        } else if (hayObjetivo) {
+            etiqueta.setText("");
+            setToolTipText("Objetivo");
         } else {
-            etiqueta.setText(hayNave ? "N" : hayObjetivo ? "X" : "");
+            etiqueta.setText("");
             setToolTipText(null);
         }
         repaint();
-    }
-
-    @Override
-    protected void paintComponent(Graphics graphics) {
-        super.paintComponent(graphics);
-        if (!hayNave) {
-            return;
-        }
-
-        Graphics2D g = (Graphics2D) graphics.create();
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        int size = Math.max(8, Math.min(getWidth(), getHeight()) - 6);
-        int cx = getWidth() / 2;
-        int cy = getHeight() / 2;
-        int half = size / 2;
-
-        if ("COMBATE".equals(tipoNave)) {
-            g.setColor(new Color(255, 90, 70));
-            g.fillPolygon(new Polygon(
-                    new int[]{cx, cx + half, cx + half / 3, cx, cx - half / 3, cx - half},
-                    new int[]{cy - half, cy + half / 2, cy + half / 3, cy + half, cy + half / 3, cy + half / 2},
-                    6));
-        } else if ("CARGUERA".equals(tipoNave) || "CARGUERO".equals(tipoNave)) {
-            g.setColor(new Color(255, 190, 60));
-            g.fillRoundRect(cx - half, cy - half / 2, size, size, 4, 4);
-            g.setColor(new Color(30, 30, 30));
-            g.fillRect(cx - half / 2, cy - half / 2, half / 2, half);
-            g.fillRect(cx + 2, cy - half / 2, half / 2, half);
-        } else {
-            g.setColor(new Color(70, 210, 255));
-            g.fillOval(cx - half / 2, cy - half / 2, half, half);
-            g.setStroke(new BasicStroke(Math.max(1f, size / 10f)));
-            g.drawOval(cx - half, cy - half / 2, size, half);
-            g.drawLine(cx, cy - half / 2, cx, cy - half);
-        }
-        g.dispose();
     }
 }

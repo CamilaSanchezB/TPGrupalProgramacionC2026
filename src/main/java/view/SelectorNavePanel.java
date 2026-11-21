@@ -1,46 +1,71 @@
 package view;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
+
+import java.awt.BorderLayout;
+import java.awt.Cursor;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+
 // SelectorNavePanel: 3 figuras clicables
 public class SelectorNavePanel extends JPanel {
+    private final List<ActionListener> oyentes = new ArrayList<ActionListener>();
+
     public SelectorNavePanel() {
         super(new GridLayout(1, 3, 20, 20));
         setBorder(BorderFactory.createEmptyBorder(40, 40, 40, 40));
-        for (String t : new String[]{"COMBATE", "CARGUERA", "EXPLORADORA"}) add(new Figura(t));
+        add(new Figura("COMBATE"));
+        add(new Figura("CARGUERA"));
+        add(new Figura("EXPLORADORA"));
     }
-    private final java.util.List<ActionListener> oyentes = new java.util.ArrayList<>();
-    public void addElegirListener(ActionListener l) { oyentes.add(l); }
 
-    private class Figura extends JComponent {
+    public void addElegirListener(ActionListener listener) {
+        oyentes.add(listener);
+    }
+
+    private class Figura extends JPanel {
         private final String tipo;
+
         Figura(String tipo) {
+            super(new BorderLayout());
             this.tipo = tipo;
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+            String archivo;
+            if ("COMBATE".equals(tipo)) {
+                archivo = "combate.png";
+            } else if ("CARGUERA".equals(tipo)) {
+                archivo = "carguera.png";
+            } else {
+                archivo = "exploradora.png";
+            }
+
+            JLabel imagen = new JLabel(Assets.cargarEscalada(archivo, 180), SwingConstants.CENTER);
+            add(imagen, BorderLayout.CENTER);
+
+            JLabel nombre = new JLabel(tipo, SwingConstants.CENTER);
+            nombre.setFont(ConfigView.FUENTE_TITULO);
+            nombre.setForeground(ConfigView.TITULO);
+            add(nombre, BorderLayout.SOUTH);
+
             addMouseListener(new MouseAdapter() {
-                @Override public void mouseClicked(MouseEvent e) {
-                    for (ActionListener l : oyentes)
-                        l.actionPerformed(new ActionEvent(Figura.this, 0, Figura.this.tipo));
+                @Override
+                public void mouseClicked(MouseEvent evento) {
+                    for (ActionListener oyente : oyentes) {
+                        oyente.actionPerformed(new ActionEvent(
+                                Figura.this,
+                                ActionEvent.ACTION_PERFORMED,
+                                tipo));
+                    }
                 }
             });
-        }
-        @Override protected void paintComponent(Graphics g0) {
-            Graphics2D g = (Graphics2D) g0.create();
-            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            int w = getWidth(), h = getHeight(), cx = w / 2, cy = h / 2 - 15;
-            g.setColor(ConfigView.ACENTO);
-            if (tipo.equals("COMBATE")) {            // flecha afilada
-                g.fillPolygon(new int[]{cx, cx + 60, cx, cx - 60}, new int[]{cy - 70, cy + 60, cy + 30, cy + 60}, 4);
-            } else if (tipo.equals("CARGUERA")) {    // bloque ancho
-                g.fillRoundRect(cx - 70, cy - 40, 140, 80, 20, 20);
-            } else {                                 // disco (exploradora)
-                g.fillOval(cx - 60, cy - 40, 120, 80);
-                g.fillRect(cx - 5, cy - 70, 10, 30);
-            }
-            g.setColor(ConfigView.TITULO);
-            g.setFont(ConfigView.FUENTE_TITULO);
-            g.drawString(tipo, cx - g.getFontMetrics().stringWidth(tipo) / 2, h - 30);
-            g.dispose();
         }
     }
 }

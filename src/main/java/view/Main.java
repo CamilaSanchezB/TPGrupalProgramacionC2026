@@ -100,8 +100,8 @@ public class Main {
             v.agregarPantalla(Ventana.TRIPULANTES, trip);
         }
 
-        final Mision mision = crearMision(nave);
-        partida.mostrarTablero(getTablero(mision), tipoNaveSeleccionada);
+        final Mision mision = crearMision();
+        partida.mostrarTablero(getTablero(), tipoNaveSeleccionada);
         v.mostrar(Ventana.TABLERO);
 
         new Thread(new Runnable() { public void run() {
@@ -133,13 +133,13 @@ public class Main {
         return new NaveFactory().crearNave(tipo);
     }
 
-    private static Mision crearMision(Nave n) {
+    private static Mision crearMision() {
         ArrayList<ElementoDelUniverso> elementos = new ArrayList<ElementoDelUniverso>();
         elementos.add(new Asteroide(new Coordenada(2, 3)));
         elementos.add(new EstacionDeCarga(new Coordenada(4, 4)));
 
         try {
-            tableroDeMision = new Tablero(25, 25, elementos);
+            tableroDeMision = new Tablero(20, 20, elementos);
         } catch (DimensionesDeTableroInconsistentesException | CantidadDeElementosSuperaCasillaException ex) {
             throw new IllegalStateException("No se pudo crear el tablero de misión", ex);
         }
@@ -152,7 +152,7 @@ public class Main {
         return new MisionRecoleccion(asistente, universo, origen, destino);
     }
 
-    private static Tablero getTablero(Mision m) {
+    private static Tablero getTablero() {
         return tableroDeMision;
     }
 

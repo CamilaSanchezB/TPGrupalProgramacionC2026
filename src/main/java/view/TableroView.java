@@ -2,6 +2,7 @@ package view;
 
 import java.awt.Color;
 import java.awt.GridLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import model.destinoytablero.Posicion;
 import model.destinoytablero.Tablero;
@@ -20,10 +21,28 @@ public class TableroView extends JPanel {
         int filas = tablero.getX();
         int columnas = tablero.getY();
         int lado = Math.max(8, Math.min(40, 640 / Math.max(filas, columnas)));
+        String archivoNave;
+        String tipo = tipoNave == null ? "" : tipoNave.toUpperCase(java.util.Locale.ROOT);
+        if ("COMBATE".equals(tipo)) {
+            archivoNave = "combate.png";
+        } else if ("CARGUERA".equals(tipo) || "CARGUERO".equals(tipo)) {
+            archivoNave = "carguera.png";
+        } else {
+            archivoNave = "exploradora.png";
+        }
+        ImageIcon iconoNave = Assets.cargarEscalada(archivoNave, Math.max(8, lado - 6));
+        ImageIcon iconoPlaneta = Assets.cargarEscalada("planeta.png", Math.max(8, lado - 6));
+        ImageIcon iconoAsteroide = Assets.cargarEscalada("asteroide.png", Math.max(8, lado - 6));
         casillas = new CasillaView[filas][columnas];
         for (int i = 0; i < filas; i++) {
             for (int j = 0; j < columnas; j++) {
-                casillas[i][j] = new CasillaView(tablero, new Posicion(i, j), lado, tipoNave);
+                casillas[i][j] = new CasillaView(
+                        tablero,
+                        new Posicion(i, j),
+                        lado,
+                        iconoNave,
+                        iconoPlaneta,
+                        iconoAsteroide);
                 add(casillas[i][j]);
             }
         }
