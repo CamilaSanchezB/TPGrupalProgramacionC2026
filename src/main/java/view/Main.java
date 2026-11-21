@@ -24,6 +24,7 @@ import persistencia.dao.UsuarioDAOSqlite;
 import java.util.ArrayList;
 import controller.ControladorVisor;
 import model.Concurrencia.UniversoParalelo;
+import model.Universo.NaveEnemiga;
 
 public class Main {
     private static Ventana v;
@@ -129,7 +130,10 @@ public class Main {
     private static Mision crearMision() {
         if (tableroDeMision == null) {                 // tablero solo en la primera misión de esta nave
             ArrayList<ElementoDelUniverso> elementos = new ArrayList<ElementoDelUniverso>();
-            for (int i = 0; i < 8; i++) elementos.add(new Asteroide(new Coordenada(0, 0)));      // el tablero fija la posición real
+            for (int i = 0; i < 8; i++) elementos.add(new Asteroide(new Coordenada(0, 0)));
+            NaveFactory fabrica = new NaveFactory();
+            for (String tipo : new String[] {"EXPLORADORA", "CARGUERO", "COMBATE"})   // una enemiga de cada tipo
+                elementos.add(new NaveEnemiga(fabrica.crearNave(tipo), new Coordenada(0, 0)));      // el tablero fija la posición real
             for (int i = 0; i < 3; i++) elementos.add(new EstacionDeCarga(new Coordenada(0, 0)));
             try {
                 tableroDeMision = new Tablero(20, 20, elementos);
