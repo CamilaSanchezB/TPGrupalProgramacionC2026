@@ -113,11 +113,11 @@ La operación `consumir(combustible, energía, desgaste)`comprueba antes de modi
 
 - **`Coordenada`** es un par (x, y) inalterable que sabe calcular distancias y desplazarse.
 - **`Universo`** es una interfaz mínima: dice si una coordenada está dentro y qué elementos hay en ella. Los radares y el navegador trabajan contra esta interfaz.
-- **`ElementoDelUniverso`** es lo que puede haber en una casilla: tiene posición, sabe interactuar con la nave (y devuelve un texto para la bitácora) y dice si es un obstáculo. Hay dos: el `Asteroide`, que es un obstáculo y descuenta 20 de energía, y la `EstacionDeCarga`, que recarga 20 de combustible y 20 de energía sin superar el tope.
+- **`ElementoDelUniverso`** es lo que puede haber en una casilla: tiene posición, sabe interactuar con la nave (y devuelve un texto para la bitácora) y dice si es un obstáculo. Hay tres: el `Asteroide`, que es un obstáculo y descuenta 20 de energía; la `EstacionDeCarga`, que recarga 20 de combustible y 20 de energía sin superar el tope; y la `NaveEnemiga`, que envuelve una nave de cualquiera de los tres tipos y se enfrenta con la nave propia cuando coinciden en la casilla (ver Double Dispatch). Las naves no son obstáculos: se encuentran, no se rodean.
 - **`Tablero` y `Destino`** los provee la cátedra. El tablero es la grilla con los elementos y es observable; `Destino` mueve al azar parte de los elementos en cada turno.
 - **`RadarCortoAlcance`** escanea los elementos cercanos a una posición (radio 2 por defecto) y los ordena por distancia.
 - **`RadarLargoAlcance`** calcula la ruta más corta entre dos coordenadas con una búsqueda en anchura, moviéndose en cuatro direcciones y rodeando los obstáculos; devuelve la lista de coordenadas o vacía si no hay camino.
-- **`Navegador`** lleva la nave hacia un destino. Al iniciar el viaje calcula la ruta con el radar largo. En cada turno escanea con el radar corto, recalcula la ruta si hay un obstáculo en la siguiente casilla y decide entre un salto simple y un salto warp (el warp solo se usa si el motor está disponible, queda recorrido suficiente, hay recursos para sobrevivir y no hay elementos en el tramo). Cada paso se registra en la bitácora a través del asistente.
+- **`Navegador`** lleva la nave hacia un destino. Al iniciar el viaje calcula la ruta con el radar largo. En cada turno escanea con el radar corto. Si hay un obstáculo en la siguiente casilla, intenta esquivarlo con un salto warp (solo si el motor está disponible, quedan al menos 2 pasos de ruta, la casilla de aterrizaje está libre y hay energía para la preparación y el salto); si no puede, recalcula la ruta con el radar largo. En los demás turnos hace un salto simple de una casilla. El warp dura varios turnos (preparación de 2 turnos, salto de 2 casillas y un turno de enfriamiento) y los costos los cobra el motor: el navegador solo avanza por la ruta lo que el motor le devuelve. Cada paso queda en la bitácora a través del asistente.
 
 ### Asistente de comando y bitácora
 
@@ -213,7 +213,7 @@ Ejemplos verificados: u
 
 **El problema.** A veces el resultado depende del tipo de dos objetos a la vez. Java elige qué método ejecutar mirando el tipo de uno solo, así que, sin ayuda, habría que anidar `if` sobre ambos tipos, y ese embrollo crece con cada tipo nuevo.
 
-**Cómo lo implementamos****.** Cuando dos naves coinciden, el resultado depende solo del tipo de cada una:
+**Cómo lo implementamos****.** Cuando dos naves coinciden, el resultado depende solo del tipo de cada una: 
 
 | Nave propia \\ enemiga | Explorador | Carguero | Combate |
 | --- | --- | --- | --- |
@@ -222,6 +222,8 @@ Ejemplos verificados: u
 | Combate | Gana | Pierde | Pacto de paz |
 
 `Nave.batallar(enemiga)` hace el primer despacho: la nave propia llama a `enemiga.recibirBatallaDe(this)`. Como `this` tiene un tipo concreto (por ejemplo, `NaveCarguero`), Java elige la sobrecarga `recibirBatallaDe(NaveCarguero)` de la nave enemiga, y ese es el segundo despacho, donde está la respuesta de la tabla. Devuelve `GANA`, `PIERDE` o `PACTO_DE_PAZ` (`ResultadoBatalla`) y quien llama aplica las consecuencias (`destruir()` si la nave propia pierde). Se verifica con `PruebaBatallas`, que compara las nueve combinaciones con la tabla del enunciado.
+
+Las consecuencias las aplica NaveEnemiga.interactuar, que es lo que el tablero tiene en la casilla. Si la nave propia gana, la enemiga queda destruida y no vuelve a pelear; si pierde, queda destruida la propia (destruir()), el bucle de la misión termina y la misión falla; si hay pacto de paz, ninguna cambia. La batalla no modifica los recursos. El tablero de la partida se arma con tres naves enemigas, una de cada tipo, y Destino las mueve como al resto de los elementos.
 
 **Beneficio.** Las reglas quedan repartidas en cada tipo de nave en lugar de mezcladas en un solo lugar.&#32;
 
@@ -294,7 +296,8 @@ La verificación se ejecuta con las clases del paquete `pruebas` y con `view.Tes
 | Prueba | Qué demuestra |
 | --- | --- |
 | `PruebaMisiones` | Integración: tablero de la cátedra con su adaptador, nave creada con la fábrica y misiones encomendadas a través del asistente |
-| `PruebaNavegador` | Secuencia de warp y enfriamiento, que un recorrido corto no usa warp y que una estación en el camino no se saltea |
+| `PruebaNavegador` | Salto simple, warp completo para esquivar un asteroide (preparación, salto y enfriamiento), aterrizaje ocupado, límites de energía y combustible, replanificación y ausencia de ruta | 
+| `PruebaNavesEnemigas` | Las nueve combinaciones de la tabla de batallas con sus consecuencias, enemiga derrotada que no vuelve a pelear, integración con el asistente y tres misiones completas sobre un pasillo (la enemiga gana, pierde o hay pacto de paz) |
 | `PruebaRadares` | Radar de largo alcance (rutas y obstáculos) y de corto alcance (elementos a distintas distancias) |
 | `PruebaUniverso` | Nave destruida, choque con asteroides y recarga en estaciones |
 | `PruebaBatallas` | Las combinaciones de la tabla de batallas y el rechazo de una nave enemiga nula |
