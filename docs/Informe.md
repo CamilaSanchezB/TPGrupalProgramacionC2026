@@ -62,15 +62,15 @@ El código se organiza en las tres capas del patrón MVC más una capa de persis
 
 | Paquete | Rol | Contenido principal |
 | --- | --- | --- |
-| `model` | Dominio: reglas y estado | `nave` (naves y batallas), `ClasesMotorWarp`, `Mision`, `Universo` (elementos, radares y navegador), `destinoytablero` (tablero y turnos provistos por la cátedra), `tripulantes`, `ClasesBitacora`, `Recursos`, `Requisitos`, `Coordenada` |
-| `controller` | Coordinación | `AsistenteDeComando`, `LiquidadorHaberes`, `LoginController`, `TripulantesController` |
-| `view` | Presentación | `ILogin` y `LoginView`, `ITripulantes` y `TripulantesView`, `ConfigView` (apariencia común) y `Test` |
+| `model` | Dominio: reglas y estado | `nave` (naves y batallas), `ClasesMotorWarp`, `Mision`, `Universo` (elementos, radares y navegador), `destinoytablero` (tablero y turnos provistos por la cátedra), `tripulantes`, `ClasesBitacora`, `Concurrencia` (universo paralelo), `CentroDeControl`, `Recursos`, `Requisitos`, `Coordenada` |
+| `controller` | Coordinación | `AsistenteDeComando`, `ControladorNave`, `ControladorPartida`, `ControladorVisor`, `LiquidadorHaberes`, `LoginController`, `TripulantesController`, y los modelos de vista `EstadoNaveVista` y `ResumenMisionVista` |
+| `view` | Presentación | `ILogin` y `LoginView`, `ITripulantes` y `TripulantesView`, paneles de la partida (`MainPanel`, `TableroUniversoPanel`, `ResultadoPanel`), `VistaNaves` (visor), `Main` (arranque y navegación entre pantallas, sin lógica de negocio), `ConfigView` (apariencia común) |
 | `persistencia` | Acceso a datos | `ServicioUsuarios`, `HasheadorContrasenas`, `dao` (`UsuarioDAO`, `UsuarioDAOSqlite`, `ConexionSQLite`), `dto` (`UsuarioDTO`) y excepciones propias |
 | `pruebas` | Demostraciones ejecutables | Un `main` por tema (misiones, navegador, radares, batallas, universo, login, tripulantes) |
 
 **Regla central:** el dominio no lee ni escribe en consola y no conoce ninguna biblioteca gráfica. Las consultas del modelo devuelven datos y es la capa de presentación la que decide cómo mostrarlos. Esto permite conectar los mismos objetos con ventanas Swing sin reescribir la lógica.
 
-**Dos flujos principales.** Para operar la nave, quien la usa habla con el `AsistenteDeComando`, que consulta a la `Nave`, que delega en sus componentes; cada resultado, exitoso o rechazado, queda en la `Bitacora`. Para el acceso al sistema, la vista le pasa los datos al controlador, que llama al servicio, que consulta al DAO, que accede a la base SQLite.
+**Tres flujos principales.** Para operar la nave, quien la usa habla con el `AsistenteDeComando`, que consulta a la `Nave`, que delega en sus componentes; cada resultado, exitoso o rechazado, queda en la `Bitacora`. Para mostrar la nave en pantalla, el controlador (`ControladorNave`) consulta al asistente y entrega a la vista un modelo de vista ya armado, de modo que las pantallas de la partida no conocen las clases del dominio. Para el acceso al sistema, la vista le pasa los datos al controlador, que llama al servicio, que consulta al DAO, que accede a la base SQLite.
 
 ## Modelo del dominio
 
@@ -129,7 +129,13 @@ El `AsistenteDeComando` es el único canal de acceso a la nave y cada Nave puede
 
 Para las órdenes del motor (`saltar()` y `saltarWarp()`) devuelve los casilleros que avanzó la nave y registra el avance y el cambio de estado del motor. También delega las misiones (`encomendarMision` ejecuta el ciclo completo y guarda el informe en el historial) y aplica la interacción de la nave con los elementos del universo (`interactuarCon`), dejando todo registrado.
 
-Cada acontecimiento se guarda en la `Bitacora` como un `RegitroBitacora` con su fecha y hora (`LocalDateTime`) y su descripción, en orden cronológico. La bitácora no acepta eventos vacíos.
+Cada acontecimiento se guarda en la `Bitacora` como un `RegistroBitacora` con su fecha y hora (`LocalDateTime`) y su descripción, en orden cronológico. La bitácora no acepta eventos vacíos.
+
+### Centro de control
+
+`CentroDeControl` es el punto de entrada de quien usa el sistema: registra naves listas para operar, a través de su `AsistenteDeComando`, y devuelve cualquiera de ellas cuando se la pide (`registrar(id, asistente)` y `obtener(id)`). No construye ni naves ni asistentes: recibe objetos ya armados (la nave sale de la fábrica de naves), de modo que no depende de cómo se construyen (principio de inversión de dependencias) y una nueva variante de asistente se registra sin modificar esta clase (principio abierto/cerrado). Rechaza ids vacíos o repetidos y asistentes nulos. Aunque haya varias naves registradas, el sistema opera una sola a la vez, la que se pide con `obtener`. En la aplicación gráfica lo usa `ControladorNave`: al elegir una nave, la crea con la fábrica, la registra con su asistente y la vuelve a pedir al centro.
+
+Como el modelo no depende de quien lo usa, el mismo flujo (dar de alta la nave, crear una misión, encomendarla y ejecutarla) funciona desde un programa de consola (`PruebaCentroDeControl`) y desde las pantallas Swing, sin cambiar ninguna clase del modelo.
 
 ### Misiones e informe
 
@@ -138,8 +144,8 @@ Hay tres misiones, cada una con sus requisitos (un objeto inmutable `Requisitos`
 | Misión | Combustible | Energía | Desgaste | Condición de éxito |
 | --- | --- | --- | --- | --- |
 | M-01 Intercepción y asistencia | 4 | 5 | 4 | Llega al destino y conserva los recursos de auxilio; al cerrar los entrega |
-| M-02 Recolección | 4 | 5 | 4 | Llega al destino y la nave sigue operativa |
-| M-03 Retorno seguro | 4 | 0 | 4 | Llega a la base sin necesitar mantenimiento; al cerrar se le hace mantenimiento |
+| M-02 Recolección | 4 | 10 | 4 | Llega al destino con la nave viva; al cerrar recibe entre 20 y 100 gemas |
+| M-03 Retorno seguro | 4 | 0 | 4 | Llega a la base con la nave viva; al cerrar se recarga al 100 % y se le hace mantenimiento (desgaste 0) |
 
 Al cerrar, cada misión produce un `InformeMision`, un objeto inalterable que no imprime nada y solo ofrece datos: misión, resultado, bitácora, recursos consumidos, recursos finales y observaciones. Los consumos se calculan como la diferencia entre los recursos iniciales (guardados al preparar) y los finales. `GestorHistorialMisiones` conserva los informes de todas las misiones ejecutadas, en orden, y los expone como una lista no modificable.
 
@@ -180,12 +186,17 @@ Cuando una operación no corresponde en el estado actual (por ejemplo, saltar mi
 
 | Paso | Qué hace |
 | --- | --- |
-| preparar | Verifica que el motor esté disponible y que alcancen los recursos. No consume nada. Si falla, la misión es rechazada y la nave no se modifica. |
-| ejecutarAccion | Consume los requisitos de despegue (una sola vez), crea el `Navegador`, calcula la ruta y repite turnos, con una pausa de 800 ms (`Thread.sleep`), hasta llegar o quedar destruida. En cada turno la nave interactúa con los elementos de la casilla en la que está y, al llegar, se ejecuta `verificarEnDestino()`. |
+| preparar | Verifica que el motor esté disponible y que alcancen los recursos, y calcula la ruta hacia el objetivo con el radar de largo alcance (`Navegador.iniciarViaje`). No consume nada. Si falla (incluida la falta de ruta), la misión es rechazada y la nave no se modifica. |
+| ejecutarAccion | Consume los requisitos de despegue (una sola vez) y repite turnos hasta llegar o quedar destruida. Cada turno tiene dos etapas: el turno de la nave (inspecciona su casilla actual e interactúa con el elemento que haya, escanea con el radar de corto alcance y avanza) y el turno del tablero (`Destino` mueve elementos al azar). Cada iteración termina con una pausa (`Thread.sleep`, 1000 ms por defecto). Al llegar se ejecuta `verificarEnDestino()`. |
 | evaluar | Si la nave fue destruida, la misión es fallida. Si no, depende de `cumplioObjetivo()`: exitosa o fallida. |
 | cerrar | Si fue exitosa, aplica los efectos finales (`aplicarEfectosFinales()`: la entrega de recursos en M-01 y el mantenimiento en M-03) y hace el salto final. Genera el informe, también cuando la misión se rechaza o falla. |
 
 La misión avanza por las etapas `CREADA`, `PREPARADA`, `EJECUTADA`, `EVALUADA` y `CERRADA` (una rechazada pasa de `CREADA` a `CERRADA`), modeladas con un enumerado, y su resultado es `EXITOSA`, `RECHAZADA` o `FALLIDA`.
+
+**Decisiones de diseño sobre el ciclo.**
+
+- *La pausa del turno.* El enunciado exige un `Thread.sleep` en cada iteración para que el usuario vea el avance paso a paso. Como el modelo no debe conocer a la interfaz, la pausa vive en la misión pero es configurable (`setPausaTurnoMs`), de modo que las pruebas automáticas pueden usar 0 y no esperar. Como bloquea al hilo que la ejecuta, la misión nunca se ejecuta en el hilo de Swing: `ControladorPartida` la lanza en un hilo aparte y, al terminar, `Main` vuelve al hilo de la interfaz con `SwingUtilities.invokeLater` para mostrar el resultado.
+- *Dónde se genera el informe.* El informe se emite en `cerrar` y no en `evaluar`, porque su balance depende de datos que recién se conocen al cerrar: las gemas que se sortean al aplicar los efectos finales, el desgaste del enfriamiento del motor y el posible cambio a fallida si esos efectos no pueden aplicarse. Como `InformeMision` es inmutable, emitirlo antes obligaría a construirlo dos veces. `evaluar` fija el resultado y `cerrar` lo documenta.
 
 **Beneficio.** El orden del ciclo vive en un solo lugar y una misión nueva es una subclase nueva, sin modificar las existentes.
 
@@ -251,18 +262,61 @@ Las consecuencias las aplica NaveEnemiga.interactuar, que es lo que el tablero t
 
 **El problema.** Si la ventana contiene también la lógica, no se puede cambiar una sin romper la otra, ni probar la lógica sin abrir ventanas. MVC reparte las responsabilidades: la Vista muestra, el Controlador recibe las acciones del usuario y el Modelo resuelve la lógica.
 
-**Cómo lo implementamos****.** El usuario actúa sobre la vista (por ejemplo, un botón); un `ActionListener`, que es el controlador, recibe el evento, mira su comando, invoca al servicio o al modelo y le indica a la vista qué mostrar. Hay dos pantallas completas:
+**Cómo lo implementamos.** El usuario actúa sobre la vista (por ejemplo, un botón); un `ActionListener`, que es el controlador, recibe el evento, mira su comando, invoca al servicio o al modelo y le indica a la vista qué mostrar. Hay cuatro conjuntos de pantallas:
 
-- Login y Registro: `LoginView` (vista), `LoginController` (controlador) y `ServicioUsuarios` (modelo).
-- Tripulantes: `TripulantesView`, `TripulantesController`, y como modelo la `Nave`, `TripulantesCollection` y `LiquidadorHaberes`.
+| Pantallas | Vista | Controlador | Modelo |
+| --- | --- | --- | --- |
+| Login y registro | `LoginView` | `LoginController` | `ServicioUsuarios` |
+| Tripulantes | `TripulantesView` | `TripulantesController` | `Nave`, `TripulantesCollection`, `LiquidadorHaberes` |
+| Centro de comando, tablero y resultado de la misión | `MainPanel`, `TableroUniversoPanel`, `ResultadoPanel` | `ControladorNave` y `ControladorPartida` | `AsistenteDeComando`, `Nave`, misiones, universo y bitácora |
+| Visor del universo paralelo | `VistaNaves` | `ControladorVisor` | `UniversoParalelo` |
 
-Cada vista implementa una interfaz (`ILogin`, `ITripulantes`), de modo que el controlador depende de la interfaz y no de la ventana concreta. Los comandos de los botones son constantes de esas interfaces. `ConfigView` concentra la apariencia común.
+**Modelos de vista.** Las pantallas del centro de comando y del resultado no consultan al dominio: reciben objetos inmutables que contienen exactamente lo que deben dibujar. `EstadoNaveVista` reúne la telemetría de la nave (recursos, estado del motor, tripulación, qué misiones alcanzan los recursos y el historial) y `ResumenMisionVista` el informe final de una misión (resultado, balance de recursos y eventos del viaje). `ControladorNave` los arma consultando al asistente, que sigue siendo el único canal de acceso a la nave. Así `MainPanel` y `ResultadoPanel` no importan ninguna clase de nave, misión, informe o tripulante, y el dominio puede cambiar sin tocar esas pantallas. No son DTO: el DTO del proyecto es `UsuarioDTO`, que viaja entre el DAO y el servicio; estos modelos solo existen para presentar datos.
 
-**Beneficio.** Se puede cambiar la pantalla sin tocar la lógica y probar el controlador con una vista falsa.
+**Reparto de responsabilidades en la partida.**
 
-### Observer (falta)
+- `ControladorNave` crea la nave elegida con la fábrica, la registra en el `CentroDeControl`, recuerda si sigue operativa y arma los modelos de vista.
+- `ControladorPartida` arma el tablero y la misión pedida (M-01, M-02 o M-03), le indica a la vista qué mostrar y ejecuta la misión en un hilo aparte, avisando al terminar.
+- `Main` solo crea las pantallas, las conecta con los controladores y navega entre ellas; no contiene lógica de negocio.
 
-### Productor–consumidor con monitores (falta)
+**Qué se actualiza solo.** Lo que cambia mientras la misión corre (el tablero y la bitácora de eventos) llega a la vista por Observer, no por el flujo de acciones del usuario. Por eso `TableroUniversoPanel`, `BitacoraView` y `CasillaView` mantienen una referencia al objeto que observan: solo lo leen y nunca lo modifican.
+
+Las vistas de login y tripulantes implementan una interfaz (`ILogin`, `ITripulantes`), de modo que el controlador depende de la interfaz y no de la ventana concreta. Los comandos de los botones son constantes de esas interfaces. `ConfigView` concentra la apariencia común.
+
+**Beneficio.** Se puede cambiar la pantalla sin tocar la lógica y probar los controladores sin abrir ventanas.
+
+### Observer — Actualización automática de las vistas
+
+**El problema.** El modelo cambia por su cuenta (la bitácora recibe eventos, el tablero mueve elementos, los hilos del universo paralelo producen y consumen) y la vista debe enterarse sin que el modelo la conozca y sin que la vista pregunte cada tanto.
+
+**Cómo lo implementamos.** Hay dos usos del patrón:
+
+- *Partida.* `Bitacora` y `Tablero` son observables (`java.util.Observable`); `BitacoraView` y `CasillaView` son sus observadores y se registran al mostrarse y se dan de baja al terminar la misión. Cuando llega un evento, la vista lo pasa al hilo de Swing con `SwingUtilities.invokeLater`, porque la misión corre en otro hilo.
+- *Universo paralelo.* El modelo publica eventos a través de una interfaz propia, `ObservadorVisor`, con un solo método `actualizar(EventoVisor)`. `EventoVisor` es un objeto inmutable con un tipo (nave agregada, batería depositada, batería retirada, mensaje), el nombre de la nave y un texto. `VistaNaves` implementa la interfaz y decide qué dibujar según el tipo. El modelo solo conoce `ObservadorVisor`, nunca la vista concreta.
+
+**Decisiones.** Se usó `Observable` en la partida porque el proyecto se compila para Java 8 y las clases `Observable`/`Observer` están marcadas como obsoletas recién desde Java 9, aunque siguen funcionando. En el visor se prefirió una interfaz propia de un solo método: una interfaz con un método por tipo de evento obligaba a modificar a todos los observadores cada vez que apareciera un evento nuevo (principio de segregación de interfaces).
+
+**Beneficio.** El modelo no depende de la vista, se pueden registrar varios observadores y agregar un tipo de evento no rompe a los observadores existentes.
+
+### Productor–consumidor con monitores — Universo paralelo
+
+**El problema.** Varios hilos comparten un recurso limitado: las generadoras producen baterías y las naves las consumen. Si el depósito está lleno, el productor debe esperar; si está vacío, el consumidor. Sin coordinación habría accesos simultáneos inconsistentes y esperas activas.
+
+**Cómo lo implementamos.**
+
+| Clase | Rol |
+| --- | --- |
+| `PlataformaDeCarga` | Monitor: el recurso compartido, con capacidad limitada (5 baterías) y acceso exclusivo |
+| `NaveGeneradora` | Productor: cada una corre en su propio hilo y repite producir, depositar |
+| `NaveConsumidora` | Consumidor: cada una corre en su propio hilo y repite retirar, consumir |
+| `UniversoParalelo` | Fachada del modelo: crea generadoras y consumidoras en tiempo de ejecución, cada una en su hilo, y publica los eventos a los observadores |
+| `Bateria` | El elemento que se produce y consume |
+
+Los métodos `depositar` y `retirar` de la plataforma son `synchronized`. Las condiciones de guarda (depósito lleno o vacío) se evalúan dentro de un bucle `while`, de modo que cada hilo vuelve a comprobar la condición después de despertar. Cuando la condición no se cumple, el hilo ejecuta `wait()`; cuando la plataforma cambia de estado, ejecuta `notifyAll()` para despertar a los demás. Los hilos son *daemon* y terminan por interrupción, de modo que cerrar el visor detiene el universo y no impide cerrar la aplicación.
+
+**Registro de eventos.** La plataforma informa al visor, en tiempo real, cada paso: batería producida, espera por falta de espacio, solicitud de batería, espera por falta de baterías, batería retirada y utilizada, e ingreso de una nueva nave o generadora. Los avisos se emiten dentro del método sincronizado para que el orden en pantalla coincida con el orden real de las operaciones. La contrapartida es que un observador lento retrasaría a los hilos; por eso la vista no procesa nada en ese momento y solo encola la actualización en el hilo de Swing.
+
+**Beneficio.** La exclusión mutua y la sincronización están en una sola clase; los productores y consumidores no conocen los detalles y se pueden agregar tantos como se quiera mientras la simulación está activa.
 
 ## Interfaz gráfica
 
@@ -274,9 +328,13 @@ La ventana de acceso permite ingresar con un usuario existente o registrar uno n
 
 La pantalla muestra la lista de tripulantes de la nave y un formulario con nombre, cargo, origen, antigüedad y, para el consejero, la cantidad de consejos. Permite crear, actualizar y eliminar tripulantes, deseleccionar y liquidar los haberes de toda la tripulación, mostrando el recibo con el detalle por concepto y el total.
 
-### Control de la nave (falta)
+### Control de la nave
 
-### Visor del universo paralelo (falta)
+Tras elegir la nave, el panel principal (el centro de comando) dibuja los datos que le entrega `ControladorNave` y muestra la telemetría de la nave (barras de combustible, energía y desgaste, gemas, estado del motor y tripulación embarcada), ofrece las tres misiones con sus requisitos, da acceso a la gestión de tripulantes y lista el historial de informes de las misiones ya realizadas, con el contador de éxitos. Al iniciar una misión se abre el tablero, que se actualiza solo mientras la nave avanza (cada casilla observa al tablero) junto con la bitácora de eventos (observa a `Bitacora`). La misión corre en un hilo aparte, lanzado por `ControladorPartida`, para que la ventana no se congele. Al terminar, una pantalla de resultado muestra el informe final con el balance de recursos y habilita volver al panel o elegir otra nave si la actual fue destruida.
+
+### Visor del universo paralelo
+
+Es una ventana aparte, accesible desde la pantalla de la partida. A la izquierda están las naves generadoras y a la derecha las consumidoras (un rectángulo por nave), en el centro las baterías de la plataforma (un rectángulo por batería, con un contador) y debajo una consola de solo texto con el flujo de eventos. Dos botones permiten agregar una generadora o una nave consumidora en cualquier momento. La vista se actualiza sola porque observa al modelo, y todos sus métodos pasan al hilo de Swing aunque los llamen los hilos de las naves.
 
 ## Diseño por contrato y manejo de errores
 
@@ -284,14 +342,14 @@ Cada clase documenta su **invariante (INV)**, y cada método sus **precondicione
 
 | Mecanismo | Se usa para | Ejemplos |
 | --- | --- | --- |
-| `assert` | Violaciones de contrato, es decir, errores de programación de quien llama | Límites de `Recursos`, invariante del motor, orden de etapas de `Mision`, datos de `Tripulante`, eventos vacíos en `Bitacora` |
-| Excepciones | Situaciones que deben llegar al coordinador o a la vista | `OperacionRechazadaException` del asistente; `IllegalArgumentException` en `Requisitos`, `InformeMision`, elementos del universo y radares; `IllegalStateException` en el `Navegador`; excepciones propias de persistencia que el controlador traduce a mensajes |
+| `assert` | Violaciones de contrato en constructores y colaboradores internos, es decir, errores de programación de quien llama | Datos de `Tripulante`, constructor del asistente, `ServicioUsuarios`, DAO, `ConexionSQLite` y `HasheadorContrasenas` |
+| Excepciones | Situaciones que deben llegar al coordinador o a la vista, y validaciones que no pueden depender de una opción de la JVM | `IllegalArgumentException` e `IllegalStateException` en `Recursos`, `MotorWarp`, `Bitacora` y en el orden de etapas de `Mision`; `OperacionRechazadaException` del asistente; `IllegalArgumentException` en `Requisitos`, `InformeMision`, elementos del universo y radares; `IllegalStateException` en el `Navegador`; excepciones propias de persistencia que el controlador traduce a mensajes |
 
-El criterio sigue la consigna: las precondiciones se comprueban cerca de las operaciones que protegen y las excepciones se reservan para lo que debe propagarse. Una falta de recursos no es un error de programación sino una decisión normal, por eso el asistente consulta antes y rechaza con registro. Como las aserciones solo actúan con `-ea`, las validaciones del asistente se hacen con excepciones y funcionan con o sin esa opción.
+El criterio sigue la consigna: las precondiciones se comprueban cerca de las operaciones que protegen y las excepciones se reservan para lo que debe propagarse. Una falta de recursos no es un error de programación sino una decisión normal, por eso el asistente consulta antes y rechaza con registro. Como las aserciones solo actúan con `-ea`, las validaciones de los recursos, el motor, la bitácora y el asistente se hacen con excepciones y funcionan con o sin esa opción: sin ellas, un consumo mayor al disponible dejaría la nave con recursos negativos sin avisar.
 
 ## Verificación funcional
 
-La verificación se ejecuta con las clases del paquete `pruebas` y con `view.Test`; cada tema tiene su propio `main`:
+La verificación se ejecuta con las clases del paquete `pruebas`; cada tema tiene su propio `main`:
 
 | Prueba | Qué demuestra |
 | --- | --- |
@@ -301,9 +359,9 @@ La verificación se ejecuta con las clases del paquete `pruebas` y con `view.Tes
 | `PruebaRadares` | Radar de largo alcance (rutas y obstáculos) y de corto alcance (elementos a distintas distancias) |
 | `PruebaUniverso` | Nave destruida, choque con asteroides y recarga en estaciones |
 | `PruebaBatallas` | Las combinaciones de la tabla de batallas y el rechazo de una nave enemiga nula |
+| `PruebaCentroDeControl` | Programa de consola sin interfaz: alta de la nave en el centro de control, creación y ejecución de una misión a través del asistente y reporte de la bitácora |
 | `PruebaLogin` | Registro e ingreso de usuarios con persistencia (ventana de acceso) |
 | `PruebaABMTripulantes` | Alta, edición, baja y liquidación de tripulantes (ventana) |
-| `view.Test` | Los escenarios A a D de la Ficha de Inicio y la liquidación de haberes |
 
 ## Uso de inteligencia artificial
 

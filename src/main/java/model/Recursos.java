@@ -19,8 +19,9 @@ public class Recursos {
      *                    POST: si no falla, combustible aumenta dentro de los limites establecidos
      */
     public void cargarCombustible(int combustible) {
-        assert combustible > 0 : "La carga debe ser positiva";
-        assert this.combustible <= CAPACIDAD_MAXIMA - combustible : "La carga supera la capacidad maxima";
+        if (combustible <= 0) throw new IllegalArgumentException("La carga debe ser positiva");
+        if (this.combustible > CAPACIDAD_MAXIMA - combustible)
+            throw new IllegalArgumentException("La carga supera la capacidad maxima");
         this.combustible += combustible;
     }
 
@@ -30,8 +31,9 @@ public class Recursos {
      *                POST: si no falla, energia aumenta dentro de los limites establecidos
      */
     public void cargarEnergia(int energia) {
-        assert energia > 0 : "La carga debe ser positiva";
-        assert this.energia <= CAPACIDAD_MAXIMA - energia : "La carga supera la capacidad maxima";
+        if (energia <= 0) throw new IllegalArgumentException("La carga debe ser positiva");
+        if (this.energia > CAPACIDAD_MAXIMA - energia)
+            throw new IllegalArgumentException("La carga supera la capacidad maxima");
         this.energia += energia;
     }
 
@@ -44,8 +46,10 @@ public class Recursos {
      *                    POST: el consumo se efectua, perdiendo combustible y energia y generando desgaste
      */
     public void consumir(int combustible, int energia, int desgaste) {
-        assert combustible >= 0 && energia >= 0 && desgaste >= 0 : "Los consumos no pueden ser negativos";
-        assert puedeConsumir(combustible, energia, desgaste) : "Recursos insuficientes o desgaste excedido";
+        if (combustible < 0 || energia < 0 || desgaste < 0)
+            throw new IllegalArgumentException("Los consumos no pueden ser negativos");
+        if (!puedeConsumir(combustible, energia, desgaste))
+            throw new IllegalStateException("Recursos insuficientes o desgaste excedido");
         this.combustible -= combustible;
         this.energia -= energia;
         this.desgaste += desgaste;
@@ -60,8 +64,9 @@ public class Recursos {
     }
 
     public Recursos(int combustible, int energia, int desgaste, int gemas) {
-        assert enRango(combustible) && enRango(energia) && enRango(desgaste) : "Valores iniciales no válidos";
-        assert gemas >= 0 : "Las gemas no pueden ser negativas";
+        if (!(enRango(combustible) && enRango(energia) && enRango(desgaste)))
+            throw new IllegalArgumentException("Valores iniciales no válidos");
+        if (gemas < 0) throw new IllegalArgumentException("Las gemas no pueden ser negativas");
         this.desgaste = desgaste;
         this.energia = energia;
         this.combustible = combustible;
@@ -126,7 +131,7 @@ public class Recursos {
     }
 
     public void agregarGemas(int cant) {
-        assert cant > 0 : "La cantidad de gemas debe ser positiva";
+        if (cant <= 0) throw new IllegalArgumentException("La cantidad de gemas debe ser positiva");
         gemas += cant;
     }
 
@@ -136,7 +141,8 @@ public class Recursos {
      * POST: cada uno = min(100, anterior + cantidad); desgaste y gemas no combian
      */
     public void recargarHastaTope(int combustible, int energia) {
-        assert combustible >= 0 && energia >= 0 : "Las recargas no pueden ser negativas";
+        if (combustible < 0 || energia < 0)
+            throw new IllegalArgumentException("Las recargas no pueden ser negativas");
         this.combustible = Math.min(CAPACIDAD_MAXIMA, this.combustible + combustible);
         this.energia = Math.min(CAPACIDAD_MAXIMA, this.energia + energia);
     }
@@ -147,7 +153,8 @@ public class Recursos {
      * POST: energia = max(0, anterior - energia); desgaste = min(100, anterior + desgaste)
      */
     public void recibirImpacto(int energia, int desgaste) {
-        assert energia >= 0 && desgaste >= 0 : "El impacto no puede ser negativo";
+        if (energia < 0 || desgaste < 0)
+            throw new IllegalArgumentException("El impacto no puede ser negativo");
         this.energia = Math.max(0, this.energia - energia);
         this.desgaste = Math.min(DESGASTE_MAXIMO, this.desgaste + desgaste);
     }

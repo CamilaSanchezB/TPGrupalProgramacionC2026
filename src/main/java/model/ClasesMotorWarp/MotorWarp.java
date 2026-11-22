@@ -19,7 +19,7 @@ public class MotorWarp {
      * POST: el motor queda en estado Disponible y se cumple el invariante
      */
     public MotorWarp(Recursos recursos) {
-        assert recursos != null : "El motor necesita los recursos de la nave";
+        if (recursos == null) throw new IllegalArgumentException("El motor necesita los recursos de la nave");
         this.recursos = recursos;
         this.estadoActual = new Disponible();
     }
@@ -53,10 +53,10 @@ public class MotorWarp {
    }
 
    // Solo los estados (visibilidad del paquete)
-   void setEstado(EstadoMotorBase nuevo) {
-       assert nuevo != null : "El estado no puede ser nulo";
-       estadoActual = nuevo;
-   }
+    void setEstado(EstadoMotorBase nuevo) {
+        if (nuevo == null) throw new IllegalArgumentException("El estado no puede ser nulo");
+        estadoActual = nuevo;
+    }
 
     Recursos getRecursos() { return recursos; }
 }
