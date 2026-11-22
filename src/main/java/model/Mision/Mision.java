@@ -110,6 +110,9 @@ public abstract class Mision{
      */
 
     public final void realizar(){
+        // Se valida ANTES de tocar nada: una segunda llamada no debe pisar inicioBitacora
+        if (etapa != EtapaMision.CREADA)
+            throw new IllegalStateException("La mision ya fue realizada");
         inicioBitacora = asistenteDeComando.getBitacora().getEventos().size();
         if(preparar()) {
             ejecutarAccion();
@@ -122,8 +125,9 @@ public abstract class Mision{
      * Verifica que la misión pueda realizarse. No consume ningún recurso.
      * @return true si la misión quedó preparada, false si fue rechazada
      * PRE: etapa == CREADA
-     * POST: si devuelve true, etapa == PREPARADA, recursosIniciales != null y
-     *       la nave no fue modificada;
+     * POST: si devuelve true, etapa == PREPARADA, recursosIniciales != null, la ruta hacia
+     *       destino está calculada (navegador con viaje en curso) y la nave no fue modificada;
+     *       se rechaza también si origen/destino están fuera del universo o no hay ruta;
      *       si devuelve false, resultado == RECHAZADA, recursosIniciales == null,
      *       la nave no fue modificada y el motivo quedó en observaciones y en la bitácora
      */
@@ -145,6 +149,18 @@ public abstract class Mision{
                 requisitos.getDesgaste())) {
             return rechazar("Recursos insuficientes para iniciar la misión");
         }
+
+        // Fase 1, paso 2 del enunciado: calcular la ruta con el radar de largo alcance.
+        // Si el origen o el destino están fuera del universo, o no hay camino, se rechaza
+        // sin consumir nada (antes lanzaba IllegalArgumentException y la misión no cerraba).
+        if (!universo.contiene(origen) || !universo.contiene(destino)) {
+            return rechazar("Coordenadas fuera del universo");
+        }
+        Navegador nuevo = new Navegador(asistenteDeComando, universo, origen);
+        if (!nuevo.iniciarViaje(destino)) {
+            return rechazar("No existe una ruta hacia " + destino);
+        }
+        this.navegador = nuevo;
 
         //Guardamos los recursos iniciales, nos servira para obtener el informe final.
         recursosIniciales= new Recursos(
@@ -185,11 +201,9 @@ public abstract class Mision{
             return;
         }
         universo.ubicarNave(origen);   // el tablero tiene que saber dónde está la nave
-        this.navegador = new Navegador(asistenteDeComando, universo, origen);
+        // La ruta ya se calculó en preparar(); el navegador quedó listo con el viaje en curso.
 
-        if (!navegador.iniciarViaje(destino)) {
-            asistenteDeComando.registrar("Sin ruta calculable hacia " + destino);
-        } else {
+        if (navegador != null) {
             int turno = 0;
             int sinAvance = 0;
             ElementoDelUniverso ultimo = null;   // para no interactuar dos veces con el mismo elemento
@@ -314,11 +328,24 @@ public abstract class Mision{
             }
         }
 
-        if (!asistenteDeComando.estaDisponible() && !asistenteDeComando.estaDestruida()) {
+        // Solo si la misión llegó a ejecutarse: una RECHAZADA no debe tocar la nave (ni el motor)
+        if (recursosIniciales != null
+                && !asistenteDeComando.estaDisponible() && !asistenteDeComando.estaDestruida()) {
             asistenteDeComando.reiniciarMotor();   // no se arrastra una maniobra a medias
         }
 
-        // 2) Recompensas / entregas propias de la misión. Si fallan, la misión no queda en el aire:
+        // 2) Balance del viaje: se mide ANTES de las recompensas (si no, M-03 daría consumo
+        //    negativo y M-01 incluiría lo transferido al aliado)
+        int combConsumido = 0;
+        int enerConsumida = 0;
+        int desgGenerado = 0;
+        if (recursosIniciales != null) {
+            combConsumido = recursosIniciales.getCombustible() - asistenteDeComando.getCombustible();
+            enerConsumida = recursosIniciales.getEnergia() - asistenteDeComando.getEnergia();
+            desgGenerado = asistenteDeComando.getDesgaste() - recursosIniciales.getDesgaste();
+        }
+
+        // 3) Recompensas / entregas propias de la misión. Si fallan, la misión no queda en el aire:
         //    se marca FALLIDA y el informe se genera igual.
         if (resultado == ResultadoMision.EXITOSA) {
             try {
@@ -328,16 +355,6 @@ public abstract class Mision{
                 observaciones = "No se pudieron aplicar los efectos finales: " + e.getMessage();
                 asistenteDeComando.registrar("Efectos finales fallidos en " + nombre);
             }
-        }
-
-        // 3) Balance del viaje: se mide antes de las recompensas (si no, M-03 daría consumo negativo)
-        int combConsumido = 0;
-        int enerConsumida = 0;
-        int desgGenerado = 0;
-        if (recursosIniciales != null) {
-            combConsumido = recursosIniciales.getCombustible() - asistenteDeComando.getCombustible();
-            enerConsumida = recursosIniciales.getEnergia() - asistenteDeComando.getEnergia();
-            desgGenerado = asistenteDeComando.getDesgaste() - recursosIniciales.getDesgaste();
         }
 
         // Gemas ganadas: se mide después de las recompensas (las entrega aplicarEfectosFinales)

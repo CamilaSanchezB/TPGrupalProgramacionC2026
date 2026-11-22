@@ -28,7 +28,8 @@ public class AsistenteDeComando {
      * POST: el asistente queda asociado a esa nave y a esa bitácora
      */
     public AsistenteDeComando(Nave nave, Bitacora bitacora) {
-        assert nave != null && bitacora != null : "El asistente necesita una nave y una bitácora";
+        if (nave == null || bitacora == null)
+            throw new IllegalArgumentException("El asistente necesita una nave y una bitácora");
         this.nave = nave;
         this.bitacora = bitacora;
         this.historial = new GestorHistorialMisiones();

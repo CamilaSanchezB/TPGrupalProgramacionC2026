@@ -34,6 +34,8 @@ public class PruebaNavegador {
         warpEsquivaAsteroide();
         aterrizajeOcupadoNoUsaWarp();
         energiaEnElLimiteDelWarp();
+        warpSinEnergiaDuranteLaPreparacion();
+        warpSinEnergiaAlSaltar();
         obstaculoNuevoReplanifica();
         sinRutaDuranteElViaje();
         sinCombustibleNoAvanza();
@@ -219,6 +221,65 @@ public class PruebaNavegador {
         nav.iniciarViaje(c(4, 4));
         nave.destruir();
         verificarExcepcion("avanzar con la nave destruida", IllegalStateException.class, () -> nav.avanzarUnTurno());
+    }
+
+    /**
+     * Anexo: durante la preparación el motor evalúa si hay 5 de energía; si no, "se queda en
+     * modo preparación". La energía se vacía por fuera del Navegador (en el juego pasaría,
+     * por ejemplo, por un evento externo) y luego se recarga.
+     */
+    private static void warpSinEnergiaDuranteLaPreparacion() {
+        System.out.println("-- warp: se queda sin energía durante la preparación");
+        GrillaDePrueba g = new GrillaDePrueba(10, 1);
+        preparar(g, c(0, 0));
+        nav.iniciarViaje(c(9, 0));
+        g.agregar(new Asteroide(c(1, 0)));
+
+        esperar(ResultadoAvance.SALTO_WARP, c(0, 0));          // turno 1 de preparación
+        nave.consumir(0, 76, 0);                               // quedan 4 de energía (< 5)
+        int ener = nave.getEnergia();
+
+        esperar(ResultadoAvance.SALTO_WARP, c(0, 0));          // sin energía: no avanza la preparación
+        esperar(ResultadoAvance.SALTO_WARP, c(0, 0));          // y sigue igual
+        verificar("sigue en preparación (no pasó a warp)", "Preparando salto".equals(nave.getEstadoMotor()));
+        verificar("no consumió energía mientras esperaba", nave.getEnergia() == ener);
+        verificar("no cambió de casilla ni gastó combustible",
+                nav.getPosicion().equals(c(0, 0)) && nave.getCombustible() == 60);
+
+        nave.cargarEnergia(50);                                // vuelve la energía (54)
+        esperar(ResultadoAvance.SALTO_WARP, c(0, 0));          // completa la preparación
+        esperar(ResultadoAvance.SALTO_WARP, c(2, 0));          // salta y esquiva el asteroide
+        verificar("tras recargar el warp cobró 5 de energía", nave.getEnergia() == 54 - 5);
+        esperar(ResultadoAvance.SALTO, c(2, 0));               // enfriamiento
+        verificar("el enfriamiento sumó 3 de desgaste y el motor volvió a Disponible",
+                nave.getDesgaste() == 3 && nave.estaDisponible());
+    }
+
+    /**
+     * Anexo: si al intentar el salto ya no hay recursos, "la maniobra se aborta y el motor
+     * vuelve nuevamente a la fase de preparación del salto".
+     */
+    private static void warpSinEnergiaAlSaltar() {
+        System.out.println("-- warp: se queda sin energía justo antes del salto");
+        GrillaDePrueba g = new GrillaDePrueba(10, 1);
+        preparar(g, c(0, 0));
+        nav.iniciarViaje(c(9, 0));
+        g.agregar(new Asteroide(c(1, 0)));
+
+        esperar(ResultadoAvance.SALTO_WARP, c(0, 0));          // turno 1 de preparación
+        esperar(ResultadoAvance.SALTO_WARP, c(0, 0));          // turno 2: queda En warp
+        verificar("preparación completa: motor En warp", "En warp".equals(nave.getEstadoMotor()));
+        nave.consumir(0, 76, 0);                               // quedan 4 de energía
+        int ener = nave.getEnergia();
+
+        esperar(ResultadoAvance.SALTO_WARP, c(0, 0));          // intenta saltar y se aborta
+        verificar("el salto se abortó: vuelve a Preparando salto", "Preparando salto".equals(nave.getEstadoMotor()));
+        verificar("no consumió energía ni se movió", nave.getEnergia() == ener && nav.getPosicion().equals(c(0, 0)));
+
+        nave.cargarEnergia(50);                                // 54 de energía
+        esperar(ResultadoAvance.SALTO_WARP, c(0, 0));          // vuelve a completar la preparación
+        esperar(ResultadoAvance.SALTO_WARP, c(2, 0));          // ahora sí salta
+        verificar("el warp reintentado cobró 5 de energía", nave.getEnergia() == 54 - 5);
     }
 
     // ---------- auxiliares ----------

@@ -43,6 +43,7 @@ public class PruebaMisiones {
         try {
             escenarioCompleto();
             escenarioRechazo();
+            escenarioCasosBorde();
         } catch (DimensionesDeTableroInconsistentesException e) {
             System.err.println("Error en dimensiones de tablero: " + e.getMessage());
             falla++;
@@ -168,13 +169,54 @@ public class PruebaMisiones {
 
         verificar(m.getResultado() == ResultadoMision.RECHAZADA, "resultado RECHAZADA");
         verificar(m.getEtapa() == EtapaMision.CERRADA, "etapa CERRADA");
-        verificar("Recursos Insuficientes".equals(informe.getObservaciones()), "motivo: Recursos Insuficientes");
+        verificar(informe.getObservaciones().startsWith("Recursos insuficientes"), "motivo: Recursos insuficientes");
         verificar(asistente.getCombustible() == comb && asistente.getEnergia() == ener
                 && asistente.getDesgaste() == desg, "la nave no fue modificada");
         verificar(asistente.estaDisponible(), "el motor sigue Disponible");
         verificar(informe.getCombustibleConsumido() == 0 && informe.getEnergiaConsumida() == 0
                 && informe.getDesgasteGenerado() == 0, "el balance del informe es 0");
         verificar(universo.getPosicionNave().equals(new Coordenada(5, 5)), "el tablero no movió la nave");
+    }
+
+    // ---------------------------------------------------------------------
+    // Escenario 3: casos borde (destino fuera del tablero, realizar() repetido, motor ocupado)
+    // ---------------------------------------------------------------------
+    private static void escenarioCasosBorde() throws DimensionesDeTableroInconsistentesException,
+            CantidadDeElementosSuperaCasillaException {
+        System.out.println("##### ESCENARIO 3: casos borde #####\n");
+
+        Tablero tablero = new Tablero(10, 10, new ArrayList<ElementoDelUniverso>());
+        tablero.obtenerObjetivo();
+        AdaptadorTableroUniverso universo = new AdaptadorTableroUniverso(tablero);
+        Nave nave = new NaveFactory().crearNave("CARGUERO");
+        AsistenteDeComando asistente = new AsistenteDeComando(nave, new Bitacora());
+        int comb = asistente.getCombustible(), ener = asistente.getEnergia(), desg = asistente.getDesgaste();
+
+        // a) destino fuera del tablero: se rechaza (antes lanzaba IllegalArgumentException)
+        MisionRetorno fuera = new MisionRetorno(asistente, universo, universo.getPosicionNave(),
+                new Coordenada(50, 50));
+        InformeMision inf = asistente.encomendarMision(fuera);
+        verificar(fuera.getResultado() == ResultadoMision.RECHAZADA, "destino fuera del tablero -> RECHAZADA");
+        verificar(fuera.getEtapa() == EtapaMision.CERRADA, "destino fuera del tablero -> etapa CERRADA");
+        verificar(inf.getObservaciones().startsWith("Coordenadas"), "motivo: coordenadas fuera del universo");
+        verificar(asistente.getCombustible() == comb && asistente.getEnergia() == ener
+                && asistente.getDesgaste() == desg, "la nave no fue modificada");
+
+        // b) una misión no se puede realizar dos veces y la 2da llamada no pisa su informe
+        int eventosInforme = inf.getEventos().size();
+        boolean lanzo = false;
+        try { fuera.realizar(); } catch (IllegalStateException e) { lanzo = true; }
+        verificar(lanzo, "realizar() dos veces -> IllegalStateException");
+        verificar(fuera.getInforme().getEventos().size() == eventosInforme, "el informe no cambió");
+
+        // c) motor ocupado (Preparando): se rechaza y NO se reinicia el motor
+        nave.saltarWarp();   // Disponible -> Preparando salto
+        MisionRetorno ocupada = new MisionRetorno(asistente, universo, universo.getPosicionNave(),
+                new Coordenada(0, 0));
+        asistente.encomendarMision(ocupada);
+        verificar(ocupada.getResultado() == ResultadoMision.RECHAZADA, "motor ocupado -> RECHAZADA");
+        verificar(!asistente.estaDisponible(), "la rechazada no reinició el motor");
+        System.out.println();
     }
 
     // ---------------------------------------------------------------------

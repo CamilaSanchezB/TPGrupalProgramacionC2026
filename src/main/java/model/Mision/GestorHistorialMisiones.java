@@ -27,7 +27,8 @@ public class GestorHistorialMisiones {
      * POST: el informe queda al final del historial
      */
     public void registrarInforme(InformeMision informe) {
-        assert informe != null : "El informe a registrar no puede ser nulo";
+        if (informe == null)
+            throw new IllegalArgumentException("El informe a registrar no puede ser nulo");
         this.historial.add(informe);
     }
 
