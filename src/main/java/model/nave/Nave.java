@@ -113,6 +113,11 @@ public abstract class Nave {
         return motorWarp.getNombreEstado();
     }
 
+    /** Aborta cualquier maniobra pendiente. POST: el motor queda Disponible. */
+    public void reiniciarMotor() {
+        this.motorWarp = new MotorWarp(recursos);
+    }
+
     // ---------- Recursos: consultas ----------
     // Ninguna modifica la nave.
 
@@ -134,6 +139,10 @@ public abstract class Nave {
      */
     public boolean puedeConsumir(int combustible, int energia, int desgaste) {
         return recursos.puedeConsumir(combustible, energia, desgaste);
+    }
+
+    public boolean puedeIniciarMision(int combustible, int energia, int desgaste) {
+        return puedeConsumir(combustible, energia, desgaste);
     }
 
     /** @return true si cantidad > 0 y combustible actual + cantidad <= 100 */

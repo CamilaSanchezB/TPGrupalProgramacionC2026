@@ -211,18 +211,18 @@ public class MainPanel extends JPanel {
         lblGemas.setText("Gemas: " + nave.getGemas());
         lblMotor.setText("Motor: " + nave.getEstadoMotor());
 
-        actualizarEtiquetaRequisito(lblReqM01, nave.puedeConsumir(4, 5, 4),
+        actualizarEtiquetaRequisito(lblReqM01, nave.puedeIniciarMision(4, 5, 4),
                 "Req: 4 Comb | 5 Energ | 4 Desg — Auxilio a nave aliada");
-        actualizarEtiquetaRequisito(lblReqM02, nave.puedeConsumir(4, 10, 4),
+        actualizarEtiquetaRequisito(lblReqM02, nave.puedeIniciarMision(4, 10, 4),
                 "Req: 4 Comb | 10 Energ | 4 Desg — Extracción de 20-100 gemas");
-        actualizarEtiquetaRequisito(lblReqM03, nave.puedeConsumir(4, 0, 4),
+        actualizarEtiquetaRequisito(lblReqM03, nave.puedeIniciarMision(4, 0, 4),
                 "Req: 4 Comb | 0 Energ | 4 Desg — Regreso a (10,10) + recarga");
 
         // Tripulantes con cargo y nombre limpios (sin imprimir @hashcode)
         StringBuilder sbTrip = new StringBuilder();
         List<Tripulante> tripulantes = nave.getTripulantes();
         for (Tripulante t : tripulantes) {
-            String cargo = t.getClass().getSimpleName();
+            String cargo = t.getCargo();
             String nombre = t.getNombre();
             sbTrip.append("• ").append(cargo).append(": ").append(nombre).append("\n");
         }

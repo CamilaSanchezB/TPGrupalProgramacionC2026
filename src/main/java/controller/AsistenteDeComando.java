@@ -50,6 +50,10 @@ public class AsistenteDeComando {
         return nave.puedeConsumir(combustible, energia, desgaste);
     }
 
+    public boolean puedeIniciarMision(int combustible, int energia, int desgaste) {
+        return nave.puedeIniciarMision(combustible, energia, desgaste);
+    }
+
     public boolean requiereMantenimiento() { return nave.requiereMantenimiento(); }
 
     public int getGemas() { return nave.getGemas(); }
@@ -119,6 +123,11 @@ public class AsistenteDeComando {
         registrar("Salto warp: avanza " + casilleros + " casillero(s). Motor: "
                 + antes + " -> " + nave.getEstadoMotor());
         return casilleros;
+    }
+
+    public void reiniciarMotor() {
+        nave.reiniciarMotor();
+        registrar("Motor warp reiniciado: Disponible");
     }
 
     // ---------- Bitácora ----------

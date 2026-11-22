@@ -47,6 +47,7 @@ public abstract class Mision{
     private int inicioBitacora;   // desde dónde empiezan los eventos de ESTA misión
     private int gemasIniciales;
     public static final int MAX_TURNOS = 300;   // evita bucle infinito si la nave no puede avanzar
+    public static final int MAX_TURNOS_SIN_AVANCE = 10;
 
     /**
      * @param nombre Nombre de la misión
@@ -138,8 +139,11 @@ public abstract class Mision{
         }
 
         //Alcanzan los recursos?
-        if(!asistenteDeComando.puedeConsumir(requisitos.getCombustible(), requisitos.getEnergia(), requisitos.getDesgaste())){
-            return rechazar("Recursos Insuficientes");
+        if (!asistenteDeComando.puedeIniciarMision(
+                requisitos.getCombustible(),
+                requisitos.getEnergia(),
+                requisitos.getDesgaste())) {
+            return rechazar("Recursos insuficientes para iniciar la misión");
         }
 
         //Guardamos los recursos iniciales, nos servira para obtener el informe final.
@@ -174,6 +178,12 @@ public abstract class Mision{
                 requisitos.getDesgaste()
         );
         asistenteDeComando.registrar("Recursos consumidos");
+        if (asistenteDeComando.estaDestruida()) {
+            asistenteDeComando.registrar(
+                    "Misión fallida: la nave se destruyó al consumir los recursos de inicio");
+            this.etapa = EtapaMision.EJECUTADA;
+            return;
+        }
         universo.ubicarNave(origen);   // el tablero tiene que saber dónde está la nave
         this.navegador = new Navegador(asistenteDeComando, universo, origen);
 
@@ -181,17 +191,22 @@ public abstract class Mision{
             asistenteDeComando.registrar("Sin ruta calculable hacia " + destino);
         } else {
             int turno = 0;
+            int sinAvance = 0;
             ElementoDelUniverso ultimo = null;   // para no interactuar dos veces con el mismo elemento
-            while (!asistenteDeComando.estaDestruida() && !navegador.haLlegado() && turno < MAX_TURNOS) {
+            while (!asistenteDeComando.estaDestruida() && !navegador.haLlegado() && turno < MAX_TURNOS && sinAvance < MAX_TURNOS_SIN_AVANCE) {
                 turno++;
                 Coordenada antes = navegador.getPosicion();
+                boolean seMovio = false;
+
                 try {
                     if (navegador.avanzarUnTurno() == ResultadoAvance.SIN_RUTA) {
                         asistenteDeComando.registrar("Sin ruta disponible en este turno");
                     }
+
                     universo.ubicarNave(navegador.getPosicion());
                     ElementoDelUniverso aca = universo.inspeccionarNave();
-                    boolean seMovio = !antes.equals(navegador.getPosicion());
+                    seMovio = !antes.equals(navegador.getPosicion());
+
                     if (aca != null && (seMovio || aca != ultimo)) {
                         asistenteDeComando.interactuarCon(aca);
                     }
@@ -199,6 +214,9 @@ public abstract class Mision{
                 } catch (OperacionRechazadaException e) {
                     asistenteDeComando.registrar("Turno " + turno + " rechazado: " + e.getMessage());
                 }
+
+                sinAvance = seMovio ? 0 : sinAvance + 1;
+
                 universo.turnoDestino();   // Destino mueve los elementos
                 try {
                     Thread.sleep(1000);
@@ -208,8 +226,8 @@ public abstract class Mision{
                     break;
                 }
             }
-            if (turno >= MAX_TURNOS && !navegador.haLlegado()) {
-                asistenteDeComando.registrar("Travesía abortada: máximo de turnos");
+            if (!navegador.haLlegado() && (turno >= MAX_TURNOS || sinAvance >= MAX_TURNOS_SIN_AVANCE)) {
+                asistenteDeComando.registrar("Travesía abortada: la nave no pudo avanzar");
             }
         }
 
@@ -218,7 +236,9 @@ public abstract class Mision{
             verificarEnDestino();
         }
 
-        cumplirObjetivo();
+        if (!asistenteDeComando.estaDestruida()) {
+            cumplirObjetivo();
+        }
         this.etapa = EtapaMision.EJECUTADA;
     }
 
@@ -294,17 +314,11 @@ public abstract class Mision{
             }
         }
 
-        // 2) Balance del viaje: se mide antes de las recompensas (si no, M-03 daría consumo negativo)
-        int combConsumido = 0;
-        int enerConsumida = 0;
-        int desgGenerado = 0;
-        if (recursosIniciales != null) {
-            combConsumido = recursosIniciales.getCombustible() - asistenteDeComando.getCombustible();
-            enerConsumida = recursosIniciales.getEnergia() - asistenteDeComando.getEnergia();
-            desgGenerado = asistenteDeComando.getDesgaste() - recursosIniciales.getDesgaste();
+        if (!asistenteDeComando.estaDisponible() && !asistenteDeComando.estaDestruida()) {
+            asistenteDeComando.reiniciarMotor();   // no se arrastra una maniobra a medias
         }
 
-        // 3) Recompensas / entregas propias de la misión. Si fallan, la misión no queda en el aire:
+        // 2) Recompensas / entregas propias de la misión. Si fallan, la misión no queda en el aire:
         //    se marca FALLIDA y el informe se genera igual.
         if (resultado == ResultadoMision.EXITOSA) {
             try {
@@ -314,6 +328,16 @@ public abstract class Mision{
                 observaciones = "No se pudieron aplicar los efectos finales: " + e.getMessage();
                 asistenteDeComando.registrar("Efectos finales fallidos en " + nombre);
             }
+        }
+
+        // 3) Balance del viaje: se mide antes de las recompensas (si no, M-03 daría consumo negativo)
+        int combConsumido = 0;
+        int enerConsumida = 0;
+        int desgGenerado = 0;
+        if (recursosIniciales != null) {
+            combConsumido = recursosIniciales.getCombustible() - asistenteDeComando.getCombustible();
+            enerConsumida = recursosIniciales.getEnergia() - asistenteDeComando.getEnergia();
+            desgGenerado = asistenteDeComando.getDesgaste() - recursosIniciales.getDesgaste();
         }
 
         // Gemas ganadas: se mide después de las recompensas (las entrega aplicarEfectosFinales)

@@ -14,7 +14,7 @@ public class UniversoParalelo {
 
     private static final int CAPACIDAD_PLATAFORMA = 5;
 
-    private final PlataFormaDeCarga plataforma = new PlataFormaDeCarga(CAPACIDAD_PLATAFORMA);
+    private final PlataformaDeCarga plataforma = new PlataformaDeCarga(CAPACIDAD_PLATAFORMA);
     private final List<ObservadorVisor> observadores = new CopyOnWriteArrayList<>();
     private final List<Thread> hilos = Collections.synchronizedList(new ArrayList<>());
     private final AtomicInteger contadorGeneradoras = new AtomicInteger();

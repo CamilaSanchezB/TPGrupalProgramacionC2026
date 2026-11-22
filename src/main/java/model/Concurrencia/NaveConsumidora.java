@@ -6,10 +6,10 @@ import java.util.Random;
 public class NaveConsumidora implements Runnable {
 
     private final String nombre;
-    private final PlataFormaDeCarga plataforma;
+    private final PlataformaDeCarga plataforma;
     private final Random random = new Random();
 
-    public NaveConsumidora(String nombre, PlataFormaDeCarga plataforma) {
+    public NaveConsumidora(String nombre, PlataformaDeCarga plataforma) {
         this.nombre = nombre;
         this.plataforma = plataforma;
     }

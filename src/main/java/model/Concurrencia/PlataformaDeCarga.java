@@ -12,13 +12,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * Los avisos se hacen DENTRO del metodo synchronized para que el orden de los
  * eventos coincida con el orden real de las operaciones (la vista los pasa al EDT).
  */
-public class PlataFormaDeCarga {
+public class PlataformaDeCarga {
 
     private final LinkedList<Bateria> baterias = new LinkedList<>();
     private final int capacidad;
     private final List<ObservadorVisor> observadores = new CopyOnWriteArrayList<>();
 
-    public PlataFormaDeCarga(int capacidad) {
+    public PlataformaDeCarga(int capacidad) {
         this.capacidad = capacidad;
     }
 
@@ -39,7 +39,6 @@ public class PlataFormaDeCarga {
         for (ObservadorVisor o : observadores) {
             o.naveGeneroBateria(nombre);
         }
-        Thread.sleep(800);
         notifyAll();
     }
 
@@ -57,7 +56,6 @@ public class PlataFormaDeCarga {
         for (ObservadorVisor o : observadores) {
             o.naveConsumioBateria(nombre);
         }
-        Thread.sleep(800);
         notifyAll();
         return b;
     }
