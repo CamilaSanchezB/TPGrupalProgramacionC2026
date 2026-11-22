@@ -8,7 +8,7 @@ import model.Mision.InformeMision;
 import model.Mision.Mision;
 import model.Universo.ElementoDelUniverso;
 import model.nave.Nave;
-
+import model.tripulantes.Tripulante;
 import java.util.List;
 
 /**
@@ -239,5 +239,9 @@ public class AsistenteDeComando {
     public void recargarTotal() {
         nave.recargarHastaTope(model.Recursos.CAPACIDAD_MAXIMA, model.Recursos.CAPACIDAD_MAXIMA);
         registrar("Recarga total de combustible y energía");
+    }
+
+    public List<Tripulante> getTripulantes() { 
+        return nave.getTripulantes(); 
     }
 }

@@ -15,7 +15,8 @@ public class Bitacora extends Observable{
      * POST: el evento quedará registrado con su descripcion y la fechg en la que fue hecho el registro
      */
     public synchronized void registrar(String descripcion) {
-        assert descripcion != null && !descripcion.trim().isEmpty() : "No se ha ingresado ningun evento";
+        if (descripcion == null || descripcion.trim().isEmpty())
+            throw new IllegalArgumentException("No se ha ingresado ningun evento");
         this.eventos.add(new RegitroBitacora(descripcion));
         setChanged();
         notifyObservers();

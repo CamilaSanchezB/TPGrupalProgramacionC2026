@@ -12,10 +12,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
-import model.ClasesBitacora.RegitroBitacora;
-import model.Mision.InformeMision;
-import model.Mision.ResultadoMision;
-import model.nave.Nave;
+
+import controller.ResumenMisionVista;
 import net.miginfocom.swing.MigLayout;
 
 /** Pantalla 4: Informe Oficial de Misión (Debriefing) con balance de recursos y eventos del viaje. */
@@ -106,50 +104,45 @@ public class ResultadoPanel extends JPanel {
     }
 
     /** Muestra el informe completo de la misión recién finalizada. */
-    public void mostrar(InformeMision informe, Nave nave) {
-        if (informe == null) {
+    public void mostrar(ResumenMisionVista r) {
+        if (r == null) {
             mostrar(false);
             return;
         }
 
-        ResultadoMision res = informe.getResultado();
-        boolean destruida = nave != null && nave.estaDestruida();
-
-        if (res == ResultadoMision.EXITOSA) {
-            lblEstado.setForeground(VERDE);
-            lblEstado.setText("MISIÓN EXITOSA");
-        } else if (res == ResultadoMision.RECHAZADA) {
-            lblEstado.setForeground(AMBAR);
-            lblEstado.setText("MISIÓN RECHAZADA");
-        } else {
-            lblEstado.setForeground(ROJO);
-            lblEstado.setText("MISIÓN FALLIDA");
+        switch (r.estado) {
+            case EXITOSA:
+                lblEstado.setForeground(VERDE);
+                lblEstado.setText("MISIÓN EXITOSA");
+                break;
+            case RECHAZADA:
+                lblEstado.setForeground(AMBAR);
+                lblEstado.setText("MISIÓN RECHAZADA");
+                break;
+            default:
+                lblEstado.setForeground(ROJO);
+                lblEstado.setText("MISIÓN FALLIDA");
         }
 
-        lblMision.setText(informe.getNombreMision());
-        String obs = informe.getObservaciones();
-        lblObservaciones.setText(obs == null || obs.isEmpty()
+        lblMision.setText(r.nombre);
+        lblObservaciones.setText(r.observaciones == null || r.observaciones.isEmpty()
                 ? "Operación finalizada sin observaciones adicionales."
-                : "Detalle: " + obs);
+                : "Detalle: " + r.observaciones);
 
         kpiCombustible.setText(String.format("<html><center>COMBUSTIBLE<br><b>%d</b> (%+d)</center></html>",
-                informe.getCombustibleFinal(), -informe.getCombustibleConsumido()));
+                r.combustibleFinal, r.variacionCombustible));
         kpiEnergia.setText(String.format("<html><center>ENERGÍA<br><b>%d</b> (%+d)</center></html>",
-                informe.getEnergiaFinal(), -informe.getEnergiaConsumida()));
+                r.energiaFinal, r.variacionEnergia));
         kpiDesgaste.setText(String.format("<html><center>DESGASTE<br><b>%d</b> (%+d)</center></html>",
-                informe.getDesgasteFinal(), informe.getDesgasteGenerado()));
-        kpiGemas.setText(String.format("<html><center>GEMAS<br><b>%d</b></center></html>",
-                nave != null ? nave.getGemas() : 0));
+                r.desgasteFinal, r.variacionDesgaste));
+        kpiGemas.setText(String.format("<html><center>GEMAS<br><b>%d</b></center></html>", r.gemasTotales));
 
         StringBuilder sb = new StringBuilder();
-        for (RegitroBitacora ev : informe.getEventos()) {
-            sb.append("[").append(ev.getTiempoActual()).append("] ")
-                    .append(ev.getDescripcion()).append("\n");
-        }
+        for (String linea : r.eventos) sb.append(linea).append("\n");
         txtBitacoraMision.setText(sb.toString());
         txtBitacoraMision.setCaretPosition(0);
 
-        btnContinuar.setText(destruida
+        btnContinuar.setText(r.naveDestruida
                 ? "Nave destruida — Seleccionar nueva nave"
                 : "Volver al Centro de Comando");
     }

@@ -8,7 +8,7 @@ import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionListener;
-
+import model.Concurrencia.EventoVisor;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -20,6 +20,7 @@ import javax.swing.Scrollable;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
+import model.Concurrencia.EventoVisor;
 import model.Concurrencia.ObservadorVisor;
 
 /**
@@ -166,6 +167,17 @@ public class VistaNaves extends JFrame implements ObservadorVisor {
     /** Escribe una linea libre en el log. */
     public void agregarLog(String texto) {
         enEDT(() -> escribirLog(texto));
+    }
+
+    @Override
+    public void actualizar(EventoVisor e) {
+        switch (e.getTipo()) {
+            case GENERADORA_AGREGADA: agregarNaveGeneradora(e.getNombre()); break;
+            case CONSUMIDORA_AGREGADA: agregarNaveConsumidora(e.getNombre()); break;
+            case BATERIA_DEPOSITADA: naveGeneroBateria(e.getNombre()); break;
+            case BATERIA_RETIRADA: naveConsumioBateria(e.getNombre()); break;
+            default: agregarLog(e.getTexto());
+        }
     }
 
     // ------------------------------------------------------------------

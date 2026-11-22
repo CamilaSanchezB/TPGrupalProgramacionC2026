@@ -1,13 +1,12 @@
 package view;
+import controller.EstadoNaveVista;
 
-import controller.AsistenteDeComando;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
-import java.util.List;
 import java.util.Locale;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -18,10 +17,6 @@ import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
-import model.Mision.InformeMision;
-import model.Mision.ResultadoMision;
-import model.nave.Nave;
-import model.tripulantes.Tripulante;
 import net.miginfocom.swing.MigLayout;
 
 /** Pantalla 2: Centro de Comando y Hangar con telemetría de la nave, misiones e historial. */
@@ -171,20 +166,21 @@ public class MainPanel extends JPanel {
     }
 
     /** Refresca toda la telemetría de la nave, tripulación e historial cada vez que se entra al menú. */
-    public void actualizarEstado(Nave nave, AsistenteDeComando asistente, String tipoNave) {
-        if (nave == null || asistente == null) return;
+    /** Refresca toda la telemetría, tripulación e historial. Solo dibuja: los datos llegan armados. */
+    public void actualizarEstado(EstadoNaveVista e) {
+        if (e == null) return;
 
-        String tipo = tipoNave == null ? "EXPLORADORA" : tipoNave.toUpperCase(Locale.ROOT);
+        String tipo = e.tipo == null ? "EXPLORADORA" : e.tipo.toUpperCase(Locale.ROOT);
         String archivo = "COMBATE".equals(tipo) ? "combate.png"
-                : ("CARGUERA".equals(tipo) || "CARGUERO".equals(tipo)) ? "carguera.png" : "exploradora.png";
+            : ("CARGUERA".equals(tipo) || "CARGUERO".equals(tipo)) ? "carguera.png" : "exploradora.png";
         ImageIcon icono = Assets.cargarEscalada(archivo, 72);
         lblImagenNave.setIcon(icono);
         lblTituloNave.setText("NAVE " + tipo);
 
-        if (nave.estaDestruida()) {
+        if (e.destruida) {
             lblEstadoOperativo.setText("ESTADO: INOPERATIVA / DESTRUIDA");
             lblEstadoOperativo.setForeground(ACENTO_ROJO);
-        } else if (nave.requiereMantenimiento()) {
+        } else if (e.requiereMantenimiento) {
             lblEstadoOperativo.setText("ALERTA: REQUIERE MANTENIMIENTO (Desgaste >= 80)");
             lblEstadoOperativo.setForeground(ACENTO_AMBAR);
         } else {
@@ -192,62 +188,40 @@ public class MainPanel extends JPanel {
             lblEstadoOperativo.setForeground(ACENTO_VERDE);
         }
 
-        int comb = nave.getCombustible();
-        int energ = nave.getEnergia();
-        int desg = nave.getDesgaste();
+        barCombustible.setValue(e.combustible);
+        barCombustible.setString(e.combustible + " / 100");
+        barCombustible.setForeground(e.combustible <= 20 ? ACENTO_ROJO : ACENTO_VERDE);
 
-        barCombustible.setValue(comb);
-        barCombustible.setString(comb + " / 100");
-        barCombustible.setForeground(comb <= 20 ? ACENTO_ROJO : ACENTO_VERDE);
+        barEnergia.setValue(e.energia);
+        barEnergia.setString(e.energia + " / 100");
+        barEnergia.setForeground(e.energia <= 20 ? ACENTO_ROJO : ACENTO_CIAN);
 
-        barEnergia.setValue(energ);
-        barEnergia.setString(energ + " / 100");
-        barEnergia.setForeground(energ <= 20 ? ACENTO_ROJO : ACENTO_CIAN);
+        barDesgaste.setValue(e.desgaste);
+        barDesgaste.setString(e.desgaste + " / 100");
+        barDesgaste.setForeground(e.desgaste >= 80 ? ACENTO_ROJO : (e.desgaste >= 50 ? ACENTO_AMBAR : ACENTO_VERDE));
 
-        barDesgaste.setValue(desg);
-        barDesgaste.setString(desg + " / 100");
-        barDesgaste.setForeground(desg >= 80 ? ACENTO_ROJO : (desg >= 50 ? ACENTO_AMBAR : ACENTO_VERDE));
+        lblGemas.setText("Gemas: " + e.gemas);
+        lblMotor.setText("Motor: " + e.motor);
 
-        lblGemas.setText("Gemas: " + nave.getGemas());
-        lblMotor.setText("Motor: " + nave.getEstadoMotor());
-
-        actualizarEtiquetaRequisito(lblReqM01, nave.puedeIniciarMision(4, 5, 4),
+        actualizarEtiquetaRequisito(lblReqM01, e.alcanzaM01,
                 "Req: 4 Comb | 5 Energ | 4 Desg — Auxilio a nave aliada");
-        actualizarEtiquetaRequisito(lblReqM02, nave.puedeIniciarMision(4, 10, 4),
+        actualizarEtiquetaRequisito(lblReqM02, e.alcanzaM02,
                 "Req: 4 Comb | 10 Energ | 4 Desg — Extracción de 20-100 gemas");
-        actualizarEtiquetaRequisito(lblReqM03, nave.puedeIniciarMision(4, 0, 4),
+        actualizarEtiquetaRequisito(lblReqM03, e.alcanzaM03,
                 "Req: 4 Comb | 0 Energ | 4 Desg — Regreso a (10,10) + recarga");
 
-        // Tripulantes con cargo y nombre limpios (sin imprimir @hashcode)
         StringBuilder sbTrip = new StringBuilder();
-        List<Tripulante> tripulantes = nave.getTripulantes();
-        for (Tripulante t : tripulantes) {
-            String cargo = t.getCargo();
-            String nombre = t.getNombre();
-            sbTrip.append("• ").append(cargo).append(": ").append(nombre).append("\n");
-        }
+        for (String linea : e.tripulantes) sbTrip.append(linea).append("\n");
         txtTripulantes.setText(sbTrip.toString().trim());
         txtTripulantes.setCaretPosition(0);
 
-        // Historial de misiones
-        List<InformeMision> historial = asistente.getHistorialMisiones();
-        int exitosas = 0;
         StringBuilder sbHist = new StringBuilder();
-        if (historial.isEmpty()) {
+        if (e.totalMisiones == 0) {
             sbHist.append("Sin misiones registradas aún.\nSeleccioná una misión para iniciar.");
         } else {
-            for (int i = historial.size() - 1; i >= 0; i--) {
-                InformeMision inf = historial.get(i);
-                if (inf.getResultado() == ResultadoMision.EXITOSA) exitosas++;
-                sbHist.append(String.format("[%s] %s (Comb:%+d Energ:%+d Desg:%+d)\n",
-                        inf.getResultado(),
-                        inf.getNombreMision(),
-                        -inf.getCombustibleConsumido(),
-                        -inf.getEnergiaConsumida(),
-                        inf.getDesgasteGenerado()));
-            }
+            for (String linea : e.historial) sbHist.append(linea).append("\n");
         }
-        lblEstadisticas.setText("Éxitos: " + exitosas + "/" + historial.size());
+        lblEstadisticas.setText("Éxitos: " + e.misionesExitosas + "/" + e.totalMisiones);
         txtHistorial.setText(sbHist.toString().trim());
         txtHistorial.setCaretPosition(0);
     }

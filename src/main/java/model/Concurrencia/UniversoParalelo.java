@@ -25,23 +25,26 @@ public class UniversoParalelo {
         plataforma.agregarObservador(o);
     }
 
+    private void notificar(EventoVisor evento) {
+    for (ObservadorVisor o : observadores) {
+        o.actualizar(evento);
+    }
+}
+
     public void agregarGeneradora() {
         String nombre = "Generadora-" + contadorGeneradoras.incrementAndGet();
-        for (ObservadorVisor o : observadores) {
-            o.agregarNaveGeneradora(nombre);
-            o.agregarLog("¡Ingreso una nueva Generadora al universo paralelo! (" + nombre + ")");
-        }
-        iniciar(new NaveGeneradora(nombre, plataforma), nombre);
+        notificar(EventoVisor.generadoraAgregada(nombre));
+        notificar(EventoVisor.mensaje("¡Ingresó una nueva Generadora al universo paralelo! (" + nombre + ")"));
+        iniciar(new NaveGeneradora(nombre, plataforma), nombre);   // si la renombraron: GeneradoraDeEnergia
     }
 
     public void agregarConsumidora() {
         String nombre = "Consumidora-" + contadorConsumidoras.incrementAndGet();
-        for (ObservadorVisor o : observadores) {
-            o.agregarNaveConsumidora(nombre);
-            o.agregarLog("¡Ingreso una nueva Nave al universo paralelo! (" + nombre + ")");
-        }
+        notificar(EventoVisor.consumidoraAgregada(nombre));
+        notificar(EventoVisor.mensaje("¡Ingresó una nueva Nave al universo paralelo! (" + nombre + ")"));
         iniciar(new NaveConsumidora(nombre, plataforma), nombre);
     }
+
 
     /** Corta todos los hilos (interrupt). Despues de esto el universo no se reutiliza. */
     public void detener() {
