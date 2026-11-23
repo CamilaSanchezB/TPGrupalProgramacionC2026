@@ -2,15 +2,15 @@
 
 **Software embarcado de una nave interestelar tripulada**
 
-Programación C&#32;
+Programación C
 
-Facultad de Ingeniería, Universidad Nacional de Mar del Plata&#32;
+Facultad de Ingeniería, Universidad Nacional de Mar del Plata
 
 Año académico 2026, segundo cuatrimestre
 
-Grupo G13&#32;
+Grupo G13
 
-Integrantes:&#32;
+Integrantes:
 
 — Bruses Tomas
 
@@ -47,14 +47,14 @@ El trabajo se desarrolló en dos entregas sobre el mismo proyecto. La primera co
 | Control de versiones | Git y GitHub |
 | Documentación | Javadoc con contratos (INV, PRE, POST), diagramas UML y este informe |
 
-Para compilar y ejecutar una prueba (el classpath incluye las dependencias que Maven copia a `target/lib`; en Linux o macOS el separador es `:`):
+Para compilar y ejecutar la aplicación (el classpath incluye las dependencias que Maven copia a `target/lib`; en Windows el separador es `;`):
 
-```
+```powershell
 mvn compile
 java -ea -cp "target/classes;target/lib/*" view.Main
 ```
 
-La opción `-ea` activa las aserciones (`assert`), con las que se verifican varios contratos internos. Sin ella la JVM las ignora. El programa no tiene una única clase principal: cada tema se ejecuta con su propia clase del paquete `pruebas`, y las ventanas de login y de tripulantes con `PruebaLogin` y `PruebaABMTripulantes`.
+La opción `-ea` activa las aserciones (`assert`), con las que se verifican algunos contratos internos. Sin ella la JVM las ignora. La aplicación gráfica se inicia desde `view.Main`. Los programas del paquete `pruebas` permiten ejecutar escenarios manuales por tema.
 
 ## Arquitectura general
 
@@ -66,11 +66,11 @@ El código se organiza en las tres capas del patrón MVC más una capa de persis
 | `controller` | Coordinación | `AsistenteDeComando`, `ControladorNave`, `ControladorPartida`, `ControladorVisor`, `LiquidadorHaberes`, `LoginController`, `TripulantesController`, y los modelos de vista `EstadoNaveVista` y `ResumenMisionVista` |
 | `view` | Presentación | `ILogin` y `LoginView`, `ITripulantes` y `TripulantesView`, paneles de la partida (`MainPanel`, `TableroUniversoPanel`, `ResultadoPanel`), `VistaNaves` (visor), `Main` (arranque y navegación entre pantallas, sin lógica de negocio), `ConfigView` (apariencia común) |
 | `persistencia` | Acceso a datos | `ServicioUsuarios`, `HasheadorContrasenas`, `dao` (`UsuarioDAO`, `UsuarioDAOSqlite`, `ConexionSQLite`), `dto` (`UsuarioDTO`) y excepciones propias |
-| `pruebas` | Demostraciones ejecutables | Un `main` por tema (misiones, navegador, radares, batallas, universo, login, tripulantes) |
+| `pruebas` | Demostraciones ejecutables | Escenarios con `main` para misiones, navegador, radares, batallas, universo, login, centro de control y tripulantes |
 
-**Regla central:** el dominio no lee ni escribe en consola y no conoce ninguna biblioteca gráfica. Las consultas del modelo devuelven datos y es la capa de presentación la que decide cómo mostrarlos. Esto permite conectar los mismos objetos con ventanas Swing sin reescribir la lógica.
+**Regla central:** el dominio no conoce ninguna biblioteca gráfica. La coordinación de la nave pasa por `AsistenteDeComando`, que registra sus acciones en la bitácora. Algunas demostraciones del paquete `pruebas` sí escriben resultados en consola; la interfaz principal los presenta mediante Swing.
 
-**Tres flujos principales.** Para operar la nave, quien la usa habla con el `AsistenteDeComando`, que consulta a la `Nave`, que delega en sus componentes; cada resultado, exitoso o rechazado, queda en la `Bitacora`. Para mostrar la nave en pantalla, el controlador (`ControladorNave`) consulta al asistente y entrega a la vista un modelo de vista ya armado, de modo que las pantallas de la partida no conocen las clases del dominio. Para el acceso al sistema, la vista le pasa los datos al controlador, que llama al servicio, que consulta al DAO, que accede a la base SQLite.
+**Tres flujos principales.** Para operar la nave, quien la usa habla con el `AsistenteDeComando`, que consulta a la `Nave`, que delega en sus componentes; cada resultado, exitoso o rechazado, queda registrado en la `Bitacora`. Para mostrar la nave en pantalla, el controlador (`ControladorNave`) consulta al asistente y entrega a la vista un modelo de vista ya armado. Para el acceso al sistema, la vista le pasa los datos al controlador, que llama al servicio, que consulta al DAO, que accede a la base SQLite.
 
 ## Modelo del dominio
 
@@ -82,9 +82,9 @@ El código se organiza en las tres capas del patrón MVC más una capa de persis
 - un `MotorWarp` (el motor, con su comportamiento por estado),
 - una `TripulantesCollection` (la tripulación).
 
-La nave solo delega en ellos y mantiene sus invariantes: el motor siempre está en exactamente uno de sus cuatro estados, los recursos respetan sus límites y la tripulación nunca contiene elementos nulos. Hacia afuera, la tripulación se expone como una **vista de solo lectura**. La nave también sabe si **quedó destruida**: desgaste en 100, energía en 0, combustible en 0 o derrota en una batalla (`destruir()`); una vez destruida por una batalla, no vuelve atrás.
+La nave delega en esos objetos y mantiene sus invariantes: los recursos respetan sus límites y la tripulación se administra mediante `TripulantesCollection`. La tripulación se expone como una vista de solo lectura. La nave se considera destruida si el desgaste llega a 100, la energía o el combustible llegan a 0, o pierde una batalla (`destruir()`). La destrucción por batalla se conserva como un estado de la nave.
 
-Hay tres tipos de nave, que difieren solo en su configuración inicial:
+Hay tres tipos de nave, que difieren en su configuración inicial:
 
 | Tipo | Combustible inicial | Energía inicial | Desgaste inicial |
 | --- | --- | --- | --- |
@@ -96,115 +96,116 @@ Todas tienen capacidad máxima 100 de combustible y de energía, y el Motor Warp
 
 ### Recursos y mantenimiento
 
-`Recursos` es el único responsable de proteger los límites:
+`Recursos` protege los límites:
 
 - Combustible y energía: entre 0 y 100.
 - Desgaste: entre 0 y 100. Con 80 o más la nave requiere mantenimiento, que lo lleva a 0.
 - Gemas: nunca negativas; es el recurso que se obtiene en la travesía.
-- Una carga que supere la capacidad, o una operación que deje un valor fuera de rango, se rechaza sin modificar nada.
+- Una operación que supere la capacidad o deje un valor fuera de rango se rechaza sin modificar los recursos.
 
-La operación `consumir(combustible, energía, desgaste)`comprueba antes de modificar, de modo que nunca queda un consumo a medias. Además de las órdenes (`cargarCombustible`, `cargarEnergia`, `consumir`, `realizarMantenimiento`), la clase ofrece consultas que no modifican nada (`puedeConsumir`, `puedeCargarCombustible`, `puedeCargarEnergia`, `requiereMantenimiento`), para que quien llama pueda preguntar antes de actuar. Para la travesía se sumaron `agregarGemas`, `recargarHastaTope` (llena sin superar el tope en vez de rechazar, como hace una estación de carga), `recibirImpacto` (descuenta energía y suma desgaste deteniéndose en los límites), `estaDestruida` y `copia()`, que permite comparar los recursos antes y después de una misión.
+La operación `consumir(combustible, energía, desgaste)` comprueba antes de modificar, de modo que no queda un consumo a medias. Además de las órdenes (`cargarCombustible`, `cargarEnergia`, `consumir`, `realizarMantenimiento`), la clase ofrece consultas que no modifican nada (`puedeConsumir`, `puedeCargarCombustible`, `puedeCargarEnergia`, `requiereMantenimiento`), para que quien llama pueda preguntar antes de actuar. Para la travesía se sumaron `agregarGemas`, `recargarHastaTope` (recarga sin superar el tope), `recibirImpacto` (descuenta energía y suma desgaste respetando los límites), `estaDestruida` y `copia()`, que permite obtener una copia de los recursos.
 
 ### Tripulación
 
-`TripulantesCollection` encapsula la lista: se agrega, se edita y se elimina solo a través de sus métodos, se puede consultar por cargo (sin distinguir mayúsculas) y verificar si existe un tripulante por nombre. Los cargos son capitán, consejero, teniente y alférez, y los orígenes son terrícola, vulcano y marciano. Cada tripulante tiene nombre, cargo, origen, antigüedad y la remuneración que le corresponde; el cálculo de los haberes se explica en el patrón Decorator.
+`TripulantesCollection` encapsula la lista: permite agregar, editar y eliminar tripulantes mediante sus métodos, consultar por cargo y verificar si existe un tripulante por nombre. Los cargos son capitán, consejero, teniente y alférez; los orígenes son terrícola, vulcano y marciano. Cada tripulante tiene nombre, cargo, origen, antigüedad y remuneración. El cálculo de los haberes se explica en el patrón Decorator.
 
 ### Universo y navegación
 
-- **`Coordenada`** es un par (x, y) inalterable que sabe calcular distancias y desplazarse.
-- **`Universo`** es una interfaz mínima: dice si una coordenada está dentro y qué elementos hay en ella. Los radares y el navegador trabajan contra esta interfaz.
-- **`ElementoDelUniverso`** es lo que puede haber en una casilla: tiene posición, sabe interactuar con la nave (y devuelve un texto para la bitácora) y dice si es un obstáculo. Hay tres: el `Asteroide`, que es un obstáculo y descuenta 20 de energía; la `EstacionDeCarga`, que recarga 20 de combustible y 20 de energía sin superar el tope; y la `NaveEnemiga`, que envuelve una nave de cualquiera de los tres tipos y se enfrenta con la nave propia cuando coinciden en la casilla (ver Double Dispatch). Las naves no son obstáculos: se encuentran, no se rodean.
-- **`Tablero` y `Destino`** los provee la cátedra. El tablero es la grilla con los elementos y es observable; `Destino` mueve al azar parte de los elementos en cada turno.
-- **`RadarCortoAlcance`** escanea los elementos cercanos a una posición (radio 2 por defecto) y los ordena por distancia.
-- **`RadarLargoAlcance`** calcula la ruta más corta entre dos coordenadas con una búsqueda en anchura, moviéndose en cuatro direcciones y rodeando los obstáculos; devuelve la lista de coordenadas o vacía si no hay camino.
-- **`Navegador`** lleva la nave hacia un destino. Al iniciar el viaje calcula la ruta con el radar largo. En cada turno escanea con el radar corto. Si hay un obstáculo en la siguiente casilla, intenta esquivarlo con un salto warp (solo si el motor está disponible, quedan al menos 2 pasos de ruta, la casilla de aterrizaje está libre y hay energía para la preparación y el salto); si no puede, recalcula la ruta con el radar largo. En los demás turnos hace un salto simple de una casilla. El warp dura varios turnos (preparación de 2 turnos, salto de 2 casillas y un turno de enfriamiento) y los costos los cobra el motor: el navegador solo avanza por la ruta lo que el motor le devuelve. Cada paso queda en la bitácora a través del asistente.
+- **`Coordenada`** es un par (x, y) inalterable.
+- **`Universo`** es una interfaz mínima: indica si una coordenada está dentro y qué elementos hay en ella. Los radares y el navegador trabajan contra esta interfaz.
+- **`ElementoDelUniverso`** es lo que puede haber en una casilla: tiene posición, interactúa con la nave y devuelve un texto para la bitácora. Los elementos concretos son:
+    - `Asteroide`, que se considera obstáculo y descuenta hasta 20 puntos de energía.
+    - `EstacionDeCarga`, que recarga hasta 20 puntos de combustible y 20 de energía sin superar el tope.
+    - `NaveEnemiga`, que contiene una nave de cualquiera de los tres tipos y se enfrenta con la nave propia cuando coinciden en una casilla.
+- **`Tablero` y `Destino`** están incluidos en el proyecto para integrar el tablero provisto por la cátedra. El tablero representa una grilla, admite un elemento por casilla y es observable; `Destino` intenta mover aleatoriamente hasta la mitad de los elementos en cada turno.
+- **`RadarCortoAlcance`** escanea los elementos cercanos a una posición y los ordena por distancia.
+- **`RadarLargoAlcance`** calcula rutas con búsqueda en anchura, mediante movimientos en cuatro direcciones, considerando los obstáculos.
+- **`Navegador`** lleva la nave hacia un destino. Al iniciar el viaje calcula una ruta con el radar largo. En cada turno consulta el radar corto. Si detecta un obstáculo en la siguiente coordenada, intenta un salto Warp de dos casilleros si el motor está disponible, hay al menos dos pasos de ruta, el aterrizaje está libre y se cumple la comprobación de energía del navegador. Si no puede iniciar el Warp, recalcula la ruta con el radar largo. En los demás turnos intenta un salto normal de una casilla. El motor cobra los costos: el salto normal consume 2 de combustible, el Warp consume 5 de energía y el enfriamiento suma 3 de desgaste. El Warp requiere turnos de preparación, salto y enfriamiento. El navegador avanza por la ruta según los casilleros que devuelve el motor.
+
+**Observación de implementación:** el navegador exige 15 puntos de energía para iniciar el Warp (`3 * COSTO_ENERGIA_WARP`), aunque el motor verifica 5 en cada turno de preparación y otros 5 al materializar el salto. Ese requisito preventivo puede impedir el Warp cuando hay menos de 15 puntos disponibles. Conviene confirmar que esta restricción adicional sea intencional.
 
 ### Asistente de comando y bitácora
 
-El `AsistenteDeComando` es el único canal de acceso a la nave y cada Nave puede contar con solo uno.  Su política es siempre la misma:
+El `AsistenteDeComando` es el canal de coordinación para operar la nave. Consulta los recursos antes de las operaciones que pueden rechazarse; si una operación no puede realizarse, registra el motivo y lanza `OperacionRechazadaException`. En operaciones exitosas delega en la nave y registra el resultado.
 
-1. Consulta antes de operar (`puedeConsumir`, `puedeCargarCombustible`, ...).
-2. Si no se puede, registra el motivo en la bitácora y lanza `OperacionRechazadaException`, sin modificar la nave.
-3. Si se puede, opera y registra el resultado.
+Para las órdenes del motor (`saltar()` y `saltarWarp()`) devuelve los casilleros avanzados y registra el avance y el cambio de estado. También delega las misiones (`encomendarMision` ejecuta el ciclo completo y guarda el informe en el historial) y aplica la interacción con elementos del universo (`interactuarCon`), dejando constancia en la bitácora.
 
-Para las órdenes del motor (`saltar()` y `saltarWarp()`) devuelve los casilleros que avanzó la nave y registra el avance y el cambio de estado del motor. También delega las misiones (`encomendarMision` ejecuta el ciclo completo y guarda el informe en el historial) y aplica la interacción de la nave con los elementos del universo (`interactuarCon`), dejando todo registrado.
-
-Cada acontecimiento se guarda en la `Bitacora` como un `RegistroBitacora` con su fecha y hora (`LocalDateTime`) y su descripción, en orden cronológico. La bitácora no acepta eventos vacíos.
+Cada acontecimiento se guarda en la `Bitacora` como un `RegitroBitacora` con fecha, hora (`LocalDateTime`) y descripción, en orden cronológico. La bitácora no acepta eventos vacíos.
 
 ### Centro de control
 
-`CentroDeControl` es el punto de entrada de quien usa el sistema: registra naves listas para operar, a través de su `AsistenteDeComando`, y devuelve cualquiera de ellas cuando se la pide (`registrar(id, asistente)` y `obtener(id)`). No construye ni naves ni asistentes: recibe objetos ya armados (la nave sale de la fábrica de naves), de modo que no depende de cómo se construyen (principio de inversión de dependencias) y una nueva variante de asistente se registra sin modificar esta clase (principio abierto/cerrado). Rechaza ids vacíos o repetidos y asistentes nulos. Aunque haya varias naves registradas, el sistema opera una sola a la vez, la que se pide con `obtener`. En la aplicación gráfica lo usa `ControladorNave`: al elegir una nave, la crea con la fábrica, la registra con su asistente y la vuelve a pedir al centro.
+`CentroDeControl` permite registrar asistentes asociados a naves y recuperarlos mediante un identificador. No construye naves ni asistentes: recibe objetos ya armados. Rechaza identificadores vacíos o repetidos y asistentes nulos. Aunque puede mantener varias naves registradas, la interfaz gráfica selecciona una nave para operar. En la aplicación lo usa `ControladorNave`: al elegir una nave, la crea con la fábrica, la registra con su asistente y la recupera del centro.
 
-Como el modelo no depende de quien lo usa, el mismo flujo (dar de alta la nave, crear una misión, encomendarla y ejecutarla) funciona desde un programa de consola (`PruebaCentroDeControl`) y desde las pantallas Swing, sin cambiar ninguna clase del modelo.
+El flujo de alta y operación también puede usarse desde `PruebaCentroDeControl`, sin abrir la interfaz gráfica.
 
 ### Misiones e informe
 
-Hay tres misiones, cada una con sus requisitos (un objeto inmutable `Requisitos`) y su condición de éxito:
+Hay tres misiones, cada una con requisitos y condición de éxito:
 
 | Misión | Combustible | Energía | Desgaste | Condición de éxito |
 | --- | --- | --- | --- | --- |
 | M-01 Intercepción y asistencia | 4 | 5 | 4 | Llega al destino y conserva los recursos de auxilio; al cerrar los entrega |
 | M-02 Recolección | 4 | 10 | 4 | Llega al destino con la nave viva; al cerrar recibe entre 20 y 100 gemas |
-| M-03 Retorno seguro | 4 | 0 | 4 | Llega a la base con la nave viva; al cerrar se recarga al 100 % y se le hace mantenimiento (desgaste 0) |
+| M-03 Retorno seguro | 4 | 0 | 4 | Llega a la base de origen; al cerrar recarga combustible y energía al 100% y reduce el desgaste a 0 |
 
-Al cerrar, cada misión produce un `InformeMision`, un objeto inalterable que no imprime nada y solo ofrece datos: misión, resultado, bitácora, recursos consumidos, recursos finales y observaciones. Los consumos se calculan como la diferencia entre los recursos iniciales (guardados al preparar) y los finales. `GestorHistorialMisiones` conserva los informes de todas las misiones ejecutadas, en orden, y los expone como una lista no modificable.
+Al cerrar, cada misión produce un `InformeMision` inmutable que contiene misión, resultado, eventos, balance de recursos, recursos finales, observaciones y gemas ganadas. El balance de combustible, energía y desgaste se mide antes de aplicar los efectos finales; las gemas ganadas se miden después. `GestorHistorialMisiones` conserva los informes ejecutados y los expone en una lista no modificable.
 
 ## Patrones de diseño aplicados
 
-Un patrón de diseño es una solución conocida a un problema que se repite. La consigna exige que cada patrón sea funcional, justificable y verificable: no alcanza con que existan clases con el nombre del patrón, sino que se logre un desacoplamiento real.&#32;
+Un patrón de diseño es una solución conocida a un problema que se repite. En este proyecto, los patrones se identifican por el reparto de responsabilidades entre objetos, no solo por los nombres de las clases.
 
 ### State — Motor Warp
 
-**El problema.** Hay objetos que se comportan distinto según la situación en que están. El motor del warp no hace lo mismo cuando está libre, preparándose, saltando o enfriándose. Sin el patrón, cada operación del motor tendría que preguntar el estado con un `if` o un `switch`, y cada estado nuevo obligaría a modificar todas esas preguntas.
+**El problema.** Hay objetos que se comportan distinto según la situación en que están. El motor Warp no hace lo mismo cuando está disponible, preparándose, en Warp o enfriándose.
 
-**Cómo lo implementamos****.** `MotorWarp` guarda el estado en el que está (un objeto `EstadoMotorBase`) y los recursos de su nave. Hacia afuera expone solo dos operaciones, `saltar()` y `saltarWarp()`, y cada llamada equivale a un turno del motor. Al motor se la pasa al estado actual y este decide qué hacer. Hay cuatro estados, cada uno en su clase: `Disponible`, `PreparandoSalto`, `EnWarp` y `Enfriamiento`. Ambas operaciones devuelven cuántos casilleros avanzó la nave (0, 1 o 2).
+**Cómo lo implementamos.** `MotorWarp` mantiene un estado (`EstadoMotorBase`) y los recursos de la nave. Hacia afuera expone las operaciones `saltar()` y `saltarWarp()`. Cada llamada representa un turno del motor. Hay cuatro estados: `Disponible`, `PreparandoSalto`, `EnWarp` y `Enfriamiento`. Las operaciones devuelven cuántos casilleros avanzó la nave (0, 1 o 2).
 
 | Estado | `saltar()` | `saltarWarp()` |
 | --- | --- | --- |
-| Disponible | Avanza 1 casillero y gasta 2 de combustible; si no alcanza, no avanza | Pasa a Preparando salto; ese turno cuenta como el primero de preparación |
-| Preparando salto | No avanza: el motor está ocupado | Con 5 de energía cumple un turno de preparación y, al segundo, pasa a En warp; sin energía se queda preparando |
-| En warp | No avanza | Con 5 de energía la gasta, avanza 2 casilleros y pasa a Enfriamiento; sin energía aborta y vuelve a Preparando salto |
+| Disponible | Avanza 1 casillero y gasta 2 de combustible; si no alcanza, no avanza | Pasa a Preparando salto; ese turno inicia la preparación |
+| Preparando salto | No avanza: el motor está ocupado | Con energía disponible cuenta el turno de preparación; al completar los dos turnos pasa a En Warp. Sin energía, no avanza la preparación |
+| En Warp | No avanza | Con 5 de energía la consume, avanza 2 casilleros y pasa a Enfriamiento; sin energía aborta y vuelve a Preparando salto |
 | Enfriamiento | Cumple el turno de enfriamiento: suma 3 de desgaste y vuelve a Disponible | Igual que `saltar()` |
 
-Cuando una operación no corresponde en el estado actual (por ejemplo, saltar mientras se prepara el warp), la nave simplemente no avanza y se devuelve 0. El asistente registra en la bitácora el avance y el cambio de estado de cada llamada (por ejemplo, `Disponible -> Preparando salto`), de modo que nada queda silencioso. El contador de turnos de la preparación vive dentro de `PreparandoSalto` y se reinicia solo al crear un estado nuevo. El cambio de estado (`setEstado`) es visible solo dentro del paquete, para que únicamente los estados puedan cambiar el estado del motor.
+Cuando una operación no corresponde al estado actual, la nave no avanza y se devuelve 0. El asistente registra cada llamada y el cambio de estado. El contador de preparación vive dentro de `PreparandoSalto`. El cambio de estado (`setEstado`) solo es accesible dentro del paquete del motor.
 
-**Beneficio.** Si en el futuro se desea añadir un estado nuevo, el código no se llena de condicionales: solo hace falta una clase que extienda `EstadoMotorBase`.&#32;
+**Beneficio.** Un estado nuevo puede agregarse mediante otra clase que extienda `EstadoMotorBase`, sin concentrar la lógica en condicionales del motor.
 
 ### Factory — Creación de naves
 
-**El problema.** Cuando una parte del programa necesita un objeto y decide con `new` qué clase concreta crear, queda atada a esas clases, si cambia la forma de crearlas, hay que modificar todos los lugares donde se crean.
+**El problema.** Si cada cliente elige con `new` qué clase concreta crear, queda acoplado a las clases y a sus constructores.
 
-**Cómo lo implementamos****.** `NaveFactory.crearNave(tipo)` recibe el nombre del tipo (`EXPLORADORA`, `CARGUERO` o `COMBATE`, sin distinguir mayúsculas) y devuelve una `Nave`. Cada tipo se crea con sus valores iniciales de combustible, energía y desgaste, y con la tripulación mínima, así que toda nave nace en un estado válido. Los constructores de `NaveExploradora`, `NaveCarguero` y `NaveCombate` son `protected`, por lo que desde otro paquete no se puede hacer `new` sobre ellas. Las pruebas y los controladores piden una nave con `crearNave("EXPLORADORA")` sin conocer la clase concreta.
+**Cómo lo implementamos.** `NaveFactory.crearNave(tipo)` recibe el tipo (`EXPLORADORA`, `CARGUERO` o `COMBATE`) y devuelve una `Nave`. Cada variante se crea con sus valores iniciales y la tripulación mínima. La fábrica también acepta `CARGUERA` como nombre alternativo del carguero. Los controladores y escenarios de prueba solicitan la nave mediante la fábrica.
 
-**Beneficio.** El acoplamiento es menor, ya que el cliente no instancia las clases concretas sino que depende de la clase padre `Nave`, de la cual extienden.&#32;
+**Beneficio.** El cliente depende de la clase base `Nave` y no necesita construir directamente la clase concreta.
 
 ### Template Method — Ciclo de las misiones
 
-**El problema.** Varias actividades siguen los mismos pasos en el mismo orden y solo cambian algunos detalles. Si cada una escribe su ciclo completo, el código se repite y cualquier cambio hay que hacerlo en todas las clases.
+**El problema.** Varias actividades siguen los mismos pasos en el mismo orden y solo cambian algunos detalles.
 
-**Cómo lo implementamos****.** `Mision.realizar()` es un método `final` (ninguna misión puede alterarlo) que fija el orden: preparar, ejecutar, evaluar y cerrar. `MisionIntercepcion` (M-01), `MisionRecoleccion` (M-02) y `MisionRetorno` (M-03) solo completan los *hooks* obligatorios `cumplirObjetivo()` (qué hace la misión) y `cumplioObjetivo()` (cuál es su condición de éxito), y los opcionales `verificarEnDestino()` y `aplicarEfectosFinales()`.
+**Cómo lo implementamos.** `Mision.realizar()` es `final` y fija el ciclo: preparar, ejecutar, evaluar y cerrar. `MisionIntercepcion`, `MisionRecoleccion` y `MisionRetorno` implementan los *hooks* obligatorios `cumplirObjetivo()` y `cumplioObjetivo()`, y los opcionales `verificarEnDestino()` y `aplicarEfectosFinales()`.
 
 | Paso | Qué hace |
 | --- | --- |
-| preparar | Verifica que el motor esté disponible y que alcancen los recursos, y calcula la ruta hacia el objetivo con el radar de largo alcance (`Navegador.iniciarViaje`). No consume nada. Si falla (incluida la falta de ruta), la misión es rechazada y la nave no se modifica. |
-| ejecutarAccion | Consume los requisitos de despegue (una sola vez) y repite turnos hasta llegar o quedar destruida. Cada turno tiene dos etapas: el turno de la nave (inspecciona su casilla actual e interactúa con el elemento que haya, escanea con el radar de corto alcance y avanza) y el turno del tablero (`Destino` mueve elementos al azar). Cada iteración termina con una pausa (`Thread.sleep`, 1000 ms por defecto). Al llegar se ejecuta `verificarEnDestino()`. |
-| evaluar | Si la nave fue destruida, la misión es fallida. Si no, depende de `cumplioObjetivo()`: exitosa o fallida. |
-| cerrar | Si fue exitosa, aplica los efectos finales (`aplicarEfectosFinales()`: la entrega de recursos en M-01 y el mantenimiento en M-03) y hace el salto final. Genera el informe, también cuando la misión se rechaza o falla. |
+| preparar | Verifica disponibilidad y recursos, comprueba las coordenadas y calcula la ruta con el radar largo. No consume recursos. Si no hay ruta, rechaza la misión sin modificar la nave. |
+| ejecutar | Consume los requisitos iniciales y realiza turnos hasta llegar, destruirse o alcanzar los límites de seguridad. El código actual avanza con `Navegador.avanzarUnTurno()` y luego inspecciona la posición resultante; después mueve los elementos con `Destino`. Cada iteración incluye `Thread.sleep(1000)`. Al llegar se ejecutan las verificaciones de destino y el objetivo de la subclase. |
+| evaluar | Determina éxito o fallo según la destrucción de la nave y el cumplimiento del objetivo. |
+| cerrar | Si la misión fue exitosa, completa el enfriamiento pendiente del motor cuando corresponde y aplica los efectos finales de la subclase. Luego genera el informe, también cuando la misión fue rechazada o falló. |
 
-La misión avanza por las etapas `CREADA`, `PREPARADA`, `EJECUTADA`, `EVALUADA` y `CERRADA` (una rechazada pasa de `CREADA` a `CERRADA`), modeladas con un enumerado, y su resultado es `EXITOSA`, `RECHAZADA` o `FALLIDA`.
+La misión avanza por las etapas `CREADA`, `PREPARADA`, `EJECUTADA`, `EVALUADA` y `CERRADA`. Una rechazada pasa de `CREADA` a `CERRADA`. Los resultados son `EXITOSA`, `RECHAZADA` o `FALLIDA`.
 
 **Decisiones de diseño sobre el ciclo.**
 
-- *La pausa del turno.* El enunciado exige un `Thread.sleep` en cada iteración para que el usuario vea el avance paso a paso. Como el modelo no debe conocer a la interfaz, la pausa vive en la misión pero es configurable (`setPausaTurnoMs`), de modo que las pruebas automáticas pueden usar 0 y no esperar. Como bloquea al hilo que la ejecuta, la misión nunca se ejecuta en el hilo de Swing: `ControladorPartida` la lanza en un hilo aparte y, al terminar, `Main` vuelve al hilo de la interfaz con `SwingUtilities.invokeLater` para mostrar el resultado.
-- *Dónde se genera el informe.* El informe se emite en `cerrar` y no en `evaluar`, porque su balance depende de datos que recién se conocen al cerrar: las gemas que se sortean al aplicar los efectos finales, el desgaste del enfriamiento del motor y el posible cambio a fallida si esos efectos no pueden aplicarse. Como `InformeMision` es inmutable, emitirlo antes obligaría a construirlo dos veces. `evaluar` fija el resultado y `cerrar` lo documenta.
+- *La pausa del turno.* La misión llama a `Thread.sleep(1000)` dentro del bucle. `ControladorPartida` ejecuta la misión en un hilo aparte para que la interfaz no se congele; al finalizar, `Main` vuelve al hilo de Swing con `SwingUtilities.invokeLater`.
+- *Dónde se genera el informe.* El informe se construye en `cerrar`, después de evaluar el resultado y aplicar los efectos finales que correspondan. Se mide el balance de viaje antes de esos efectos; las gemas ganadas se registran después.
 
-**Beneficio.** El orden del ciclo vive en un solo lugar y una misión nueva es una subclase nueva, sin modificar las existentes.
+**Beneficio.** El orden del ciclo vive en un solo lugar y una misión nueva puede especializar los *hooks* de la clase base.
 
 ### Decorator — Haberes de la tripulación
 
-**El problema.** Hay objetos que pueden tener muchas combinaciones de características opcionales. Resolverlo con herencia obliga a crear una clase por cada combinación, y esa cantidad crece con cada característica nueva, lo que genera mucha cantidades de clases.
+**El problema.** Hay objetos que pueden tener combinaciones de características opcionales. Resolver cada combinación con herencia obliga a crear muchas clases.
 
-**Cómo lo implementamos****.** El haber de cada tripulante combina su cargo, su antigüedad, su origen y, en el caso del consejero, los consejos registrados. `Tripulante` es la base, y `Capitan`, `Consejero`, `Teniente` y `Alferez` fijan la remuneración del cargo y el porcentaje por antigüedad. `Decorator` también es un `Tripulante`, pero envuelve a otro y le suma un concepto: `Terricola` (+20), `Marciano` (+18) y `Vulcano` (+30) agregan el subsidio de su origen. Cada decorador delega la identidad (nombre, cargo, antigüedad) en el objeto que envuelve y agrega su `ConceptoHaber` al detalle, de modo que el aporte de cada concepto queda identificable en el recibo. `LiquidadorHaberes` arma el recibo y el total, y al liquidar reinicia el período (por ejemplo, los consejos del consejero vuelven a 0).
+**Cómo lo implementamos.** El haber combina cargo, antigüedad, origen y, en el caso del consejero, consejos registrados. `Tripulante` es la base; `Capitan`, `Consejero`, `Teniente` y `Alferez` fijan la remuneración del cargo y el porcentaje por antigüedad. `Decorator` también es un `Tripulante`, pero envuelve a otro. `Terricola` (+20), `Marciano` (+18) y `Vulcano` (+30) agregan el subsidio del origen. Cada decorador delega la identidad en el objeto envuelto y agrega su concepto al detalle. `LiquidadorHaberes` arma el recibo y el total; al liquidar reinicia el período del consejero.
 
 | Cargo | Remuneración | Adicional por año de antigüedad | Extra |
 | --- | --- | --- | --- |
@@ -213,56 +214,56 @@ La misión avanza por las etapas `CREADA`, `PREPARADA`, `EJECUTADA`, `EVALUADA` 
 | Teniente | 400 PG | 3 % |  |
 | Alférez | 200 PG | 0,5 % |  |
 
-Ejemplos verificados: u
+Ejemplos de cálculo:
 
-- Un capitán vulcano con 10 años cobra 1000 + 1000 × 0,20 × 10 + 30 = 3030 PG
+- Un capitán vulcano con 10 años cobra 1000 + 1000 × 0,20 × 10 + 30 = 3030 PG.
 - Un consejero terrícola con 5 años y 10 consejos cobra 600 + 600 × 0,05 × 5 + 10 × 2 + 20 = 790 PG.
 
-**Beneficio.** Combinar cargo y origen por herencia daría 4 × 3 = 12 clases, pero con el patrón son 7 y la combinación se arma al ejecutar. Agregar un concepto nuevo es agregar una clase.&#32;
+**Beneficio.** Cargo y origen se pueden combinar en tiempo de ejecución mediante decoradores.
 
 ### Double Dispatch — Batallas entre naves
 
-**El problema.** A veces el resultado depende del tipo de dos objetos a la vez. Java elige qué método ejecutar mirando el tipo de uno solo, así que, sin ayuda, habría que anidar `if` sobre ambos tipos, y ese embrollo crece con cada tipo nuevo.
+**El problema.** El resultado depende del tipo de dos objetos a la vez. Sin doble despacho habría que anidar condiciones para ambos tipos de nave.
 
-**Cómo lo implementamos****.** Cuando dos naves coinciden, el resultado depende solo del tipo de cada una: 
+**Cómo lo implementamos.** Cuando dos naves coinciden, el resultado depende del tipo de cada una:
 
-| Nave propia \\ enemiga | Explorador | Carguero | Combate |
+| Nave propia \ nave enemiga | Exploradora | Carguero | Combate |
 | --- | --- | --- | --- |
-| Explorador | Pacto de paz | Gana | Pierde |
+| Exploradora | Pacto de paz | Gana | Pierde |
 | Carguero | Pierde | Pacto de paz | Gana |
 | Combate | Gana | Pierde | Pacto de paz |
 
-`Nave.batallar(enemiga)` hace el primer despacho: la nave propia llama a `enemiga.recibirBatallaDe(this)`. Como `this` tiene un tipo concreto (por ejemplo, `NaveCarguero`), Java elige la sobrecarga `recibirBatallaDe(NaveCarguero)` de la nave enemiga, y ese es el segundo despacho, donde está la respuesta de la tabla. Devuelve `GANA`, `PIERDE` o `PACTO_DE_PAZ` (`ResultadoBatalla`) y quien llama aplica las consecuencias (`destruir()` si la nave propia pierde). Se verifica con `PruebaBatallas`, que compara las nueve combinaciones con la tabla del enunciado.
+`Nave.batallar(enemiga)` hace el primer despacho: la nave propia llama a `enemiga.recibirBatallaDe(this)`. Java selecciona la sobrecarga correspondiente al tipo concreto de la nave propia; ese es el segundo despacho. El resultado es `GANA`, `PIERDE` o `PACTO_DE_PAZ` (`ResultadoBatalla`). `NaveEnemiga.interactuar` aplica las consecuencias: si la propia gana, destruye la nave enemiga; si pierde, destruye la propia; con pacto, ninguna cambia. La batalla no modifica recursos.
 
-Las consecuencias las aplica NaveEnemiga.interactuar, que es lo que el tablero tiene en la casilla. Si la nave propia gana, la enemiga queda destruida y no vuelve a pelear; si pierde, queda destruida la propia (destruir()), el bucle de la misión termina y la misión falla; si hay pacto de paz, ninguna cambia. La batalla no modifica los recursos. El tablero de la partida se arma con tres naves enemigas, una de cada tipo, y Destino las mueve como al resto de los elementos.
+El tablero de la partida se arma con cinco naves enemigas de cada tipo, además de asteroides y estaciones de carga. `Destino` intenta mover los elementos en cada turno.
 
-**Beneficio.** Las reglas quedan repartidas en cada tipo de nave en lugar de mezcladas en un solo lugar.&#32;
+**Beneficio.** Las reglas de cada combinación quedan implementadas en los tipos concretos de nave.
 
 ### Adapter — Tablero de la cátedra como Universo
 
-**El problema.** Tenemos una clase que ofrece lo que necesitamos pero con una interfaz distinta de la que espera el resto del programa, y no podemos modificarla.
+**El problema.** Una clase puede ofrecer los datos necesarios mediante una interfaz distinta de la que espera el resto del programa y no se puede modificar.
 
-**Cómo lo implementamos****.** El `Tablero` lo provee la cátedra y ofrece sus datos con sus propios métodos. Los radares y el navegador trabajan contra la interfaz `Universo`. `AdaptadorTableroUniverso` implementa `Universo` y traduce cada pregunta a consultas sobre el tablero. Así el código de navegación no conoce el tablero, y las pruebas pueden usar una grilla propia (`GrillaDePrueba`) que implementa la misma interfaz.
+**Cómo lo implementamos.** `Tablero` ofrece sus datos con sus propios métodos. Los radares y el navegador trabajan contra `Universo`. `AdaptadorTableroUniverso` implementa `UniversoDinamico` y adapta las consultas al tablero, incluyendo la ubicación de la nave y el avance de Destino. Las pruebas también pueden usar una grilla propia que implementa la interfaz `Universo`.
 
 ### DAO y DTO — Persistencia de usuarios
 
-**El problema.** Si las consultas a la base de datos se mezclan con las reglas y con las pantallas, cualquier cambio (otra base, otra regla) obliga a tocar todo. Además, conviene pasar los datos entre capas sin exponer el modelo interno.
+**El problema.** Si las consultas a la base de datos se mezclan con las reglas y las pantallas, un cambio obliga a tocar varias capas.
 
 **Cómo lo usamos en el repositorio.** Solo se persisten las credenciales de los usuarios.
 
-- `UsuarioDTO` es el objeto de transporte: id, nombre de usuario y contraseña (siempre el hash), sin lógica de negocio.
-- `UsuarioDAO` es la interfaz con las operaciones: guardar, buscar por id o por nombre, listar, actualizar y eliminar. `UsuarioDAOSqlite` las resuelve con JDBC sobre SQLite y `ConexionSQLite` solo abre conexiones. La tabla `usuarios` (id, nombre de usuario único y contraseña) se define en `init.sql`.
-- `ServicioUsuarios` aplica las reglas: nombre y contraseña no vacíos y nombre no repetido al registrar; al autenticar, devuelve `null` si el usuario no existe o la contraseña no coincide.
-- `HasheadorContrasenas` guarda la contraseña como hash PBKDF2 con sal aleatoria (210 000 iteraciones), nunca en texto plano.
-- Las excepciones propias (`UsuarioInvalidoException`, `NombreUsuarioEnUsoException`, `PersistenciaException`) llegan al controlador, que las traduce a mensajes para la vista. Para no revelar si un usuario existe, ingresar con datos incorrectos devuelve un único mensaje. La contraseña viaja como `char[]` y se borra de memoria después de usarla.
+- `UsuarioDTO` transporta id, nombre de usuario y contraseña hasheada, sin lógica de negocio.
+- `UsuarioDAO` define operaciones de acceso; `UsuarioDAOSqlite` las implementa con JDBC sobre SQLite y `ConexionSQLite` abre conexiones.
+- `ServicioUsuarios` aplica las reglas de registro e inicio de sesión.
+- `HasheadorContrasenas` usa PBKDF2 con sal aleatoria; la contraseña no se guarda en texto plano.
+- Las excepciones propias de persistencia llegan al controlador, que informa el resultado a la vista. El acceso incorrecto se informa sin distinguir entre usuario inexistente y contraseña incorrecta. La interfaz obtiene la contraseña como `char[]`.
 
-**Beneficio.** Cada capa se puede cambiar sin tocar las otras (por ejemplo, otra base de datos reemplazando a `UsuarioDAOSqlite`).
+**Beneficio.** El servicio de usuarios depende de la interfaz DAO, de modo que el acceso a datos se puede sustituir sin mezclar JDBC con la lógica de la interfaz.
 
 ### MVC — Interfaces gráficas
 
-**El problema.** Si la ventana contiene también la lógica, no se puede cambiar una sin romper la otra, ni probar la lógica sin abrir ventanas. MVC reparte las responsabilidades: la Vista muestra, el Controlador recibe las acciones del usuario y el Modelo resuelve la lógica.
+**El problema.** Si la ventana contiene también la lógica, no se puede cambiar una sin afectar la otra. MVC reparte responsabilidades: la Vista muestra, el Controlador recibe las acciones del usuario y el Modelo resuelve la lógica.
 
-**Cómo lo implementamos.** El usuario actúa sobre la vista (por ejemplo, un botón); un `ActionListener`, que es el controlador, recibe el evento, mira su comando, invoca al servicio o al modelo y le indica a la vista qué mostrar. Hay cuatro conjuntos de pantallas:
+**Cómo lo implementamos.** El usuario actúa sobre la vista; un `ActionListener` captura el evento y delega en el controlador, que invoca al servicio o al modelo y coordina qué debe mostrar la vista. Hay cuatro conjuntos de pantallas:
 
 | Pantallas | Vista | Controlador | Modelo |
 | --- | --- | --- | --- |
@@ -271,97 +272,99 @@ Las consecuencias las aplica NaveEnemiga.interactuar, que es lo que el tablero t
 | Centro de comando, tablero y resultado de la misión | `MainPanel`, `TableroUniversoPanel`, `ResultadoPanel` | `ControladorNave` y `ControladorPartida` | `AsistenteDeComando`, `Nave`, misiones, universo y bitácora |
 | Visor del universo paralelo | `VistaNaves` | `ControladorVisor` | `UniversoParalelo` |
 
-**Modelos de vista.** Las pantallas del centro de comando y del resultado no consultan al dominio: reciben objetos inmutables que contienen exactamente lo que deben dibujar. `EstadoNaveVista` reúne la telemetría de la nave (recursos, estado del motor, tripulación, qué misiones alcanzan los recursos y el historial) y `ResumenMisionVista` el informe final de una misión (resultado, balance de recursos y eventos del viaje). `ControladorNave` los arma consultando al asistente, que sigue siendo el único canal de acceso a la nave. Así `MainPanel` y `ResultadoPanel` no importan ninguna clase de nave, misión, informe o tripulante, y el dominio puede cambiar sin tocar esas pantallas. No son DTO: el DTO del proyecto es `UsuarioDTO`, que viaja entre el DAO y el servicio; estos modelos solo existen para presentar datos.
+**Modelos de vista.** Las pantallas del centro de comando y del resultado reciben datos preparados para mostrar. `EstadoNaveVista` contiene la telemetría, el estado del motor, la tripulación, los requisitos de misión y el historial. `ResumenMisionVista` contiene el resultado, el balance de recursos y los eventos del viaje. `ControladorNave` construye esos modelos consultando al asistente. No son DTO de persistencia: el DTO del proyecto es `UsuarioDTO`.
 
 **Reparto de responsabilidades en la partida.**
 
-- `ControladorNave` crea la nave elegida con la fábrica, la registra en el `CentroDeControl`, recuerda si sigue operativa y arma los modelos de vista.
-- `ControladorPartida` arma el tablero y la misión pedida (M-01, M-02 o M-03), le indica a la vista qué mostrar y ejecuta la misión en un hilo aparte, avisando al terminar.
-- `Main` solo crea las pantallas, las conecta con los controladores y navega entre ellas; no contiene lógica de negocio.
+- `ControladorNave` crea la nave elegida con la fábrica, la registra en el `CentroDeControl` y arma los modelos de vista.
+- `ControladorPartida` arma el tablero y la misión solicitada, muestra el tablero y ejecuta la misión en un hilo aparte.
+- `Main` conecta las pantallas con los controladores y coordina la navegación.
 
-**Qué se actualiza solo.** Lo que cambia mientras la misión corre (el tablero y la bitácora de eventos) llega a la vista por Observer, no por el flujo de acciones del usuario. Por eso `TableroUniversoPanel`, `BitacoraView` y `CasillaView` mantienen una referencia al objeto que observan: solo lo leen y nunca lo modifican.
+**Qué se actualiza durante la partida.** La vista del tablero recibe notificaciones del tablero y la bitácora. Además, `TableroUniversoPanel` usa un temporizador de Swing para refrescar la telemetría de la nave y recorrer los eventos nuevos de la bitácora.
 
-Las vistas de login y tripulantes implementan una interfaz (`ILogin`, `ITripulantes`), de modo que el controlador depende de la interfaz y no de la ventana concreta. Los comandos de los botones son constantes de esas interfaces. `ConfigView` concentra la apariencia común.
+Las vistas de login y tripulantes implementan interfaces (`ILogin`, `ITripulantes`) para conectar con sus controladores. `ConfigView` concentra la apariencia común.
 
-**Beneficio.** Se puede cambiar la pantalla sin tocar la lógica y probar los controladores sin abrir ventanas.
+**Beneficio.** La lógica de negocio puede cambiar sin concentrarla en las ventanas.
 
 ### Observer — Actualización automática de las vistas
 
-**El problema.** El modelo cambia por su cuenta (la bitácora recibe eventos, el tablero mueve elementos, los hilos del universo paralelo producen y consumen) y la vista debe enterarse sin que el modelo la conozca y sin que la vista pregunte cada tanto.
+**El problema.** El modelo cambia mientras corre la misión o mientras trabajan los hilos del universo paralelo; la vista debe enterarse sin que el modelo dependa de una ventana concreta.
 
 **Cómo lo implementamos.** Hay dos usos del patrón:
 
-- *Partida.* `Bitacora` y `Tablero` son observables (`java.util.Observable`); `BitacoraView` y `CasillaView` son sus observadores y se registran al mostrarse y se dan de baja al terminar la misión. Cuando llega un evento, la vista lo pasa al hilo de Swing con `SwingUtilities.invokeLater`, porque la misión corre en otro hilo.
-- *Universo paralelo.* El modelo publica eventos a través de una interfaz propia, `ObservadorVisor`, con un solo método `actualizar(EventoVisor)`. `EventoVisor` es un objeto inmutable con un tipo (nave agregada, batería depositada, batería retirada, mensaje), el nombre de la nave y un texto. `VistaNaves` implementa la interfaz y decide qué dibujar según el tipo. El modelo solo conoce `ObservadorVisor`, nunca la vista concreta.
+- *Partida.* `Bitacora` y `Tablero` extienden `java.util.Observable`. `BitacoraView` y `CasillaView` observan esos objetos. Las notificaciones visuales se coordinan con el hilo de Swing.
+- *Universo paralelo.* El modelo publica eventos por medio de `ObservadorVisor`, cuya operación es `actualizar(EventoVisor)`. `EventoVisor` contiene un tipo, un nombre y un texto. `VistaNaves` implementa la interfaz; el modelo conoce el observador y no la vista concreta.
 
-**Decisiones.** Se usó `Observable` en la partida porque el proyecto se compila para Java 8 y las clases `Observable`/`Observer` están marcadas como obsoletas recién desde Java 9, aunque siguen funcionando. En el visor se prefirió una interfaz propia de un solo método: una interfaz con un método por tipo de evento obligaba a modificar a todos los observadores cada vez que apareciera un evento nuevo (principio de segregación de interfaces).
+**Decisiones.** Se usa `Observable` en el tablero y la bitácora, y una interfaz propia para los eventos del visor paralelo.
 
-**Beneficio.** El modelo no depende de la vista, se pueden registrar varios observadores y agregar un tipo de evento no rompe a los observadores existentes.
+**Beneficio.** La lógica del modelo publica cambios sin acoplarse directamente con los paneles de la interfaz.
 
 ### Productor–consumidor con monitores — Universo paralelo
 
-**El problema.** Varios hilos comparten un recurso limitado: las generadoras producen baterías y las naves las consumen. Si el depósito está lleno, el productor debe esperar; si está vacío, el consumidor. Sin coordinación habría accesos simultáneos inconsistentes y esperas activas.
+**El problema.** Varios hilos comparten un recurso limitado: las generadoras producen baterías y las naves las consumen. Si la plataforma está llena, el productor debe esperar; si está vacía, espera el consumidor.
 
 **Cómo lo implementamos.**
 
 | Clase | Rol |
 | --- | --- |
-| `PlataformaDeCarga` | Monitor: el recurso compartido, con capacidad limitada (5 baterías) y acceso exclusivo |
-| `NaveGeneradora` | Productor: cada una corre en su propio hilo y repite producir, depositar |
-| `NaveConsumidora` | Consumidor: cada una corre en su propio hilo y repite retirar, consumir |
-| `UniversoParalelo` | Fachada del modelo: crea generadoras y consumidoras en tiempo de ejecución, cada una en su hilo, y publica los eventos a los observadores |
-| `Bateria` | El elemento que se produce y consume |
+| `PlataformaDeCarga` | Monitor: recurso compartido con capacidad de 5 baterías |
+| `NaveGeneradora` | Productor: ejecuta en un hilo y repite producción y depósito |
+| `NaveConsumidora` | Consumidor: ejecuta en un hilo y repite retiro y consumo |
+| `UniversoParalelo` | Crea las entidades durante la ejecución, inicia sus hilos y publica eventos |
+| `Bateria` | Elemento que se produce y consume |
 
-Los métodos `depositar` y `retirar` de la plataforma son `synchronized`. Las condiciones de guarda (depósito lleno o vacío) se evalúan dentro de un bucle `while`, de modo que cada hilo vuelve a comprobar la condición después de despertar. Cuando la condición no se cumple, el hilo ejecuta `wait()`; cuando la plataforma cambia de estado, ejecuta `notifyAll()` para despertar a los demás. Los hilos son *daemon* y terminan por interrupción, de modo que cerrar el visor detiene el universo y no impide cerrar la aplicación.
+Los métodos `depositar` y `retirar` son `synchronized`. Las condiciones de guarda se evalúan en ciclos `while`; cuando no se cumplen, el hilo ejecuta `wait()`. Cuando cambia el estado de la plataforma, se ejecuta `notifyAll()`. Los hilos son daemon y se interrumpen al cerrar el visor.
 
-**Registro de eventos.** La plataforma informa al visor, en tiempo real, cada paso: batería producida, espera por falta de espacio, solicitud de batería, espera por falta de baterías, batería retirada y utilizada, e ingreso de una nueva nave o generadora. Los avisos se emiten dentro del método sincronizado para que el orden en pantalla coincida con el orden real de las operaciones. La contrapartida es que un observador lento retrasaría a los hilos; por eso la vista no procesa nada en ese momento y solo encola la actualización en el hilo de Swing.
+**Registro de eventos.** La plataforma informa producción, espera por falta de espacio, solicitud de batería, espera por falta de baterías, depósito y retiro. `UniversoParalelo` también informa cuando se agrega una entidad. Las actualizaciones de la vista se encolan en el hilo de Swing.
 
-**Beneficio.** La exclusión mutua y la sincronización están en una sola clase; los productores y consumidores no conocen los detalles y se pueden agregar tantos como se quiera mientras la simulación está activa.
+**Beneficio.** La exclusión mutua y la espera se concentran en la plataforma compartida, y se pueden agregar productores y consumidores mientras la simulación está activa.
 
 ## Interfaz gráfica
 
 ### Acceso al sistema (Login y Registro)
 
-La ventana de acceso permite ingresar con un usuario existente o registrar uno nuevo. La vista solo toma y muestra datos, el controlador pide al servicio autenticar o registrar y muestra el resultado: un aviso si el registro fue correcto, o un mensaje de error si faltan datos, el nombre ya está en uso o la base no responde.
+La ventana de acceso permite iniciar sesión con un usuario existente o registrar uno nuevo. La vista toma y muestra los datos; el controlador pide al servicio autenticar o registrar y presenta el resultado.
 
 ### Gestión de tripulantes
 
-La pantalla muestra la lista de tripulantes de la nave y un formulario con nombre, cargo, origen, antigüedad y, para el consejero, la cantidad de consejos. Permite crear, actualizar y eliminar tripulantes, deseleccionar y liquidar los haberes de toda la tripulación, mostrando el recibo con el detalle por concepto y el total.
+La pantalla muestra la lista de tripulantes y un formulario con nombre, cargo, origen, antigüedad y, para el consejero, cantidad de consejos. Permite crear, actualizar y eliminar tripulantes, deseleccionar y liquidar los haberes de la tripulación, mostrando el recibo con el detalle por concepto y el total.
 
 ### Control de la nave
 
-Tras elegir la nave, el panel principal (el centro de comando) dibuja los datos que le entrega `ControladorNave` y muestra la telemetría de la nave (barras de combustible, energía y desgaste, gemas, estado del motor y tripulación embarcada), ofrece las tres misiones con sus requisitos, da acceso a la gestión de tripulantes y lista el historial de informes de las misiones ya realizadas, con el contador de éxitos. Al iniciar una misión se abre el tablero, que se actualiza solo mientras la nave avanza (cada casilla observa al tablero) junto con la bitácora de eventos (observa a `Bitacora`). La misión corre en un hilo aparte, lanzado por `ControladorPartida`, para que la ventana no se congele. Al terminar, una pantalla de resultado muestra el informe final con el balance de recursos y habilita volver al panel o elegir otra nave si la actual fue destruida.
+Tras elegir la nave, el panel principal muestra la telemetría (combustible, energía, desgaste, gemas, estado del motor y tripulación embarcada), ofrece las tres misiones con sus requisitos, da acceso a la gestión de tripulantes y lista los informes de misiones con el contador de éxitos. Al iniciar una misión se abre el tablero y se actualizan sus casillas y la bitácora durante el recorrido. La misión corre en un hilo aparte para que la ventana no se congele. Al terminar, una pantalla muestra el resultado e informa si se puede volver al centro de comando o elegir otra nave.
+
+El panel principal muestra nombre y cargo de cada tripulante, pero no el salario individual. El recibo con los haberes se consulta al liquidar la tripulación desde su pantalla de gestión; conviene confirmar que ese flujo satisface el requisito de consultar los salarios.
 
 ### Visor del universo paralelo
 
-Es una ventana aparte, accesible desde la pantalla de la partida. A la izquierda están las naves generadoras y a la derecha las consumidoras (un rectángulo por nave), en el centro las baterías de la plataforma (un rectángulo por batería, con un contador) y debajo una consola de solo texto con el flujo de eventos. Dos botones permiten agregar una generadora o una nave consumidora en cualquier momento. La vista se actualiza sola porque observa al modelo, y todos sus métodos pasan al hilo de Swing aunque los llamen los hilos de las naves.
+Es una ventana aparte, accesible desde la pantalla del tablero de la misión. Muestra generadoras, consumidoras, baterías de la plataforma y una consola de texto con el flujo de eventos. Dos botones permiten agregar generadoras y naves consumidoras durante la simulación. La vista recibe los eventos del modelo y actualiza los componentes en el hilo de Swing.
 
 ## Diseño por contrato y manejo de errores
 
-Cada clase documenta su **invariante (INV)**, y cada método sus **precondiciones (PRE)** y **postcondiciones (POST)**. Por ejemplo, `Recursos.consumir` exige consumos no negativos y que alcancen los recursos, y garantiza que el consumo se efectúa completo. Se usan dos mecanismos, con criterios distintos:
+Las clases incluyen contratos de invariante (INV), precondición (PRE) y postcondición (POST). Por ejemplo, las operaciones de `Recursos` protegen los límites y el asistente consulta los recursos antes de consumirlos. El proyecto usa `assert` en algunas validaciones internas y excepciones para errores que deben propagarse al controlador o a la vista.
 
-| Mecanismo | Se usa para | Ejemplos |
-| --- | --- | --- |
-| `assert` | Violaciones de contrato en constructores y colaboradores internos, es decir, errores de programación de quien llama | Datos de `Tripulante`, constructor del asistente, `ServicioUsuarios`, DAO, `ConexionSQLite` y `HasheadorContrasenas` |
-| Excepciones | Situaciones que deben llegar al coordinador o a la vista, y validaciones que no pueden depender de una opción de la JVM | `IllegalArgumentException` e `IllegalStateException` en `Recursos`, `MotorWarp`, `Bitacora` y en el orden de etapas de `Mision`; `OperacionRechazadaException` del asistente; `IllegalArgumentException` en `Requisitos`, `InformeMision`, elementos del universo y radares; `IllegalStateException` en el `Navegador`; excepciones propias de persistencia que el controlador traduce a mensajes |
+| Mecanismo | Uso |
+| --- | --- |
+| `assert` | Validaciones internas documentadas en clases como `Tripulante`, servicio y acceso a datos |
+| Excepciones | Errores de argumentos, estados inválidos, operaciones de nave rechazadas y fallos de persistencia |
 
-El criterio sigue la consigna: las precondiciones se comprueban cerca de las operaciones que protegen y las excepciones se reservan para lo que debe propagarse. Una falta de recursos no es un error de programación sino una decisión normal, por eso el asistente consulta antes y rechaza con registro. Como las aserciones solo actúan con `-ea`, las validaciones de los recursos, el motor, la bitácora y el asistente se hacen con excepciones y funcionan con o sin esa opción: sin ellas, un consumo mayor al disponible dejaría la nave con recursos negativos sin avisar.
+Las aserciones solo se ejecutan con `-ea`; no deben ser el único mecanismo para proteger una operación frente a entradas del usuario. Las operaciones principales de recursos y el asistente también realizan comprobaciones explícitas y lanzan excepciones cuando corresponde.
 
 ## Verificación funcional
 
-La verificación se ejecuta con las clases del paquete `pruebas`; cada tema tiene su propio `main`:
+El repositorio contiene programas ejecutables manualmente bajo `src/main/java/pruebas`. La presencia de estas clases no demuestra por sí sola que se hayan ejecutado en esta revisión.
 
-| Prueba | Qué demuestra |
+| Prueba | Escenario que contiene |
 | --- | --- |
-| `PruebaMisiones` | Integración: tablero de la cátedra con su adaptador, nave creada con la fábrica y misiones encomendadas a través del asistente |
-| `PruebaNavegador` | Salto simple, warp completo para esquivar un asteroide (preparación, salto y enfriamiento), aterrizaje ocupado, límites de energía y combustible, replanificación y ausencia de ruta | 
-| `PruebaNavesEnemigas` | Las nueve combinaciones de la tabla de batallas con sus consecuencias, enemiga derrotada que no vuelve a pelear, integración con el asistente y tres misiones completas sobre un pasillo (la enemiga gana, pierde o hay pacto de paz) |
-| `PruebaRadares` | Radar de largo alcance (rutas y obstáculos) y de corto alcance (elementos a distintas distancias) |
-| `PruebaUniverso` | Nave destruida, choque con asteroides y recarga en estaciones |
-| `PruebaBatallas` | Las combinaciones de la tabla de batallas y el rechazo de una nave enemiga nula |
-| `PruebaCentroDeControl` | Programa de consola sin interfaz: alta de la nave en el centro de control, creación y ejecución de una misión a través del asistente y reporte de la bitácora |
-| `PruebaLogin` | Registro e ingreso de usuarios con persistencia (ventana de acceso) |
-| `PruebaABMTripulantes` | Alta, edición, baja y liquidación de tripulantes (ventana) |
+| `PruebaMisiones` | Integración de tablero, adaptador, fábrica y misiones encomendadas al asistente |
+| `PruebaNavegador` | Saltos, Warp, aterrizaje ocupado, recursos, replanificación y ruta inexistente |
+| `PruebaNavesEnemigas` | Combinaciones de batalla, consecuencias e integración con misiones |
+| `PruebaRadares` | Rutas, obstáculos y elementos cercanos |
+| `PruebaUniverso` | Destrucción, asteroides y estaciones |
+| `PruebaBatallas` | Combinaciones de batalla y validación de nave enemiga |
+| `PruebaCentroDeControl` | Registro y operación de una nave mediante el centro de control |
+| `PruebaLogin` | Registro e inicio de sesión con persistencia |
+| `PruebaABMTripulantes` | Alta, edición, baja y liquidación de tripulantes |
 
 ## Uso de inteligencia artificial
 
