@@ -203,46 +203,44 @@ public abstract class Mision{
         universo.ubicarNave(origen);   // el tablero tiene que saber dónde está la nave
         // La ruta ya se calculó en preparar(); el navegador quedó listo con el viaje en curso.
 
-        if (navegador != null) {
-            int turno = 0;
-            int sinAvance = 0;
-            ElementoDelUniverso ultimo = null;   // para no interactuar dos veces con el mismo elemento
-            while (!asistenteDeComando.estaDestruida() && !navegador.haLlegado() && turno < MAX_TURNOS && sinAvance < MAX_TURNOS_SIN_AVANCE) {
-                turno++;
-                Coordenada antes = navegador.getPosicion();
-                boolean seMovio = false;
+        int turno = 0;
+        int sinAvance = 0;
+        ElementoDelUniverso ultimo = null;   // para no interactuar dos veces con el mismo elemento
+        while (!asistenteDeComando.estaDestruida() && !navegador.haLlegado() && turno < MAX_TURNOS && sinAvance < MAX_TURNOS_SIN_AVANCE) {
+            turno++;
+            Coordenada antes = navegador.getPosicion();
+            boolean seMovio = false;
 
-                try {
-                    if (navegador.avanzarUnTurno() == ResultadoAvance.SIN_RUTA) {
-                        asistenteDeComando.registrar("Sin ruta disponible en este turno");
-                    }
-
-                    universo.ubicarNave(navegador.getPosicion());
-                    ElementoDelUniverso aca = universo.inspeccionarNave();
-                    seMovio = !antes.equals(navegador.getPosicion());
-
-                    if (aca != null && (seMovio || aca != ultimo)) {
-                        asistenteDeComando.interactuarCon(aca);
-                    }
-                    ultimo = aca;
-                } catch (OperacionRechazadaException e) {
-                    asistenteDeComando.registrar("Turno " + turno + " rechazado: " + e.getMessage());
+            try {
+                if (navegador.avanzarUnTurno() == ResultadoAvance.SIN_RUTA) {
+                    asistenteDeComando.registrar("Sin ruta disponible en este turno");
                 }
 
-                sinAvance = seMovio ? 0 : sinAvance + 1;
+                universo.ubicarNave(navegador.getPosicion());
+                ElementoDelUniverso aca = universo.inspeccionarNave();
+                seMovio = !antes.equals(navegador.getPosicion());
 
-                universo.turnoDestino();   // Destino mueve los elementos
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    asistenteDeComando.registrar("Ejecución de travesía interrumpida");
-                    break;
+                if (aca != null && (seMovio || aca != ultimo)) {
+                    asistenteDeComando.interactuarCon(aca);
                 }
+                ultimo = aca;
+            } catch (OperacionRechazadaException e) {
+                asistenteDeComando.registrar("Turno " + turno + " rechazado: " + e.getMessage());
             }
-            if (!navegador.haLlegado() && (turno >= MAX_TURNOS || sinAvance >= MAX_TURNOS_SIN_AVANCE)) {
-                asistenteDeComando.registrar("Travesía abortada: la nave no pudo avanzar");
+
+            sinAvance = seMovio ? 0 : sinAvance + 1;
+
+            universo.turnoDestino();   // Destino mueve los elementos
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                asistenteDeComando.registrar("Ejecución de travesía interrumpida");
+                break;
             }
+        }
+        if (!navegador.haLlegado() && (turno >= MAX_TURNOS || sinAvance >= MAX_TURNOS_SIN_AVANCE)) {
+            asistenteDeComando.registrar("Travesía abortada: la nave no pudo avanzar");
         }
 
         // Verificación hook en destino si se llegó correctamente
