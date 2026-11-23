@@ -58,6 +58,14 @@ La IA se utilizó como **herramienta de apoyo para orientarnos en el proyecto, c
 - **Revisión o modificación realizada por el equipo:** lo explicado se contrastó con el material de la materia y con la documentación oficial.
 - **Forma de verificación:** consulta de las fuentes oficiales y puesta en común dentro del grupo.
 
+### 6. Ayuda para lograr objetivos visuales.
+- **Herramienta:** Claude.
+- **Propósito de la consulta:** poder logar la interfaz visual imaginada.
+- **Componente o documento afectado:** vista del programa (view)
+- **Resultado aprovechado:** patrones de diseño y realización de ideas creativas.
+- **Revisión o modificación realizada por el equipo:** lo explicado fue llevado a un diseño que se condice con lo estipulado en el trabajo.
+- **Forma de verificación:** lluvia de ideas con el grupo.
+
 ---
 
 ## Lo que no se hizo
